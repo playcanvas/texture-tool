@@ -1,0 +1,47 @@
+import * as pc from 'playcanvas';
+
+const PixelFormatTable = {
+    [pc.PIXELFORMAT_A8]: 'A8',
+    [pc.PIXELFORMAT_L8]: 'L8',
+    [pc.PIXELFORMAT_L8_A8]: 'LA8',
+    [pc.PIXELFORMAT_R5_G6_B5]: 'RGB565',
+    [pc.PIXELFORMAT_R5_G5_B5_A1]: 'RGBA5551',
+    [pc.PIXELFORMAT_R4_G4_B4_A4]: 'RGBA4444',
+    [pc.PIXELFORMAT_R8_G8_B8]: 'RGB8',
+    [pc.PIXELFORMAT_R8_G8_B8_A8]: 'RGBA8',
+    [pc.PIXELFORMAT_DXT1]: 'DXT1',
+    [pc.PIXELFORMAT_DXT3]: 'DXT3',
+    [pc.PIXELFORMAT_DXT5]: 'DXT5',
+    [pc.PIXELFORMAT_RGB16F]: 'RGB16F',
+    [pc.PIXELFORMAT_RGBA16F]: 'RGBA16F',
+    [pc.PIXELFORMAT_RGB32F]: 'RGB32F',
+    [pc.PIXELFORMAT_RGBA32F]: 'RGBA32F',
+    [pc.PIXELFORMAT_R32F]: 'R32F',
+    [pc.PIXELFORMAT_DEPTH]: 'DEPTH',
+    [pc.PIXELFORMAT_DEPTHSTENCIL]: 'DEPTHSTENCIL',
+    [pc.PIXELFORMAT_111110F]: '111110F',
+    [pc.PIXELFORMAT_SRGB]: 'SRGB',
+    [pc.PIXELFORMAT_SRGBA]: 'SRGBA',
+    [pc.PIXELFORMAT_ETC1]: 'ETC1',
+    [pc.PIXELFORMAT_ETC2_RGB]: 'ETC2_RGB',
+    [pc.PIXELFORMAT_ETC2_RGBA]: 'ETC2_RGBA',
+    [pc.PIXELFORMAT_PVRTC_2BPP_RGB_1]: 'PVRTC_2',
+    [pc.PIXELFORMAT_PVRTC_2BPP_RGBA_1]: 'PVRTC_2_A',
+    [pc.PIXELFORMAT_PVRTC_4BPP_RGB_1]: 'PVRTC_4',
+    [pc.PIXELFORMAT_PVRTC_4BPP_RGBA_1]: 'PVRTC_4_A',
+    [pc.PIXELFORMAT_ASTC_4x4]: 'ASTC_4X4',
+    [pc.PIXELFORMAT_ATC_RGB]: 'ATC',
+    [pc.PIXELFORMAT_ATC_RGBA]: 'ATC_A',
+};
+
+const TextureTypeTable = {
+    [pc.TEXTURETYPE_DEFAULT]: 'default',
+    [pc.TEXTURETYPE_RGBM]: 'rgbm',
+    [pc.TEXTURETYPE_RGBE]: 'rgbe',
+    [pc.TEXTURETYPE_SWIZZLEGGGR]: 'swizzleGGGR'
+};
+
+export {
+    PixelFormatTable,
+    TextureTypeTable
+};

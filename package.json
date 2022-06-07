@@ -1,0 +1,55 @@
+{
+  "name": "texture-tool",
+  "version": "1.0.0",
+  "description": "PlayCanvas Texture Tool",
+  "main": "src/index.js",
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.18.2",
+    "@playcanvas/eslint-config": "^1.1.1",
+    "@playcanvas/observer": "^1.3.1",
+    "@playcanvas/pcui": "^2.3.1",
+    "@rollup/plugin-alias": "^3.1.9",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "concurrently": "^7.2.1",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.17.0",
+    "jszip": "^3.10.0",
+    "playcanvas": "^1.53.4",
+    "rollup": "^2.75.5",
+    "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-import-css": "^3.0.3",
+    "serve": "^13.0.2"
+  },
+  "eslintConfig": {
+    "extends": "@playcanvas/eslint-config",
+    "parser": "@babel/eslint-parser",
+    "parserOptions": {
+      "requireConfigFile": false
+    },
+    "rules": {
+      "no-undef": "error"
+    },
+    "globals": {
+      "Set": "readonly",
+      "JSZip": "readonly"
+    }
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "build:watch": "rollup -c -w",
+    "develop": "cross-env ENVIRONMENT=dev concurrently --kill-others \"npm run build:watch\" \"npm run serve\"",
+    "develop:local": "cross-env ENGINE_PATH=../engine npm run develop",
+    "lint": "eslint --ext .js src",
+    "serve": "serve dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slimbuck/texture-tool.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/slimbuck/texture-tool/issues"
+  },
+  "homepage": "https://github.com/slimbuck/texture-tool#readme"
+}
