@@ -1,9 +1,9 @@
-import * as pc from 'playcanvas';
+import { RenderTarget } from 'playcanvas';
 
 class PngExporter {
 
     static readPixels(texture, face) {
-        const rt = new pc.RenderTarget({ colorBuffer: texture, depth: false, face: face });
+        const rt = new RenderTarget({ colorBuffer: texture, depth: false, face: face });
         const data = new Uint8ClampedArray(texture.width * texture.height * 4);
         const device = texture.device;
 

@@ -1,4 +1,4 @@
-import * as pc from 'playcanvas';
+import { path } from 'playcanvas';
 
 // pcui
 import { Container } from '@playcanvas/pcui';
@@ -92,7 +92,7 @@ rightContainer.append(inspectorPanel);
     const loadUrls = (urlParams.load || []).concat(urlParams.assetUrl || []);
     if (loadUrls.length > 0) {
         loadUrls.forEach((url) => {
-            textureManager.addTexture(url, pc.path.getBasename(url));
+            textureManager.addTexture(url, path.getBasename(url));
         });
     }
 })();

@@ -1,4 +1,19 @@
-import * as pc from 'playcanvas';
+import {
+    Layer,
+    LayerComposition,
+    Entity,
+    Mesh,
+    Material,
+    MeshInstance,
+    Color,
+    Texture,
+    FILTER_LINEAR,
+    FILTER_NEAREST,
+    FILTER_LINEAR_MIPMAP_LINEAR,
+    FILTER_NEAREST_MIPMAP_LINEAR,
+    PIXELFORMAT_R8_G8_B8_A8,
+    TEXTURETYPE_DEFAULT,
+} from 'playcanvas';
 import { ShaderDef } from './shader-gen';
 
 class TextureView {
@@ -8,9 +23,9 @@ class TextureView {
         this.canvas = canvas;
 
         // construct the scene
-        this.composition = new pc.LayerComposition('texture-preview');
+        this.composition = new LayerComposition('texture-preview');
 
-        this.layer = new pc.Layer({
+        this.layer = new Layer({
             id: -2,
             enabled: true,
             opaqueSortMost: 2,
@@ -21,10 +36,10 @@ class TextureView {
         this.canvas.composition = this.composition;
 
         // root entity
-        this.root = new pc.Entity();
+        this.root = new Entity();
 
         // mesh
-        const mesh = new pc.Mesh(device);
+        const mesh = new Mesh(device);
         mesh.setPositions([
             0, 0, 0,
             1, 0, 0,
@@ -38,7 +53,7 @@ class TextureView {
         mesh.update();
 
         // construct the material
-        this.material = new pc.Material();
+        this.material = new Material();
 
         this.material.updateShader = (device) => {
             const textureTypeTable = ['gamma', 'linear', 'rgbm', 'rgbe', 'a'];
@@ -65,22 +80,22 @@ class TextureView {
         };
 
         // render entity
-        this.render = new pc.Entity();
+        this.render = new Entity();
         this.render.addComponent('render', {
             material: this.material,
             meshInstances: [
-                new pc.MeshInstance(mesh, this.material)
+                new MeshInstance(mesh, this.material)
             ]
         });
         this.root.addChild(this.render);
 
         // camera
-        this.camera = new pc.Entity();
+        this.camera = new Entity();
         this.camera.addComponent('camera', {
             nearClip: 0.01,
             farClip: 32,
             fov: 30,
-            clearColor: new pc.Color(0, 0, 0, 0),
+            clearColor: new Color(0, 0, 0, 0),
             frustumCulling: false,
             layers: []
         });
@@ -103,20 +118,20 @@ class TextureView {
         this.canvas.on('prerender', (frameTime) => {
             // set filtering
             if (this.texture && this.texture.resource) {
-                this.texture.resource.magFilter = this.filter ? pc.FILTER_LINEAR : pc.FILTER_NEAREST;
-                this.texture.resource.minFilter = this.filter ? pc.FILTER_LINEAR_MIPMAP_LINEAR : pc.FILTER_NEAREST_MIPMAP_LINEAR;
+                this.texture.resource.magFilter = this.filter ? FILTER_LINEAR : FILTER_NEAREST;
+                this.texture.resource.minFilter = this.filter ? FILTER_LINEAR_MIPMAP_LINEAR : FILTER_NEAREST_MIPMAP_LINEAR;
             }
             this.prepare();
         });
 
         // create default texture
         const data = new Uint8ClampedArray([64, 64, 64, 255]);
-        this.defaultTex = new pc.Texture(device, {
+        this.defaultTex = new Texture(device, {
             cubemap: false,
             width: 1,
             height: 1,
-            format: pc.PIXELFORMAT_R8_G8_B8_A8,
-            type: pc.TEXTURETYPE_DEFAULT,
+            format: PIXELFORMAT_R8_G8_B8_A8,
+            type: TEXTURETYPE_DEFAULT,
             levels: [data]
         });
 

@@ -1,7 +1,7 @@
-import * as pc from 'playcanvas';
+import { Events } from '@playcanvas/observer';
 import { Texture } from './texture.js';
 
-class TextureManager extends pc.EventHandler {
+class TextureManager extends Events {
     constructor(assets) {
         super();
 
@@ -22,7 +22,7 @@ class TextureManager extends pc.EventHandler {
             } else {
                 const texture = new Texture(asset);
                 this.textures.set(texture.id, texture);
-                this.fire('textureAdded', texture);
+                this.emit('textureAdded', texture);
                 if (callback) {
                     callback(null, texture);
                 }
@@ -46,7 +46,7 @@ class TextureManager extends pc.EventHandler {
                     this.selectTexture(this.getTexture(ids[idx === ids.length ? idx - 2 : idx]));
                 }
             }
-            this.fire('textureRemoved', texture);
+            this.emit('textureRemoved', texture);
 
             const asset = texture.asset;
             asset.unload();
@@ -58,7 +58,7 @@ class TextureManager extends pc.EventHandler {
     selectTexture(texture) {
         if (texture !== this.selectedTexture) {
             this.selectedTexture = texture;
-            this.fire('textureSelected', texture);
+            this.emit('textureSelected', texture);
 
             // raise change events so everyone is notified of state
             ['filter', 'face', 'mipmap', 'type', 'alpha', 'exposure'].forEach((key) => {

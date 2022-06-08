@@ -1,6 +1,5 @@
 import resolve from '@rollup/plugin-node-resolve';
 import { createFilter } from '@rollup/pluginutils';
-import copy from 'rollup-plugin-copy';
 import alias from '@rollup/plugin-alias';
 import path from 'path';
 import fs from 'fs';
@@ -40,7 +39,6 @@ const chunks = (chunksDir) => {
 
 const externs = [
     'static/playcanvas-logo.png',
-    'static/hdr',
     'static/lib',
     'static/textures',
     'src/styles.css',
@@ -138,7 +136,7 @@ export default {
     output: {
         dir: 'dist',
         format: 'es',
-        sourcemap: true // 'inline'
+        sourcemap: 'inline'
     },
     plugins: [
         chunks('./src/chunks'),

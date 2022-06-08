@@ -1,13 +1,22 @@
-import * as pc from 'playcanvas';
+import {
+    math, Vec3, BoundingBox, Mouse,
+    EVENT_MOUSEMOVE,
+    EVENT_MOUSEWHEEL,
+    EVENT_MOUSEDOWN,
+    EVENT_MOUSEUP,
+    MOUSEBUTTON_LEFT,
+    MOUSEBUTTON_RIGHT
+} from 'playcanvas';
+import { Events } from '@playcanvas/observer';
 
-const workForward = new pc.Vec3();
-const workUp = new pc.Vec3();
-const workRight = new pc.Vec3();
+const workForward = new Vec3();
+const workUp = new Vec3();
+const workRight = new Vec3();
 
-class OrbitTransform extends pc.EventHandler {
+class OrbitTransform extends Events {
     constructor() {
         super();
-        this.focalPoint = new pc.Vec3(0, 0, 0);
+        this.focalPoint = new Vec3(0, 0, 0);
         this.azimuth = 45;
         this.elevation = -30;
         this.distance = 2;
@@ -15,30 +24,30 @@ class OrbitTransform extends pc.EventHandler {
 
     pan(x, y) {
         this.calcForward(workForward);
-        workRight.cross(pc.Vec3.UP, workForward).normalize();
+        workRight.cross(Vec3.UP, workForward).normalize();
         workUp.cross(workForward, workRight);
         workRight.scale(x * this.distance * 0.002);
         workUp.scale(y * this.distance * 0.002);
         this.focalPoint.add(workRight);
         this.focalPoint.add(workUp);
-        this.fire('changed');
+        this.emit('changed');
     }
 
     rotate(azimuth, elevation) {
         this.azimuth = (this.azimuth + azimuth * -0.5) % 360;
         this.elevation = Math.max(-90, Math.min(90, this.elevation + elevation * -0.5));
-        this.fire('changed');
+        this.emit('changed');
     }
 
     zoom(zoom) {
         this.distance -= zoom * this.distance * 0.1;
-        this.fire('changed');
+        this.emit('changed');
     }
 
     frame(bbox, fovDeg) {
         this.focalPoint.copy(bbox.center);
-        this.distance = (bbox.halfExtents.length() * 1.4) / Math.sin(0.5 * fovDeg * pc.math.DEG_TO_RAD);
-        this.fire('changed');
+        this.distance = (bbox.halfExtents.length() * 1.4) / Math.sin(0.5 * fovDeg * math.DEG_TO_RAD);
+        this.emit('changed');
     }
 
     // apply the current orbit transform to the given entity
@@ -53,8 +62,8 @@ class OrbitTransform extends pc.EventHandler {
 
     // calculate forward vector
     calcForward(result) {
-        const ex = this.elevation * pc.math.DEG_TO_RAD;
-        const ey = this.azimuth * pc.math.DEG_TO_RAD;
+        const ex = this.elevation * math.DEG_TO_RAD;
+        const ey = this.azimuth * math.DEG_TO_RAD;
         const s1 = Math.sin(-ex);
         const c1 = Math.cos(-ex);
         const s2 = Math.sin(-ey);
@@ -66,16 +75,16 @@ class OrbitTransform extends pc.EventHandler {
 class MouseOrbit {
     constructor(transform, canvas) {
         this._transform = transform;
-        this._mouse = new pc.Mouse(canvas);
+        this._mouse = new Mouse(canvas);
         this._mouse.disableContextMenu();
-        this._mouse.on(pc.EVENT_MOUSEMOVE, this._move.bind(this));
-        this._mouse.on(pc.EVENT_MOUSEWHEEL, this._wheel.bind(this));
+        this._mouse.on(EVENT_MOUSEMOVE, this._move.bind(this));
+        this._mouse.on(EVENT_MOUSEWHEEL, this._wheel.bind(this));
 
         // hack: currently the pc mouse device only receives down events
         // and no up events thereby confusing pc.mouse. this tracking
         // flag is the workaround.
-        this._mouse.on(pc.EVENT_MOUSEDOWN, this._down.bind(this));
-        this._mouse.on(pc.EVENT_MOUSEUP, this._up.bind(this));
+        this._mouse.on(EVENT_MOUSEDOWN, this._down.bind(this));
+        this._mouse.on(EVENT_MOUSEUP, this._up.bind(this));
         this._tracking = false;
     }
 
@@ -89,9 +98,9 @@ class MouseOrbit {
 
     _move(event) {
         if (this._tracking) {
-            if (this._mouse.isPressed(pc.MOUSEBUTTON_LEFT)) {
+            if (this._mouse.isPressed(MOUSEBUTTON_LEFT)) {
                 this._transform.rotate(event.dx, event.dy);
-            } else if (this._mouse.isPressed(pc.MOUSEBUTTON_RIGHT)) {
+            } else if (this._mouse.isPressed(MOUSEBUTTON_RIGHT)) {
                 this._transform.pan(-event.dx, event.dy);
             }
         }
@@ -120,7 +129,7 @@ class OrbitCamera {
             if (bbox) {
                 bbox.add(meshInstance.aabb);
             } else {
-                bbox = new pc.BoundingBox();
+                bbox = new BoundingBox();
                 bbox.copy(meshInstance.aabb);
             }
         };

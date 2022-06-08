@@ -1,4 +1,5 @@
-import * as pc from 'playcanvas';
+import { path } from 'playcanvas';
+
 class Helpers {
     // deep compare of two json objects
     static cmp(value0, value1) {
@@ -102,7 +103,7 @@ class Helpers {
 
     static isImageFilename(filename) {
         const imageExtensions = ['.png', '.jpg', '.hdr', '.dds', '.ktx', '.ktx2', '.webp'];
-        return imageExtensions.indexOf(pc.path.getExtension(filename).toLowerCase()) !== -1;
+        return imageExtensions.indexOf(path.getExtension(filename).toLowerCase()) !== -1;
     }
 
     static valueFromArray(value) {

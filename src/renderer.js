@@ -1,4 +1,4 @@
-import * as pc from 'playcanvas';
+import { basisInitialize, Application } from 'playcanvas';
 
 // initialize basis
 
@@ -6,7 +6,7 @@ const getAssetPath = (assetPath) => {
     return assetPath;
 };
 
-pc.basisInitialize({
+basisInitialize({
     glueUrl: getAssetPath('lib/basis/basis.wasm.js'),
     wasmUrl: getAssetPath('lib/basis/basis.wasm.wasm'),
     fallbackUrl: getAssetPath('lib/basis/basis.js'),
@@ -19,7 +19,7 @@ class Renderer {
         this._canvas = document.createElement('canvas');
 
         // create the app
-        this._app = new pc.Application(this._canvas, {
+        this._app = new Application(this._canvas, {
             graphicsDeviceOptions: {
                 alpha: true,
                 preferWebGl2: true

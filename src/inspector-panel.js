@@ -1,5 +1,4 @@
 import { Panel } from '@playcanvas/pcui';
-import { TextureDetails } from './texture-details.js';
 import { TextureViewSettingsPanel } from './texture-view-settings.js';
 
 class InspectorPanel extends Panel {

@@ -1,8 +1,8 @@
-import * as pc from 'playcanvas';
+import { Events } from '@playcanvas/observer';
 
 // handle file drag/drop
 // fires 'load' event
-class DropHandler extends pc.EventHandler {
+class DropHandler extends Events {
     constructor(dom, textureManager) {
         super();
 
@@ -22,7 +22,7 @@ class DropHandler extends pc.EventHandler {
         dom.addEventListener('drop', (ev) => {
             ev.preventDefault();
             ev.stopPropagation();
-            this.fire('filesDropped', ev.dataTransfer.items);
+            this.emit('filesDropped', ev.dataTransfer.items);
         }, false);
     }
 

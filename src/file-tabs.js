@@ -1,6 +1,5 @@
 
-import { Container, Button, Element, Label } from '@playcanvas/pcui';
-import { TEXHINT_ASSET, TEXTURETYPE_DEFAULT } from 'playcanvas';
+import { Container, Label } from '@playcanvas/pcui';
 
 class FileTabs extends Container {
     constructor(textureManager, args = {}) {
