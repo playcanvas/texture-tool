@@ -37,7 +37,7 @@
   "scripts": {
     "build": "rollup -c",
     "build:watch": "rollup -c -w",
-    "develop": "cross-env ENVIRONMENT=dev concurrently --kill-others \"npm run build:watch\" \"npm run serve\"",
+    "develop": "cross-env BUILD_TYPE=debug concurrently --kill-others \"npm run build:watch\" \"npm run serve\"",
     "develop:local": "cross-env ENGINE_PATH=../engine npm run develop",
     "lint": "eslint --ext .js src",
     "serve": "serve dist"

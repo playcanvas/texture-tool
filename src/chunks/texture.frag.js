@@ -1,3 +1,4 @@
+export default /* glsl */`
 #include "codings.glsl"
 
 uniform float mipmap;
@@ -79,3 +80,4 @@ void main() {
 
     gl_FragColor = vec4(encodeGamma(final), 1.0);
 }
+`;

@@ -1,4 +1,4 @@
-
+export default /* glsl */`
 #include "codings.glsl"
 
 varying highp vec3 frag_normal;
@@ -47,3 +47,4 @@ void main() {
 
     gl_FragColor = vec4(encodeGamma(clr), 1.0);
 }
+`;

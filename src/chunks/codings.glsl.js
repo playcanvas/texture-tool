@@ -1,3 +1,4 @@
+export default /* glsl */`
 //-- supported codings
 
 float saturate(float x) {
@@ -58,3 +59,4 @@ vec4 encodeRGBE(vec3 source) {
         return vec4(source / pow(2.0, e), (e + 128.0) / 255.0);
     }
 }
+`;

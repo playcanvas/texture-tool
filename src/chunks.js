@@ -1,8 +1,8 @@
-import codings_glsl from './chunks/codings.glsl';
-import cubemap_frag from './chunks/cubemap.frag';
-import cubemap_vert from './chunks/cubemap.vert';
-import texture_frag from './chunks/texture.frag';
-import texture_vert from './chunks/texture.vert';
+import codings_glsl from './chunks/codings.glsl.js';
+import cubemap_frag from './chunks/cubemap.frag.js';
+import cubemap_vert from './chunks/cubemap.vert.js';
+import texture_frag from './chunks/texture.frag.js';
+import texture_vert from './chunks/texture.vert.js';
 
 const Chunks = {
     'codings.glsl': codings_glsl,

@@ -1,40 +1,15 @@
 import resolve from '@rollup/plugin-node-resolve';
-import { createFilter } from '@rollup/pluginutils';
 import alias from '@rollup/plugin-alias';
 import path from 'path';
 import fs from 'fs';
 
-const prodEnv = process.env.ENVIRONMENT !== 'dev';
-
-// inline chunk files 
-const chunks = (chunksDir) => {
-    // generate chunks.js to include all files in the chunks dir
-    const basename = path.basename(chunksDir);
-    const imports = [];
-    const exports = [];
-    fs.readdirSync(chunksDir).forEach((f) => {
-        const name = f.replace('.', '_');
-        imports.push(`import ${name} from './${basename}/${f}';`);
-        exports.push(`    '${f}': ${name}`);
-    });
-
-    const source =
-        `${imports.join('\n')}\n\n` +
-        `const Chunks = {\n${exports.join(',\n')}\n};\n\n` +
-        `export { Chunks };\n`;
-
-    fs.writeFileSync(`${chunksDir}.js`, source);
-
-    // return transform for glsl imports
-    const filter = createFilter([
-        `${chunksDir}/*`
-    ], []);
-
-    return {
-        transform(code, id) {
-            return filter(id) ? { code: `export default ${JSON.stringify(code)};` } : null;
-        }
-    }
+const settings = {
+    debugBuild: process.env.BUILD_TYPE === 'debug',
+    prodEnv: process.env.NODE_ENV === 'production',
+    enginePath: process.env.ENGINE_PATH,
+    pcuiPath: process.env.PCUI_PATH,
+    pcuiGraphPath: process.env.PCUI_GRAPH_PATH,
+    href: process.env.BASE_HREF || ''
 };
 
 const externs = [
@@ -49,25 +24,24 @@ const externs = [
 const aliasEntries = () => {
     const entries = [];
 
-    if (process.env.PCUI_PATH) {
+    if (settings.pcuiPath) {
         entries.push({
             find: /^@playcanvas\/pcui/,
-            replacement: path.resolve(process.env.PCUI_PATH)
+            replacement: path.resolve(settings.pcuiPath)
         });
     }
 
-    if (process.env.PCUI_GRAPH_PATH) {
+    if (settings.pcuiGraphPath) {
         entries.push({
             find: /^@playcanvas\/pcui-graph/,
-            replacement: path.resolve(process.env.PCUI_GRAPH_PATH)
+            replacement: path.resolve(settings.pcuiGraphPath)
         });
     }
 
-    if (process.env.ENGINE_PATH) {
+    if (settings.enginePath) {
         entries.push({
-            find: /^playcanvas/,
-            replacement: path.resolve(process.env.ENGINE_PATH)
-            // replacement: path.resolve(process.env.ENGINE_PATH, prodEnv ? '' : 'build/playcanvas.dbg.mjs')
+            find: 'playcanvas',
+            replacement: path.resolve(settings.enginePath, settings.debugBuild ? 'build/playcanvas.dbg.mjs' : 'build/playcanvas.mjs')
         });
     }
 
@@ -75,6 +49,9 @@ const aliasEntries = () => {
         entries: entries
     };
 };
+
+console.log(JSON.stringify(settings));
+console.log(JSON.stringify(aliasEntries()));
 
 // custom plugin to copy files and watch them
 function copyAndWatch(config) {
@@ -136,10 +113,9 @@ export default {
     output: {
         dir: 'dist',
         format: 'es',
-        sourcemap: 'inline'
+        sourcemap: settings.debugBuild ? 'inline' : null
     },
     plugins: [
-        chunks('./src/chunks'),
         alias(aliasEntries()),
         resolve(),
         copyAndWatch({
@@ -147,7 +123,7 @@ export default {
                 src: 'src/index.html',
                 dest: '',
                 transform: (contents, filename) => {
-                    return contents.toString().replace('__BASE_HREF__', process.env.BASE_HREF || '');
+                    return contents.toString().replace('__BASE_HREF__', settings.href);
                 }
             }].concat(externs.map((e) => {
                 return {
