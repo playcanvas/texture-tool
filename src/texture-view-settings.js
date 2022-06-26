@@ -1,9 +1,12 @@
-import { Button, Container, Label, SelectInput, SliderInput } from '@playcanvas/pcui';
+import { Panel, Button, Container, Label, SelectInput, SliderInput } from '@playcanvas/pcui';
 
-class TextureViewSettingsPanel extends Container {
+class TextureViewSettingsPanel extends Panel {
     constructor(textureManager, args = { }) {
         Object.assign(args, {
-            id: 'textureViewSettings'
+            id: 'textureViewSettingsPane',
+            headerText: 'View',
+            collapsible: true,
+            flexGrow: 0
         });
 
         super(args);

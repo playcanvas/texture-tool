@@ -12,7 +12,7 @@ class TextureManager extends Events {
     }
 
     // add a texture asset
-    addTexture(url, filename, callback) {
+    addTextureByUrl(url, filename, callback) {
         this.assets.loadFromUrlAndFilename(url, filename, 'texture', (err, asset) => {
             if (err) {
                 console.error(err);
@@ -20,14 +20,17 @@ class TextureManager extends Events {
                     callback(err, null);
                 }
             } else {
-                const texture = new Texture(asset);
-                this.textures.set(texture.id, texture);
-                this.emit('textureAdded', texture);
-                if (callback) {
-                    callback(null, texture);
-                }
+                this.addTexture(new Texture(asset), callback);
             }
         });
+    }
+
+    addTexture(texture, callback) {
+        this.textures.set(texture.id, texture);
+        this.emit('textureAdded', texture);
+        if (callback) {
+            callback(null, texture);
+        }
     }
 
     removeTexture(texture) {

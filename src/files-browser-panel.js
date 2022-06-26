@@ -338,7 +338,7 @@ class FilesBrowserPanel extends Panel {
         if (node.type === 'file') {
             if (!node.texture) {
                 const url = await node.getUrl();
-                this.textureManager.addTexture(url, node.name, (err, texture) => {
+                this.textureManager.addTextureByUrl(url, node.name, (err, texture) => {
                     URL.revokeObjectURL(url);
                     if (!err) {
                         node.texture = texture;

@@ -92,7 +92,7 @@ rightContainer.append(inspectorPanel);
     const loadUrls = (urlParams.load || []).concat(urlParams.assetUrl || []);
     if (loadUrls.length > 0) {
         loadUrls.forEach((url) => {
-            textureManager.addTexture(url, path.getBasename(url));
+            textureManager.addTextureByUrl(url, path.getBasename(url));
         });
     }
 })();

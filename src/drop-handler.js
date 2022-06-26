@@ -29,7 +29,7 @@ class DropHandler extends Events {
     // handle drop events
     onFilesDropped(files) {
         files.forEach((file, index) => {
-            this.textureManager.addTexture(file.url, file.filename, (err, texture) => {
+            this.textureManager.addTextureByUrl(file.url, file.filename, (err, texture) => {
                 if (!err && index === files.length - 1) {
                     this.textureManager.selectTexture(texture);
                 }
