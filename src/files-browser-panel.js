@@ -50,30 +50,31 @@ class DirectoryNode {
     }
 
     async mountHandle(handle) {
+        let result;
         if (handle.kind === 'file') {
-            this.add(new FileNode(handle.name, {
+            result = new FileNode(handle.name, {
                 handle: handle
-            }));
+            });
         } else if (handle.kind === 'directory') {
-            const directory = new DirectoryNode(handle.name, {
+            result = new DirectoryNode(handle.name, {
                 handle: handle
             });
             for await (const childHandle of handle.values()) {
-                await directory.mountHandle(childHandle);
+                await result.mountHandle(childHandle);
             }
-            this.add(directory);
         }
+        this.add(result);
+        return result;
     }
 
     async mountEntry(entry) {
-        console.log(`processing ${entry.fullPath}...`);
-
+        let result;
         if (entry.isFile) {
-            this.add(new FileNode(entry.fullPath.substring(1), {
+            result = new FileNode(entry.fullPath.substring(1), {
                 entry: entry
-            }));
+            });
         } else if (entry.isDirectory) {
-            const directory = new DirectoryNode(entry.fullPath.substring(1), {
+            result = new DirectoryNode(entry.fullPath.substring(1), {
                 entry: entry
             });
 
@@ -83,7 +84,7 @@ class DirectoryNode {
                     reader.readEntries(async (entries) => {
                         if (entries.length) {
                             for (let i = 0; i < entries.length; ++i) {
-                                await directory.mountEntry(entries[i]);
+                                await result.mountEntry(entries[i]);
                             }
                             recurse();
                         } else {
@@ -93,9 +94,9 @@ class DirectoryNode {
                 };
                 recurse();
             });
-
-            this.add(directory);
         }
+        this.add(result);
+        return result;
     }
 
     mountFile(filename, file) {
@@ -294,19 +295,42 @@ class FilesBrowserPanel extends Panel {
 
         // hook up drop handler
         dropHandler.on('filesDropped', async (fileItems) => {
+            const itemPromises = [];
             for (let i = 0; i < fileItems.length; ++i) {
                 const item = fileItems[i];
-
                 if (item.getAsFileSystemHandle) {
-                    await this.root.mountHandle(await item.getAsFileSystemHandle());
+                    itemPromises.push(item.getAsFileSystemHandle());
                 } else if (item.webkitGetAsEntry) {
-                    await this.root.mountEntry(await item.webkitGetAsEntry());
+                    itemPromises.push(item.webkitGetAsEntry());
                 }
             }
-            this.rebuildTreeUI();
+
+            // await all promises
+            Promise.all(itemPromises).then((items) => {
+                const nodePromises = items.map((item) => {
+                    return item.kind ? this.root.mountHandle(item) : this.root.mountEntry(item);
+                });
+
+                Promise.all(nodePromises).then((nodes) => {
+                    this.rebuildTreeUI();
+
+                    // if user dragged in images, select each in turn
+                    nodes.forEach((node) => {
+                        if (node.type === 'file') {
+                            const ui = this.nodeToElement.get(node);
+                            if (ui) {
+                                this.treeView.deselect();
+                                ui.selected  = true;
+                                ui.dom.scrollIntoView();
+                            }
+                        }
+                    });
+                });
+            });
         });
 
         this.textureToElement = null;
+        this.nodeToElement = null;
         textureManager.on('textureSelected', (texture) => {
             if (this.textureToElement) {
                 const element = this.textureToElement.get(texture);
@@ -382,22 +406,24 @@ class FilesBrowserPanel extends Panel {
 
     rebuildTreeUI() {
         this.textureToElement = new Map();
+        this.nodeToElement = new Map();
 
         const recurse = (ui, children) => {
-                children.forEach(c => {
-                if (!c.hidden) {
+            children.forEach(node => {
+                if (!node.hidden) {
                     const treeViewItem = new TreeViewItem({
-                        text: c.name,
-                        class: c.type === 'file' ? 'files-browser-tree-view-file-item' : 'files-browser-tree-view-directory-item',
+                        text: node.name,
+                        class: node.type === 'file' ? 'files-browser-tree-view-file-item' : 'files-browser-tree-view-directory-item',
                         open: false
                     });
-                    if (c.texture) {
-                        this.textureToElement.set(c.texture, treeViewItem);
+                    if (node.texture) {
+                        this.textureToElement.set(node.texture, treeViewItem);
                     }
-                    treeViewItem.node = c;
+                    this.nodeToElement.set(node, treeViewItem);
+                    treeViewItem.node = node;
                     ui.append(treeViewItem);
-                    if (c.type === 'directory') {
-                        recurse(treeViewItem, c.children);
+                    if (node.type === 'directory') {
+                        recurse(treeViewItem, node.children);
                     }
                 }
             });
