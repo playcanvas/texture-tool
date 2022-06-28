@@ -155,7 +155,7 @@ class TextureReprojectPanel extends Panel {
                     const targetHeight = {
                         'equirect': sourceSize,
                         'octahedral': sourceSize * 2
-                    }
+                    };
                     targetTexture = new Texture(t.device, {
                         width: targetWidth[targetProjection],
                         height: targetHeight[targetProjection],
