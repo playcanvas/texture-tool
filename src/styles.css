@@ -29,6 +29,10 @@ body {
     margin-right: 2px;
 }
 
+.pcui-panel-header-title {
+    padding-left: 4px;
+}
+
 .pcui-menu {
     font-size: 13px;
 }

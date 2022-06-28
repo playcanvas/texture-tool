@@ -1,6 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 import { TextureViewSettingsPanel } from './texture-view-settings.js';
-import { TextureProcessPanel } from './texture-process.js';
+import { TextureReprojectPanel } from './texture-reproject.js';
 import { TextureExportPanel } from './texture-export.js';
 
 class InspectorPanel extends Container {
@@ -13,9 +13,8 @@ class InspectorPanel extends Container {
         });
         super(args);
 
-        // this.content.append(new TextureDetails(textureManager));
         this.append(new TextureViewSettingsPanel(textureManager));
-        this.append(new TextureProcessPanel(textureManager));
+        this.append(new TextureReprojectPanel(textureManager));
         this.append(new TextureExportPanel(textureManager));
     }
 }

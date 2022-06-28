@@ -1,13 +1,13 @@
-import { Button, Panel, Container, SelectInput, Label, LabelGroup } from '@playcanvas/pcui';
-import { Texture, Asset, reprojectTexture, PIXELFORMAT_R8_G8_B8_A8, PIXELFORMAT_RGBA16F } from 'playcanvas';
+import { Button, Panel, Container, SelectInput, LabelGroup } from '@playcanvas/pcui';
+import { Texture, Asset, reprojectTexture, PIXELFORMAT_R8_G8_B8_A8, PIXELFORMAT_RGBA16F, TEXTURETYPE_DEFAULT, TEXTURETYPE_RGBM, TEXTURETYPE_RGBE } from 'playcanvas';
 import { Texture as ToolTexture } from './texture.js';
 import { Helpers } from './helpers.js';
 
-class TextureProcessPanel extends Panel {
+class TextureReprojectPanel extends Panel {
     constructor(textureManager, args = { }) {
         Object.assign(args, {
-            id: 'textureProcessPane',
-            headerText: 'Process',
+            id: 'textureReprojectPane',
+            headerText: 'Reproject',
             collapsible: true,
             flexGrow: 1
         });
@@ -109,6 +109,8 @@ class TextureProcessPanel extends Panel {
             events.forEach(ev => ev.unbind());
             events.length = 0;
 
+            const t = texture.resource;
+
             // register new events
             events.push(reprojectButton.on('click', () => {
                 const sourceProjection = projections[source.value];
@@ -116,9 +118,9 @@ class TextureProcessPanel extends Panel {
                 const targetEncoding = encodings[encoding.value];
 
                 const sourceSize = {
-                    'cube': texture.resource.height,
-                    'equirect': texture.resource.height,
-                    'octahedral': texture.resource.height / 2
+                    'cube': texture.height,
+                    'equirect': texture.height,
+                    'octahedral': texture.height / 2
                 }[sourceProjection];
 
                 const format = {
@@ -137,7 +139,7 @@ class TextureProcessPanel extends Panel {
 
                 let targetTexture;
                 if (targetProjection === 'cube') {
-                    targetTexture = new Texture(texture.resource.device, {
+                    targetTexture = new Texture(t.device, {
                         cubemap: true,
                         width: sourceSize,
                         height: sourceSize,
@@ -154,7 +156,7 @@ class TextureProcessPanel extends Panel {
                         'equirect': sourceSize,
                         'octahedral': sourceSize * 2
                     }
-                    targetTexture = new Texture(texture.resource.device, {
+                    targetTexture = new Texture(t.device, {
                         width: targetWidth[targetProjection],
                         height: targetHeight[targetProjection],
                         format: format,
@@ -163,10 +165,24 @@ class TextureProcessPanel extends Panel {
                     });
                 }
 
-                texture.resource.projection = sourceProjection;
+                // reprojectTexture function uses the texture's own setup so apply view settings to the texture
+                if (t) {
+                    t.projection = sourceProjection;
+                    switch (texture.view.get('type')) {
+                        case '2':
+                            t.type = TEXTURETYPE_RGBM;
+                            break;
+                        case '3':
+                            t.type = TEXTURETYPE_RGBE;
+                            break;
+                        default:
+                            t.type = TEXTURETYPE_DEFAULT;
+                            break;
+                    }
+                }
                 targetTexture.projection = targetProjection;
 
-                reprojectTexture(texture.resource, targetTexture);
+                reprojectTexture(t, targetTexture);
 
                 const asset = new Asset(`${Helpers.removeExtension(texture.asset.name)}-${targetProjection}`, 'cubemap', {
                     filename: `${Helpers.removeExtension(texture.filename)}-${targetProjection}`,
@@ -181,7 +197,6 @@ class TextureProcessPanel extends Panel {
                 textureManager.selectTexture(toolTexture);
             }));
 
-            const t = texture.resource;
             source.enabled = target.enabled = encoding.enabled = reprojectButton.enabled = !!t;
             if (t) {
                 source.options = t.cubemap ? sourceCubemapProjections  : sourceTextureProjections;
@@ -197,5 +212,5 @@ class TextureProcessPanel extends Panel {
 }
 
 export {
-    TextureProcessPanel
+    TextureReprojectPanel
 }
