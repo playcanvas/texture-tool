@@ -156,6 +156,10 @@ class Helpers {
             type: `text/${type === "txt" ? "plain" : type}`
         }));
     }
+
+    static removeExtension(filename) {
+        return filename.substring(0, filename.length - path.getExtension(filename).length);
+    }    
 }
 
 export {

@@ -1,6 +1,7 @@
-import { RenderTarget, path } from 'playcanvas';
-import { Button, Panel } from '@playcanvas/pcui';
+import { RenderTarget  } from 'playcanvas';
+import { Button, Panel, Container } from '@playcanvas/pcui';
 import { PngExport } from './png-export.js';
+import { Helpers } from './helpers.js';
 
 const readPixels = (texture, face) => {
     const rt = new RenderTarget({ colorBuffer: texture, depth: false, face: face });
@@ -39,10 +40,6 @@ const download = (filename, data) => {
     window.URL.revokeObjectURL(url);
 }
 
-const removeExtension = (filename) => {
-    return filename.substring(0, filename.length - path.getExtension(filename).length);
-}
-
 class TextureExportPanel extends Panel {
     constructor(textureManager, args = { }) {
         Object.assign(args, {
@@ -57,10 +54,18 @@ class TextureExportPanel extends Panel {
         const pngExport = new PngExport();
 
         const exportToPng = new Button({
+            class: 'inspectorButton',
             text: 'Export to png'
         });
 
-        this.append(exportToPng);
+        const exportToPngContainer = new Container({
+            class: 'inspectorButtonContainer'
+        });
+        exportToPngContainer.append(exportToPng);
+
+        this.append(exportToPngContainer);
+
+        exportToPng.enabled = false;
 
         const events = [];
         textureManager.on('textureSelected', (texture) => {
@@ -75,12 +80,14 @@ class TextureExportPanel extends Panel {
                 if (t.cubemap) {
                     const faceNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz'];
                     for (let face = 0; face < 6; ++face) {
-                        download(`${removeExtension(texture.filename)}_${faceNames[face]}.png`, pngExport.compress(readPixels(t, face), t.width, t.height));
+                        download(`${Helpers.removeExtension(texture.filename)}_${faceNames[face]}.png`, pngExport.compress(readPixels(t, face), t.width, t.height));
                     }
                 } else {
-                    download(`${removeExtension(texture.filename)}.png`, pngExport.compress(readPixels(t, null), t.width, t.height));
+                    download(`${Helpers.removeExtension(texture.filename)}.png`, pngExport.compress(readPixels(t, null), t.width, t.height));
                 }
             }));
+
+            exportToPng.enabled = !!texture.resource;
         });
     }
 }

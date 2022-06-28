@@ -1,6 +1,7 @@
-import { Button, Panel, Container, SelectInput, Label } from '@playcanvas/pcui';
+import { Button, Panel, Container, SelectInput, Label, LabelGroup } from '@playcanvas/pcui';
 import { Texture, Asset, reprojectTexture, PIXELFORMAT_R8_G8_B8_A8, PIXELFORMAT_RGBA16F } from 'playcanvas';
 import { Texture as ToolTexture } from './texture.js';
+import { Helpers } from './helpers.js';
 
 class TextureProcessPanel extends Panel {
     constructor(textureManager, args = { }) {
@@ -56,41 +57,20 @@ class TextureProcessPanel extends Panel {
         ];
 
         // source
-        const sourceContainer = new Container({
-            flex: true,
-            flexDirection: 'row'
-        });
-
         const source = new SelectInput({
             value: '0',
             options: [],
             width: 100
         });
 
-        sourceContainer.append(new Label({ text: 'source' }));
-        sourceContainer.append(source);
-
         // target
-        const targetContainer = new Container({
-            flex: true,
-            flexDirection: 'row'
-        });
-
         const target = new SelectInput({
             value: '0',
             options: [],
             width: 100
         });
 
-        targetContainer.append(new Label({ text: 'target' }));
-        targetContainer.append(target);
-
         // encoding
-        const encodingContainer = new Container({
-            flex: true,
-            flexDirection: 'row'
-        });
-
         const encoding = new SelectInput({
             value: '0',
             options: [
@@ -102,17 +82,26 @@ class TextureProcessPanel extends Panel {
             width: 100
         });
 
-        encodingContainer.append(new Label({ text: 'encoding' }));
-        encodingContainer.append(encoding);
-
-        const equiToCubemapButton = new Button({
+        // reproject
+        const reprojectButton = new Button({
+            class: 'inspectorButton',
             text: 'Reproject'
         });
 
-        this.append(sourceContainer);
-        this.append(targetContainer);
-        this.append(encodingContainer);
-        this.append(equiToCubemapButton);
+        const buttonContainer = new Container({
+            class: 'inspectorButtonContainer',
+            flex: true,
+            flexDirection: 'row'
+        });
+
+        buttonContainer.append(reprojectButton);
+
+        this.append(new LabelGroup({ text: 'source', field: source }));
+        this.append(new LabelGroup({ text: 'target', field: target }));
+        this.append(new LabelGroup({ text: 'encoding', field: encoding }));
+        this.append(buttonContainer);
+
+        source.enabled = target.enabled = encoding.enabled = reprojectButton.enabled = false;
 
         const events = [];
         textureManager.on('textureSelected', (texture) => {
@@ -121,7 +110,7 @@ class TextureProcessPanel extends Panel {
             events.length = 0;
 
             // register new events
-            events.push(equiToCubemapButton.on('click', () => {
+            events.push(reprojectButton.on('click', () => {
                 const sourceProjection = projections[source.value];
                 const targetProjection = projections[target.value];
                 const targetEncoding = encodings[encoding.value];
@@ -179,23 +168,30 @@ class TextureProcessPanel extends Panel {
 
                 reprojectTexture(texture.resource, targetTexture);
 
-                const asset = new Asset(`${texture.name}-${targetProjection}`, 'cubemap', {
-                    filename: `${texture.filename}-${targetProjection}`,
+                const asset = new Asset(`${Helpers.removeExtension(texture.asset.name)}-${targetProjection}`, 'cubemap', {
+                    filename: `${Helpers.removeExtension(texture.filename)}-${targetProjection}`,
                     url: ''
                 }, null);
                 asset.resource = targetTexture;
                 asset.loaded = true;
 
-                textureManager.addTexture(new ToolTexture(asset));
+                const toolTexture = new ToolTexture(asset);
+                textureManager.assets.add(asset);
+                textureManager.addTexture(toolTexture);
+                textureManager.selectTexture(toolTexture);
             }));
 
-            source.options = texture.resource.cubemap ? sourceCubemapProjections  : sourceTextureProjections;
-            source.value = texture.resource.cubemap ? pindices['cube'] : pindices[texture.resource.projection];
+            const t = texture.resource;
+            source.enabled = target.enabled = encoding.enabled = reprojectButton.enabled = !!t;
+            if (t) {
+                source.options = t.cubemap ? sourceCubemapProjections  : sourceTextureProjections;
+                source.value = t.cubemap ? pindices['cube'] : pindices[t.projection];
 
-            target.options = targetProjections;
-            target.value = texture.resource.cubemap ? pindices['equirect'] : pindices['cube'];
+                target.options = targetProjections;
+                target.value = t.cubemap ? pindices['equirect'] : pindices['cube'];
 
-            encoding.value = eindices[texture.resource.encoding];
+                encoding.value = eindices[t.encoding];
+            }
         });
     }
 }
