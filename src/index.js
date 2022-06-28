@@ -91,8 +91,12 @@ rightContainer.append(inspectorPanel);
     // handle load url param
     const loadUrls = (urlParams.load || []).concat(urlParams.assetUrl || []);
     if (loadUrls.length > 0) {
-        loadUrls.forEach((url) => {
-            textureManager.addTextureByUrl(url, path.getBasename(url));
+        loadUrls.forEach((url, index) => {
+            textureManager.addTextureByUrl(url, path.getBasename(url), (err, texture) => {
+                if (!err && texture) {
+                    textureManager.selectTexture(texture);
+                }
+            });
         });
     }
 })();

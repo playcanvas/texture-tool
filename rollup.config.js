@@ -50,9 +50,6 @@ const aliasEntries = () => {
     };
 };
 
-console.log(JSON.stringify(settings));
-console.log(JSON.stringify(aliasEntries()));
-
 // custom plugin to copy files and watch them
 function copyAndWatch(config) {
     const resolvedConfig = {

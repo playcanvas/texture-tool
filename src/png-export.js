@@ -7,7 +7,6 @@ class PngExport {
             fetch('lib/lodepngjs.wasm'),
             { }
         ).then(m => {
-            console.log(m);
             this.module = m;
             this.memory = new Uint8Array(this.module.instance.exports.memory.buffer);
         });
