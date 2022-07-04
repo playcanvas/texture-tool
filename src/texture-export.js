@@ -55,7 +55,8 @@ class TextureExportPanel extends Panel {
 
         const exportToPng = new Button({
             class: 'inspectorButton',
-            text: 'Export to png'
+            text: 'EXPORT TO PNG',
+            icon: '\E228'
         });
 
         const exportToPngContainer = new Container({
