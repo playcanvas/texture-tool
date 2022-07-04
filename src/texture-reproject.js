@@ -8,8 +8,7 @@ class TextureReprojectPanel extends Panel {
         Object.assign(args, {
             id: 'textureReprojectPane',
             headerText: 'Reproject',
-            collapsible: true,
-            flexGrow: 1
+            collapsible: true
         });
 
         super(args);

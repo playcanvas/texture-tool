@@ -63,7 +63,7 @@ body {
     content: '\E139' !important;
 }
 
-#files-browser-panel-entry-button {
+#browser-panel-entry-button {
     line-height: 20px;
 }
 
@@ -171,7 +171,7 @@ body {
 }
 
 .renderCanvasContainer {
-    background-color: #2c393c;
+    background-color: #252e30;
 }
 
 #fileTabsContainer {

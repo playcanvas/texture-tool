@@ -124,7 +124,7 @@ class DirectoryNode {
             if (c.type === 'directory') {
                 c.sort();
             }
-        })
+        });
     }
 }
 
@@ -132,7 +132,7 @@ class FilesBrowserPanel extends Panel {
     constructor(textureManager, dropHandler, args = {}) {
         Object.assign(args, {
             id: 'files-browser',
-            headerText: 'Local Files',
+            headerText: 'TEXTURE TOOL',
             flex: true,
             flexGrow: 1
         });
@@ -176,17 +176,27 @@ class FilesBrowserPanel extends Panel {
             width: 50
         });
 
+        // open file picker
         filesButton.on('click', async () => {
             if (window.showOpenFilePicker) {
-                // open file picker
                 const fileHandles = await window.showOpenFilePicker({
                     multiple: true
                 });
 
-                for (let i = 0; i < fileHandles.length; ++i) {
-                    await this.root.mountHandle(fileHandles[i]);
-                }
-                this.rebuildTreeUI();
+                const mountPromises = fileHandles.map(handle => this.root.mountHandle(handle));
+
+                Promise.all(mountPromises).then((nodes) => {
+                    this.rebuildTreeUI();
+
+                    nodes.forEach((node) => {
+                        const ui = this.nodeToElement.get(node);
+                        if (ui) {
+                            this.treeView.deselect();
+                            ui.selected = true;
+                            ui.dom.scrollIntoView();
+                        }
+                    });
+                });
             } else {
                 filesInputElement.click();
             }
@@ -290,10 +300,10 @@ class FilesBrowserPanel extends Panel {
         urlGroup.append(urlAddButton);
 
         this.append(mountGroup);
-        this.append(treeViewContainer);
         this.append(urlGroup);
+        this.append(treeViewContainer);
 
-        // hook up drop handler
+        // handle drag and drop
         dropHandler.on('filesDropped', async (fileItems) => {
             const itemPromises = [];
             for (let i = 0; i < fileItems.length; ++i) {
@@ -305,7 +315,6 @@ class FilesBrowserPanel extends Panel {
                 }
             }
 
-            // await all promises
             Promise.all(itemPromises).then((items) => {
                 const nodePromises = items.map((item) => {
                     return item.kind ? this.root.mountHandle(item) : this.root.mountEntry(item);
@@ -377,7 +386,7 @@ class FilesBrowserPanel extends Panel {
     }
 
     isImageFilename(filename) {
-        const extensions = ['.dds', '.png', '.jpg', '.basis', '.ktx', '.ktx2', '.hdr'];
+        const extensions = ['.dds', '.png', '.jpg', '.jpeg', '.basis', '.ktx', '.ktx2', '.hdr', '.pvr'];
         for (let i = 0; i < extensions.length; ++i) {
             if (filename.endsWith(extensions[i])) {
                 return true;
