@@ -55,7 +55,7 @@ class TextureView {
         // construct the material
         this.material = new Material();
 
-        this.material.getShaderVariant = (device) => {
+        this.material.updateShader = (device) => {
             const textureTypeTable = ['gamma', 'linear', 'rgbm', 'rgbe', 'a'];
 
             const shaderDef = {
@@ -76,7 +76,7 @@ class TextureView {
                 }
             };
 
-            return ShaderDef.createShader(device, shaderDef);
+            this.material.shader = ShaderDef.createShader(device, shaderDef);
         };
 
         // render entity
