@@ -29,7 +29,6 @@ class FileNode {
             return URL.createObjectURL(source.file);
         }
         return source.url;
-
     }
 }
 
