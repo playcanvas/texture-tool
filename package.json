@@ -1,24 +1,25 @@
 {
   "name": "texture-tool",
   "version": "1.0.0",
+  "author": "PlayCanvas <support@playcanvas.com>",
+  "homepage": "https://playcanvas.com/texture-tool",
   "description": "PlayCanvas Texture Tool",
+  "keywords": [
+    "graphics",
+    "playcanvas",
+    "texture",
+    "tool",
+    "webgl",
+    "webgpu"
+  ],
+  "license": "MIT",
   "main": "src/index.js",
-  "devDependencies": {
-    "@babel/eslint-parser": "^7.18.2",
-    "@playcanvas/eslint-config": "^1.2.0",
-    "@playcanvas/observer": "^1.3.1",
-    "@playcanvas/pcui": "^2.3.3",
-    "@rollup/plugin-alias": "^3.1.9",
-    "@rollup/plugin-node-resolve": "^13.3.0",
-    "concurrently": "^7.2.2",
-    "cross-env": "^7.0.3",
-    "eslint": "^8.19.0",
-    "jszip": "^3.10.0",
-    "playcanvas": "^1.54.1",
-    "rollup": "^2.75.7",
-    "rollup-plugin-copy": "^3.4.0",
-    "rollup-plugin-import-css": "^3.0.3",
-    "serve": "^13.0.2"
+  "bugs": {
+    "url": "https://github.com/playcanvas/texture-tool/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/playcanvas/texture-tool.git"
   },
   "eslintConfig": {
     "extends": "@playcanvas/eslint-config",
@@ -37,6 +38,23 @@
   "eslintIgnore": [
     "src/unused"
   ],
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.18.2",
+    "@playcanvas/eslint-config": "^1.2.0",
+    "@playcanvas/observer": "^1.3.1",
+    "@playcanvas/pcui": "^2.3.3",
+    "@rollup/plugin-alias": "^3.1.9",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "concurrently": "^7.2.2",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.19.0",
+    "jszip": "^3.10.0",
+    "playcanvas": "^1.54.1",
+    "rollup": "^2.75.7",
+    "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-import-css": "^3.0.3",
+    "serve": "^13.0.2"
+  },
   "scripts": {
     "build": "rollup -c",
     "build:watch": "rollup -c -w",
@@ -44,15 +62,5 @@
     "develop:local": "cross-env ENGINE_PATH=../engine npm run develop",
     "lint": "eslint --ext .js src",
     "serve": "serve dist"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/slimbuck/texture-tool.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/slimbuck/texture-tool/issues"
-  },
-  "homepage": "https://github.com/slimbuck/texture-tool#readme"
+  }
 }
