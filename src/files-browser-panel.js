@@ -1,3 +1,4 @@
+import { path } from 'playcanvas';
 import { Panel, Container, Button, TreeView, TreeViewItem, TextInput } from '@playcanvas/pcui';
 
 class FileNode {
@@ -289,7 +290,7 @@ class FilesBrowserPanel extends Panel {
         urlAddButton.on('click', () => {
             const url = urlInput.value;
             if (url.length) {
-                this.root.mountUrl(url, url);
+                this.root.mountUrl(path.getBasename(url).split('?')[0], url);
                 this.rebuildTreeUI();
                 urlInput.value = '';
             }

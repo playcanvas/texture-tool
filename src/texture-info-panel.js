@@ -49,7 +49,7 @@ class TextureInfoPanel extends Panel {
 
     setTexture(texture) {
         // filename
-        this.headerText = texture.filename;
+        this.headerText = texture.url.startsWith('blob:') ? texture.filename : texture.url;
 
         // texture structure
         this.textureStructure.text = texture.cubemap ? ' cubemap' : '2d';
