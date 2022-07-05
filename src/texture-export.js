@@ -46,7 +46,7 @@ class TextureExportPanel extends Panel {
             id: 'textureExportPane',
             headerText: 'Export',
             collapsible: true,
-            flexGrow: 0
+            flexGrow: 1
         });
 
         super(args);
