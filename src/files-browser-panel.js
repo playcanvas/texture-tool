@@ -117,7 +117,6 @@ class DirectoryNode {
                 return a.type === 'directory' ? -1 : 1;
             }
             return a.name.localeCompare(b.name);
-
         });
 
         this.children.forEach((c) => {
