@@ -84,6 +84,7 @@ class DirectoryNode {
                     reader.readEntries(async (entries) => {
                         if (entries.length) {
                             for (let i = 0; i < entries.length; ++i) {
+                                // eslint-disable-next-line no-await-in-loop
                                 await result.mountEntry(entries[i]);
                             }
                             recurse();
@@ -304,7 +305,7 @@ class FilesBrowserPanel extends Panel {
         this.append(treeViewContainer);
 
         // handle drag and drop
-        dropHandler.on('filesDropped', async (fileItems) => {
+        dropHandler.on('filesDropped', async (fileItems) => { // eslint-disable-line require-await
             const itemPromises = [];
             for (let i = 0; i < fileItems.length; ++i) {
                 const item = fileItems[i];
