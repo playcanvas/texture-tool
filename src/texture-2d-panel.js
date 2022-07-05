@@ -23,7 +23,6 @@ class Texture2dPanel extends Container {
 
         // handle mouse events
         this.dom.addEventListener('wheel', (event) => {
-            event.ca;
             const rect = event.target.getBoundingClientRect();
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
