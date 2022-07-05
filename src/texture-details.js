@@ -6,7 +6,7 @@ const attributes = [{
     value: t => t.filename
 }, {
     label: 'Type',
-    value: t => t.cubemap ? 'Cubemap' : '2d'
+    value: t => (t.cubemap ? 'Cubemap' : '2d')
 }, {
     label: 'Dimensions',
     value: t => `${t.width}x${t.height}`
@@ -46,7 +46,7 @@ class TextureDetails extends Container {
             return label;
         });
 
-        textureManager.on('textureSelected', (t) => this.textureSelected(t));
+        textureManager.on('textureSelected', t => this.textureSelected(t));
     }
 
     textureSelected(texture) {
@@ -54,7 +54,7 @@ class TextureDetails extends Container {
             this.fields[index].text = texture ? `${attribute.value(texture)}` : '';
         });
     }
-};
+}
 
 export {
     TextureDetails

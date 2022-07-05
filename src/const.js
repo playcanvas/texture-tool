@@ -33,7 +33,7 @@ import {
     TEXTURETYPE_DEFAULT,
     TEXTURETYPE_RGBM,
     TEXTURETYPE_RGBE,
-    TEXTURETYPE_SWIZZLEGGGR,
+    TEXTURETYPE_SWIZZLEGGGR
 } from 'playcanvas';
 
 const PixelFormatTable = {
@@ -68,7 +68,7 @@ const PixelFormatTable = {
     [PIXELFORMAT_ASTC_4x4]: 'ASTC_4X4',
     [PIXELFORMAT_ATC_RGB]: 'ATC',
     [PIXELFORMAT_ATC_RGBA]: 'ATC_A'
-}
+};
 
 const TextureTypeTable = {
     [TEXTURETYPE_DEFAULT]: 'default',

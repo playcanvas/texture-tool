@@ -44,7 +44,7 @@ class ShaderSource {
         const lines = text.split('\n');
         lines.forEach((l) => {
             this.lines.push(l);
-        })
+        });
     }
 
     replace(line, text) {
@@ -156,4 +156,4 @@ class ShaderDef {
 
 export {
     ShaderDef
-}
+};

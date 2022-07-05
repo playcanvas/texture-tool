@@ -23,7 +23,6 @@ class Texture2dPanel extends Container {
 
         // handle mouse events
         this.dom.addEventListener('wheel', (event) => {
-            event.ca
             const rect = event.target.getBoundingClientRect();
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
@@ -55,7 +54,7 @@ class Texture2dPanel extends Container {
             const t = this.view.texture;
             if (t) {
                 const uv = this.view.pixelToTexel(event.offsetX * ratio, this.view.viewportH - event.offsetY * ratio);
-                
+
                 if (uv.u >= 0 && uv.v >= 0 && uv.u < t.width && uv.v < t.height) {
                     uv.u = Math.floor(uv.u / Math.pow(2, this.view.mipmap));
                     uv.v = Math.floor((t.height - uv.v) / Math.pow(2, this.view.mipmap));

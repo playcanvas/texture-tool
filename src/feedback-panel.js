@@ -30,4 +30,4 @@ class FeedbackPanel extends Container {
 
 export {
     FeedbackPanel
-}
+};

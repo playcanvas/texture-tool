@@ -6,7 +6,7 @@ class PngExport {
         WebAssembly.instantiateStreaming(
             fetch('lib/lodepngjs.wasm'),
             { }
-        ).then(m => {
+        ).then((m) => {
             this.module = m;
             this.memory = new Uint8Array(this.module.instance.exports.memory.buffer);
         });
@@ -41,4 +41,4 @@ class PngExport {
 
 export {
     PngExport
-}
+};

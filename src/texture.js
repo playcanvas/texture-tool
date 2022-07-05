@@ -12,7 +12,7 @@ const getTextureType = (texture) => {
             return '2';
         case TEXTURETYPE_RGBE:
             return '3';
-        default: 
+        default:
             return (texture.format === PIXELFORMAT_RGBA16F || texture.format === PIXELFORMAT_RGBA32F) ? '1' : '0';
     }
 };

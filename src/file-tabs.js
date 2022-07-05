@@ -1,4 +1,3 @@
-
 import { Container, Label } from '@playcanvas/pcui';
 
 class FileTabs extends Container {
@@ -13,9 +12,9 @@ class FileTabs extends Container {
         this.textureManager = textureManager;
         this.buttons = new Map();
 
-        textureManager.on('textureAdded', (texture) => this.onTextureAdded(texture));
-        textureManager.on('textureRemoved', (texture) => this.onTextureRemoved(texture));
-        textureManager.on('textureSelected', (texture) => this.onTextureSelected(texture));
+        textureManager.on('textureAdded', texture => this.onTextureAdded(texture));
+        textureManager.on('textureRemoved', texture => this.onTextureRemoved(texture));
+        textureManager.on('textureSelected', texture => this.onTextureSelected(texture));
     }
 
     onTextureAdded(texture) {
@@ -65,7 +64,7 @@ class FileTabs extends Container {
             }
         });
     }
-};
+}
 
 export {
     FileTabs

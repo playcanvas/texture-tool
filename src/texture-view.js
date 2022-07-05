@@ -12,7 +12,7 @@ import {
     FILTER_LINEAR_MIPMAP_LINEAR,
     FILTER_NEAREST_MIPMAP_LINEAR,
     PIXELFORMAT_R8_G8_B8_A8,
-    TEXTURETYPE_DEFAULT,
+    TEXTURETYPE_DEFAULT
 } from 'playcanvas';
 import { ShaderDef } from './shader-gen';
 
