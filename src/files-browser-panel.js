@@ -27,9 +27,9 @@ class FileNode {
             });
         } else if (source.file) {
             return URL.createObjectURL(source.file);
-        } else {
-            return source.url;
         }
+        return source.url;
+
     }
 }
 
@@ -115,9 +115,9 @@ class DirectoryNode {
         this.children.sort((a, b) => {
             if (a.type !== b.type) {
                 return a.type === 'directory' ? -1 : 1;
-            } else {
-                return a.name.localeCompare(b.name);
             }
+            return a.name.localeCompare(b.name);
+
         });
 
         this.children.forEach((c) => {
@@ -215,7 +215,7 @@ class FilesBrowserPanel extends Panel {
                 let node = this.root;
                 for (let i = 0; i < path.length - 1; ++i) {
                     const p = path[i];
-                    let child = node.children.find((v) => v.name === p);
+                    let child = node.children.find(v => v.name === p);
                     if (!child || child.type !== 'directory') {
                         child = new DirectoryNode(p, null);
                         node.add(child);
@@ -260,7 +260,7 @@ class FilesBrowserPanel extends Panel {
             allowRenaming: false
         });
 
-        treeView.on('select', (item) => this.onItemSelected(item));
+        treeView.on('select', item => this.onItemSelected(item));
 
         treeViewContainer.append(treeView);
 
@@ -408,7 +408,7 @@ class FilesBrowserPanel extends Panel {
             }
             node.hidden = hidden;
             return hidden;
-        }
+        };
 
         recurse(this.root);
     }
@@ -418,7 +418,7 @@ class FilesBrowserPanel extends Panel {
         this.nodeToElement = new Map();
 
         const recurse = (ui, children) => {
-            children.forEach(node => {
+            children.forEach((node) => {
                 if (!node.hidden) {
                     const treeViewItem = new TreeViewItem({
                         text: node.name,

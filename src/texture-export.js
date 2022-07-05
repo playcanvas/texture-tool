@@ -1,4 +1,4 @@
-import { RenderTarget  } from 'playcanvas';
+import { RenderTarget } from 'playcanvas';
 import { Button, Panel, Container } from '@playcanvas/pcui';
 import { PngExport } from './png-export.js';
 import { Helpers } from './helpers.js';
@@ -15,7 +15,7 @@ const readPixels = (texture, face) => {
     rt.destroy();
 
     return data;
-}
+};
 
 // download the data uri
 const download = (filename, data) => {
@@ -30,15 +30,15 @@ const download = (filename, data) => {
     if (document.createEvent) {
         const e = document.createEvent("MouseEvents");
         e.initMouseEvent("click", true, true, window,
-                        0, 0, 0, 0, 0, false, false, false,
-                        false, 0, null);
+                         0, 0, 0, 0, 0, false, false, false,
+                         false, 0, null);
         lnk.dispatchEvent(e);
     } else if (lnk.fireEvent) {
         lnk.fireEvent("onclick");
     }
 
     window.URL.revokeObjectURL(url);
-}
+};
 
 class TextureExportPanel extends Panel {
     constructor(textureManager, args = { }) {
@@ -95,4 +95,4 @@ class TextureExportPanel extends Panel {
 
 export {
     TextureExportPanel
-}
+};

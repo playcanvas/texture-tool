@@ -75,7 +75,7 @@ class Schema {
             schema.forEach((schemaEntry, index) => {
                 if (schemaEntry.array) {
                     // array
-                    this.storage[index] = new ArrayWrapper()
+                    this.storage[index] = new ArrayWrapper();
                 } else {
                     // value
                     const prepareFunc = prepareFuncs[schemaEntry.type];
@@ -124,7 +124,7 @@ class Schema {
         };
 
         // define properties
-        schema.forEach((schemaEntry, index) => schemaEntry.array ? defineArrayProperty(typeClass, schemaEntry, index) : defineProperty(typeClass, schemaEntry, index));
+        schema.forEach((schemaEntry, index) => (schemaEntry.array ? defineArrayProperty(typeClass, schemaEntry, index) : defineProperty(typeClass, schemaEntry, index)));
 
         return typeClass;
     }

@@ -63,7 +63,7 @@ class TextureInfoPanel extends Panel {
         // texture type
         this.textureType.text = `${TextureTypeTable[texture.type] || '???'}`;
     }
-};
+}
 
 export {
     TextureInfoPanel

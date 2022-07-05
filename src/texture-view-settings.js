@@ -49,7 +49,7 @@ class TextureViewSettingsPanel extends Panel {
                 { v: '1', t: 'linear' },
                 { v: '2', t: 'rgbm' },
                 { v: '3', t: 'rgbe' },
-                { v: '4', t: 'a' } 
+                { v: '4', t: 'a' }
             ],
             flexGrow: 1
         });
@@ -146,7 +146,7 @@ class TextureViewSettingsPanel extends Panel {
             mipmapSelect.enabled = textureTypeSelect.enabled = alphaToggle.enabled = filterToggle.enabled = exposureSlider.enabled = !!texture.resource;
         });
     }
-};
+}
 
 export {
     TextureViewSettingsPanel

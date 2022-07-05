@@ -97,9 +97,9 @@ class CubemapView extends Panel {
                 { v: '-2', t: '-2' },
                 { v: '-1', t: '-1' },
                 { v: '0', t: '0' },
-                { v: '1', t: '1'},
-                { v: '2', t: '2'},
-                { v: '3', t: '3'}
+                { v: '1', t: '1' },
+                { v: '2', t: '2' },
+                { v: '3', t: '3' }
             ]
         });
         this.exposureSelector.on('change', () => {

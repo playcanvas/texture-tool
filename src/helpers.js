@@ -159,7 +159,7 @@ class Helpers {
 
     static removeExtension(filename) {
         return filename.substring(0, filename.length - path.getExtension(filename).length);
-    }    
+    }
 }
 
 export {

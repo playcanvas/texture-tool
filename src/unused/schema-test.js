@@ -1,4 +1,3 @@
-
 import { Schema } from './schema.js';
 
 const schemaTest = () => {
@@ -35,7 +34,7 @@ const schemaTest = () => {
             type: 'string'
         }, {
             name: 'renderState',
-            type: 'RenderState',
+            type: 'RenderState'
         }, {
             name: 'color',
             type: 'Vec3'
@@ -51,7 +50,7 @@ const schemaTest = () => {
 
     console.log(avec3);
     console.log(amaterial);
-}
+};
 
 export {
     schemaTest

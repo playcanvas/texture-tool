@@ -68,7 +68,7 @@ const browserPanel = new FilesBrowserPanel(textureManager, dropHandler);
 leftContainer.append(browserPanel);
 
 const fileTabs = new FileTabs(textureManager);
-const texture2dPanel = new Texture2dPanel(renderer, textureManager);  
+const texture2dPanel = new Texture2dPanel(renderer, textureManager);
 centerContainer.append(fileTabs);
 centerContainer.append(texture2dPanel);
 

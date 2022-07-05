@@ -198,11 +198,11 @@ class TextureReprojectPanel extends Panel {
 
             source.enabled = target.enabled = encoding.enabled = reprojectButton.enabled = !!t;
             if (t) {
-                source.options = t.cubemap ? sourceCubemapProjections  : sourceTextureProjections;
-                source.value = t.cubemap ? pindices['cube'] : pindices[t.projection];
+                source.options = t.cubemap ? sourceCubemapProjections : sourceTextureProjections;
+                source.value = t.cubemap ? pindices.cube : pindices[t.projection];
 
                 target.options = targetProjections;
-                target.value = t.cubemap ? pindices['equirect'] : pindices['cube'];
+                target.value = t.cubemap ? pindices.equirect : pindices.cube;
 
                 encoding.value = eindices[t.encoding];
             }
@@ -212,4 +212,4 @@ class TextureReprojectPanel extends Panel {
 
 export {
     TextureReprojectPanel
-}
+};
