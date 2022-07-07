@@ -80,21 +80,22 @@ class TextureExportPanel extends Panel {
 
                 exportToPng.enabled = false;
                 exportToPng.dom.classList.add('busy-anim');
-                exportToPng.text = 'BUSY...'
+                exportToPng.text = 'BUSY...';
 
                 if (t.cubemap) {
                     const faceNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz'];
                     for (let face = 0; face < 6; ++face) {
+                        // eslint-disable-next-line
                         download(`${Helpers.removeExtension(texture.filename)}_${faceNames[face]}.png`, await pngExport.compress(readPixels(t, face), t.width, t.height));
                     }
                 } else {
                     download(`${Helpers.removeExtension(texture.filename)}.png`, await pngExport.compress(readPixels(t, null), t.width, t.height));
                 }
 
+                // eslint-disable-next-line
                 exportToPng.enabled = true;
                 exportToPng.dom.classList.remove('busy-anim');
                 exportToPng.text = 'EXPORT TO PNG';
-                
             }));
 
             exportToPng.enabled = !!texture.resource;

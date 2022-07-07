@@ -42,9 +42,9 @@ function PngExportWorker(href) {
             const result = compress(lodepng, data.words, data.width, data.height);
 
             // return
-            self.postMessage({ result: result }, [ result.buffer ]);
+            self.postMessage({ result: result }, [result.buffer]);
         };
-    }
+    };
 
     main();
 }
@@ -74,7 +74,7 @@ class PngExport {
         return new Worker(URL.createObjectURL(workerBlob));
     }
 
-    async compress(words, width, height) {
+    compress(words, width, height) {
         this.worker.postMessage({
             words: words,
             width: width,
