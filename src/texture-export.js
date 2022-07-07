@@ -14,12 +14,12 @@ const readPixels = (texture, face) => {
 
     rt.destroy();
 
-    return data;
+    return new Uint32Array(data.buffer);
 };
 
 // download the data uri
 const download = (filename, data) => {
-    const blob = new Blob([data.buffer], { type: "octet/stream" });
+    const blob = new Blob([data], { type: "octet/stream" });
     const url = window.URL.createObjectURL(blob);
 
     const lnk = document.createElement('a');
@@ -75,17 +75,27 @@ class TextureExportPanel extends Panel {
             events.length = 0;
 
             // register new events
-            events.push(exportToPng.on('click', () => {
+            events.push(exportToPng.on('click', async () => {
                 const t = texture.resource;
+
+                exportToPng.enabled = false;
+                exportToPng.dom.classList.add('busy-anim');
+                exportToPng.text = 'BUSY...';
 
                 if (t.cubemap) {
                     const faceNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz'];
                     for (let face = 0; face < 6; ++face) {
-                        download(`${Helpers.removeExtension(texture.filename)}_${faceNames[face]}.png`, pngExport.compress(readPixels(t, face), t.width, t.height));
+                        // eslint-disable-next-line
+                        download(`${Helpers.removeExtension(texture.filename)}_${faceNames[face]}.png`, await pngExport.compress(readPixels(t, face), t.width, t.height));
                     }
                 } else {
-                    download(`${Helpers.removeExtension(texture.filename)}.png`, pngExport.compress(readPixels(t, null), t.width, t.height));
+                    download(`${Helpers.removeExtension(texture.filename)}.png`, await pngExport.compress(readPixels(t, null), t.width, t.height));
                 }
+
+                // eslint-disable-next-line
+                exportToPng.enabled = true;
+                exportToPng.dom.classList.remove('busy-anim');
+                exportToPng.text = 'EXPORT TO PNG';
             }));
 
             exportToPng.enabled = !!texture.resource;

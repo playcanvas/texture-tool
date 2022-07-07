@@ -234,6 +234,16 @@ body {
 #cubemapFaceNy { top: 64px; left: 32px; }
 #cubemapFaceNz { top: 32px; left: 96px; }
 
+@keyframes busy-colors {
+    0% { color: white; }
+    50% { color: rgba(255, 255, 255, 0.2); }
+    100% { color: white; }
+}
+
+.busy-anim {
+    animation: busy-colors 1s infinite;
+}
+
 .depressed {
     background-color: #f60 !important;
     color: white !important;

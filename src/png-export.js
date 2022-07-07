@@ -1,41 +1,87 @@
-class PngExport {
-    constructor() {
-        this.module = null;
-        this.memory = null;
-
-        WebAssembly.instantiateStreaming(
-            fetch('lib/lodepngjs.wasm'),
-            { }
-        ).then((m) => {
-            this.module = m;
-            this.memory = new Uint8Array(this.module.instance.exports.memory.buffer);
+function PngExportWorker(href) {
+    const initLodepng = () => {
+        return new Promise((resolve, reject) => {
+            self.importScripts(`${href}lib/lodepng/lodepng.js`);
+            resolve(self.lodepng({
+                locateFile: () => `${href}lib/lodepng/lodepng.wasm`
+            }));
         });
-    }
+    };
 
-    compress(bytes, width, height) {
-        const exports = this.module.instance.exports;
+    const compress = (lodepng, words, width, height) => {
+        const resultDataPtrPtr = lodepng._malloc(4);
+        const resultSizePtr = lodepng._malloc(4);
+        const imageData = lodepng._malloc(width * height * 4);
 
-        const resultDataPtrPtr = exports.malloc(4);
-        const resultSizePtr = exports.malloc(4);
-        const imageData = exports.malloc(width * height * 4);
-
-        // copy memory data
-        for (let i = 0; i < width * height * 4; ++i) {
-            this.memory[imageData + i] = bytes[i];
+        // copy pixels into wasm memory
+        for (let i = 0; i < width * height; ++i) {
+            lodepng.HEAPU32[imageData / 4 + i] = words[i];
         }
 
         // invoke compress
-        exports.lodepng_encode32(resultDataPtrPtr, resultSizePtr, imageData, width, height);
+        lodepng._lodepng_encode32(resultDataPtrPtr, resultSizePtr, imageData, width, height);
 
         // read results
-        const u32 = new Uint32Array(this.memory.buffer);
-        const result = this.memory.slice(u32[resultDataPtrPtr / 4], u32[resultDataPtrPtr / 4] + u32[resultSizePtr / 4]);
+        const u32 = lodepng.HEAPU32;
+        const result = lodepng.HEAPU8.slice(u32[resultDataPtrPtr / 4], u32[resultDataPtrPtr / 4] + u32[resultSizePtr / 4]);
 
-        exports.free(resultDataPtrPtr);
-        exports.free(resultSizePtr);
-        exports.free(imageData);
+        lodepng._free(resultDataPtrPtr);
+        lodepng._free(resultSizePtr);
+        lodepng._free(imageData);
 
         return result;
+    };
+
+    const main = async () => {
+        const lodepng = await initLodepng();
+
+        self.onmessage = (message) => {
+            const data = message.data;
+
+            // compress
+            const result = compress(lodepng, data.words, data.width, data.height);
+
+            // return
+            self.postMessage({ result: result }, [result.buffer]);
+        };
+    };
+
+    main();
+}
+
+class PngExport {
+    constructor() {
+        this.worker = PngExport.createWorker();
+
+        let receiver;
+
+        this.worker.addEventListener('message', (message) => {
+            receiver(message);
+        });
+
+        this.promiseFunc = (resolve, reject) => {
+            receiver = (message) => {
+                resolve(message.data.result);
+                receiver = null;
+            };
+        };
+    }
+
+    static createWorker() {
+        const workerBlob = new Blob([`(${PngExportWorker.toString()})('${window.location.href}')\n\n`], {
+            type: 'application/javascript'
+        });
+        return new Worker(URL.createObjectURL(workerBlob));
+    }
+
+    compress(words, width, height) {
+        this.worker.postMessage({
+            words: words,
+            width: width,
+            height: height
+        }, [words.buffer]);
+
+        return new Promise(this.promiseFunc);
     }
 }
 
