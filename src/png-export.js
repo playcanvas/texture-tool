@@ -68,7 +68,7 @@ class PngExport {
     }
 
     static createWorker() {
-        const workerBlob = new Blob([`(${PngExportWorker.toString()})('${window.location.href}')\n\n`], {
+        const workerBlob = new Blob([`(${PngExportWorker.toString()})('${window.location.href.split('?')[0]}')\n\n`], {
             type: 'application/javascript'
         });
         return new Worker(URL.createObjectURL(workerBlob));
