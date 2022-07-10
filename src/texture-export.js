@@ -1,7 +1,8 @@
+import { Helpers } from './helpers.js';
 import { RenderTarget } from 'playcanvas';
 import { Button, Panel, Container } from '@playcanvas/pcui';
-import { PngExport } from './png-export.js';
-import { Helpers } from './helpers.js';
+import { PngExporter } from './png-exporter.js';
+import { HdrExporter } from './hdr-exporter.js';
 
 const readPixels = (texture, face) => {
     const rt = new RenderTarget({ colorBuffer: texture, depth: false, face: face });
@@ -51,12 +52,15 @@ class TextureExportPanel extends Panel {
 
         super(args);
 
-        const pngExport = new PngExport();
+        const pngExporter = new PngExporter();
+        const hdrExporter = new HdrExporter();
 
+        // png export
         const exportToPng = new Button({
             class: 'inspectorButton',
             text: 'EXPORT TO PNG',
-            icon: '\E228'
+            icon: '\E228',
+            enabled: false
         });
 
         const exportToPngContainer = new Container({
@@ -64,9 +68,39 @@ class TextureExportPanel extends Panel {
         });
         exportToPngContainer.append(exportToPng);
 
-        this.append(exportToPngContainer);
+        // hdr export
+        const exportToHdr = new Button({
+            class: 'inspectorButton',
+            text: 'EXPORT TO HDR',
+            icon: '\E228',
+            enabled: false
+        });
 
-        exportToPng.enabled = false;
+        const exportToHdrContainer = new Container({
+            class: 'inspectorButtonContainer'
+        });
+        exportToHdrContainer.append(exportToHdr);
+
+        this.append(exportToPngContainer);
+        this.append(exportToHdrContainer);
+
+        const doExport = async (exporter, texture) => {
+            const t = texture.resource;
+
+            this.content.enabled = false;
+
+            if (t.cubemap) {
+                const faceNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz'];
+                for (let face = 0; face < 6; ++face) {
+                    // eslint-disable-next-line
+                    download(`${Helpers.removeExtension(texture.filename)}_${faceNames[face]}.${exporter.extension}`, await exporter.run(readPixels(t, face), t.width, t.height));
+                }
+            } else {
+                download(`${Helpers.removeExtension(texture.filename)}.${exporter.extension}`, await exporter.run(readPixels(t, null), t.width, t.height));
+            }
+
+            this.content.enabled = true;
+        };
 
         const events = [];
         textureManager.on('textureSelected', (texture) => {
@@ -76,29 +110,23 @@ class TextureExportPanel extends Panel {
 
             // register new events
             events.push(exportToPng.on('click', async () => {
-                const t = texture.resource;
-
-                exportToPng.enabled = false;
                 exportToPng.dom.classList.add('busy-anim');
                 exportToPng.text = 'BUSY...';
-
-                if (t.cubemap) {
-                    const faceNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz'];
-                    for (let face = 0; face < 6; ++face) {
-                        // eslint-disable-next-line
-                        download(`${Helpers.removeExtension(texture.filename)}_${faceNames[face]}.png`, await pngExport.compress(readPixels(t, face), t.width, t.height));
-                    }
-                } else {
-                    download(`${Helpers.removeExtension(texture.filename)}.png`, await pngExport.compress(readPixels(t, null), t.width, t.height));
-                }
-
-                // eslint-disable-next-line
-                exportToPng.enabled = true;
+                await doExport(pngExporter, texture);
                 exportToPng.dom.classList.remove('busy-anim');
                 exportToPng.text = 'EXPORT TO PNG';
             }));
 
+            events.push(exportToHdr.on('click', async () => {
+                exportToHdr.dom.classList.add('busy-anim');
+                exportToHdr.text = 'BUSY...';
+                await doExport(hdrExporter, texture);
+                exportToHdr.dom.classList.remove('busy-anim');
+                exportToHdr.text = 'EXPORT TO HDR';
+            }));
+
             exportToPng.enabled = !!texture.resource;
+            exportToHdr.enabled = texture.resource && texture.resource.encoding === 'rgbe';
         });
     }
 }
