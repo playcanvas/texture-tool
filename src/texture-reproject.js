@@ -1,7 +1,8 @@
 import { Button, Panel, Container, SelectInput, LabelGroup, NumericInput } from '@playcanvas/pcui';
 import {
     Texture, Asset, reprojectTexture,
-    PIXELFORMAT_R8_G8_B8_A8, PIXELFORMAT_RGBA16F, TEXTURETYPE_DEFAULT, TEXTURETYPE_RGBM, TEXTURETYPE_RGBE,
+    PIXELFORMAT_R8_G8_B8_A8, PIXELFORMAT_RGBA16F, PIXELFORMAT_RGBA32F,
+    TEXTURETYPE_DEFAULT, TEXTURETYPE_RGBM, TEXTURETYPE_RGBE,
     FILTER_NEAREST, FILTER_LINEAR, FILTER_LINEAR_MIPMAP_LINEAR
 } from 'playcanvas';
 import { Texture as ToolTexture } from './texture.js';
@@ -183,19 +184,21 @@ class TextureReprojectPanel extends Panel {
                     'srgb': 'default'
                 }[targetEncoding];
 
-                const targetTexture = new Texture(t.device, {
+                // create target texture
+                let targetTexture = new Texture(t.device, {
                     cubemap: targetProjection === 'cube',
                     width: width.value,
                     height: height.value,
                     format: format,
                     type: type,
-                    mipmaps: false
+                    mipmaps: false,
+                    projection: targetProjection
                 });
 
                 // reprojectTexture function uses the texture's own setup so apply view settings to the texture
+                t.projection = sourceProjection;
                 t.magFilter = t.encoding === 'rgbe' ? FILTER_NEAREST : FILTER_LINEAR;
                 t.minFilter = t.encoding === 'rgbe' ? FILTER_NEAREST : FILTER_LINEAR_MIPMAP_LINEAR;
-                t.projection = sourceProjection;
                 switch (texture.view.get('type')) {
                     case '2':
                         t.type = TEXTURETYPE_RGBM;
@@ -207,9 +210,29 @@ class TextureReprojectPanel extends Panel {
                         t.type = TEXTURETYPE_DEFAULT;
                         break;
                 }
-                targetTexture.projection = targetProjection;
 
-                reprojectTexture(t, targetTexture);
+                // rgbe textures can't be filtered, so convert source texture to RGBA32F first if any sampling
+                // is involved
+                if (t.encoding === 'rgbe' &&
+                    (width.value !== t.width || height.value !== t.height) ||
+                    (sourceProjection !== targetProjection)) {
+                    const tmp = new Texture(t.device, {
+                        cubemap: sourceProjection === 'cube',
+                        width: t.width,
+                        height: t.height,
+                        format: PIXELFORMAT_RGBA32F,
+                        type: TEXTURETYPE_DEFAULT,
+                        mipmaps: false,
+                        projection: sourceProjection
+                    });
+
+                    reprojectTexture(t, tmp);
+                    reprojectTexture(tmp, targetTexture);
+
+                    tmp.destroy();
+                } else {
+                    reprojectTexture(t, targetTexture);
+                }
 
                 const asset = new Asset(`${Helpers.removeExtension(texture.asset.name)}-${targetProjection}`, 'cubemap', {
                     filename: `${Helpers.removeExtension(texture.filename)}-${targetProjection}`,
