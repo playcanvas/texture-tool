@@ -37,6 +37,8 @@ void main() {
 #elif TEXTURE_TYPE == 3
     vec3 clr = decodeRGBE(raw);                 // rgbe
 #elif TEXTURE_TYPE == 4
+    vec3 clr = decodeRGBP(raw);                 // rgbp
+#elif TEXTURE_TYPE == 5
     vec3 clr = decodeGamma(raw.xyz).xxx;        // a
 #else
     vec3 clr = vec4(1.0, 1.0, 0.0);

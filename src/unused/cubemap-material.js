@@ -6,7 +6,7 @@ class CubemapViewMaterial {
         this.material = new pc.Material();
 
         this.material.updateShader = (device) => {
-            const textureTypeTable = ['gamma', 'linear', 'rgbm', 'rgbe', 'a'];
+            const textureTypeTable = ['gamma', 'linear', 'rgbm', 'rgbe', 'rgbp', 'a'];
 
             const shaderDef = {
                 vertex: {

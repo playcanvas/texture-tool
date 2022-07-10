@@ -35,15 +35,17 @@ class TextureReprojectPanel extends Panel {
         const encodings = {
             0: 'rgbm',
             1: 'rgbe',
-            2: 'linear',
-            3: 'srgb'
+            2: 'rgbp',
+            3: 'linear',
+            4: 'srgb',
         };
 
         const eindices = {
             rgbm: '0',
             rgbe: '1',
-            linear: '2',
-            srgb: '3'
+            rgbp: '2',
+            linear: '3',
+            srgb: '4'
         };
 
         const sourceCubemapProjections = [
@@ -81,8 +83,9 @@ class TextureReprojectPanel extends Panel {
             options: [
                 { v: '0', t: 'rgbm' },
                 { v: '1', t: 'rgbe' },
-                { v: '2', t: 'linear' },
-                { v: '3', t: 'srgb' }
+                { v: '2', t: 'rgbp' },
+                { v: '3', t: 'linear' },
+                { v: '4', t: 'srgb' }
             ],
             width: 100
         });
@@ -174,6 +177,7 @@ class TextureReprojectPanel extends Panel {
                 const format = {
                     'rgbm': PIXELFORMAT_R8_G8_B8_A8,
                     'rgbe': PIXELFORMAT_R8_G8_B8_A8,
+                    'rgbp': PIXELFORMAT_R8_G8_B8_A8,
                     'linear': PIXELFORMAT_RGBA16F,
                     'srgb': PIXELFORMAT_R8_G8_B8_A8
                 }[targetEncoding];
@@ -181,6 +185,7 @@ class TextureReprojectPanel extends Panel {
                 const type = {
                     'rgbm': 'rgbm',
                     'rgbe': 'rgbe',
+                    'rgbp': 'rgbp',
                     'linear': 'default',
                     'srgb': 'default'
                 }[targetEncoding];
@@ -205,6 +210,7 @@ class TextureReprojectPanel extends Panel {
                 switch (texture.settings.get('view.type')) {
                     case '2': t.type = TEXTURETYPE_RGBM; break;
                     case '3': t.type = TEXTURETYPE_RGBE; break;
+                    case '4': t.type = TEXTURETYPE_RGBP; break;
                     default:  t.type = TEXTURETYPE_DEFAULT; break;
                 }
 

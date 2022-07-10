@@ -61,6 +61,7 @@ class TextureView {
                 'linear': 'decodeLinear',
                 'rgbm': 'decodeRGBM',
                 'rgbe': 'decodeRGBE',
+                'rgbp': 'decodeRGBP',
                 'a': 'decodeAlpha'
             };
 
