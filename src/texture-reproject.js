@@ -223,7 +223,8 @@ class TextureReprojectPanel extends Panel {
                         format: PIXELFORMAT_RGBA32F,
                         type: TEXTURETYPE_DEFAULT,
                         mipmaps: false,
-                        projection: sourceProjection
+                        projection: sourceProjection,
+                        mipmaps: true
                     });
 
                     reprojectTexture(t, tmp);

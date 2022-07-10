@@ -1,20 +1,10 @@
 import { Observer } from '@playcanvas/observer';
-import {
-    TEXTURETYPE_RGBM,
-    TEXTURETYPE_RGBE,
-    PIXELFORMAT_RGBA16F,
-    PIXELFORMAT_RGBA32F
-} from 'playcanvas';
 
-const getTextureType = (texture) => {
-    switch (texture.type) {
-        case TEXTURETYPE_RGBM:
-            return '2';
-        case TEXTURETYPE_RGBE:
-            return '3';
-        default:
-            return (texture.format === PIXELFORMAT_RGBA16F || texture.format === PIXELFORMAT_RGBA32F) ? '1' : '0';
-    }
+const encodingTable = {
+    'srgb': '0',
+    'linear': '1',
+    'rgbm': '2',
+    'rgbe': '3'
 };
 
 class Texture {
@@ -24,7 +14,7 @@ class Texture {
             filter: false,
             face: '0',
             mipmap: '0',
-            type: asset ? getTextureType(asset.resource) : '0',
+            type: asset && encodingTable[asset.resource.encoding] || '0',
             alpha: false,
             exposure: '0'
         });
