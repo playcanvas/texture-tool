@@ -1,16 +1,12 @@
 import resolve from '@rollup/plugin-node-resolve';
 import alias from '@rollup/plugin-alias';
+import json from '@rollup/plugin-json';
 import path from 'path';
 import fs from 'fs';
 
-const settings = {
-    debugBuild: process.env.BUILD_TYPE === 'debug',
-    prodEnv: process.env.NODE_ENV === 'production',
-    enginePath: process.env.ENGINE_PATH,
-    pcuiPath: process.env.PCUI_PATH,
-    pcuiGraphPath: process.env.PCUI_GRAPH_PATH,
-    href: process.env.BASE_HREF || ''
-};
+const PROD_END      = process.env.NODE_ENV === 'production';
+const DEBUG_BUILD   = process.env.BUILD_TYPE === 'debug';
+const HREF          = process.env.BASE_HREF || '';
 
 const externs = [
     'static/playcanvas-logo.png',
@@ -20,35 +16,22 @@ const externs = [
     'src/pcom.css'
 ];
 
-// get aliases
-const aliasEntries = () => {
-    const entries = [];
-
-    if (settings.pcuiPath) {
-        entries.push({
-            find: /^@playcanvas\/pcui/,
-            replacement: path.resolve(settings.pcuiPath)
-        });
-    }
-
-    if (settings.pcuiGraphPath) {
-        entries.push({
-            find: /^@playcanvas\/pcui-graph/,
-            replacement: path.resolve(settings.pcuiGraphPath)
-        });
-    }
-
-    if (settings.enginePath) {
-        entries.push({
-            find: 'playcanvas',
-            replacement: path.resolve(settings.enginePath, settings.debugBuild ? 'build/playcanvas.dbg.mjs' : 'build/playcanvas.mjs')
-        });
-    }
-
-    return {
-        entries: entries
-    };
+// define supported module overrides
+const moduleOverrides = {
+    PCUI_PATH: /^@playcanvas\/pcui(.*)/,
+    PCUI_GRAPH_PATH: /^@playcanvas\/pcui-graph(.*)/,
+    EDITOR_API_PATH: /^@playcanvas\/editor-api(.*)/,
+    ENGINE_PATH: /^playcanvas(.*)/
 };
+
+const aliasEntries = Object.keys(moduleOverrides)
+    .filter(key => process.env.hasOwnProperty(key))
+    .map((key) => {
+        return {
+            find: moduleOverrides[key],
+            replacement: `${path.resolve(process.env[key])}$1`
+        };
+    });
 
 // custom plugin to copy files and watch them
 function copyAndWatch(config) {
@@ -110,17 +93,20 @@ export default {
     output: {
         dir: 'dist',
         format: 'es',
-        sourcemap: settings.debugBuild ? 'inline' : null
+        sourcemap: DEBUG_BUILD ? 'inline' : null
     },
     plugins: [
-        alias(aliasEntries()),
+        alias({
+            entries: aliasEntries
+        }),
         resolve(),
+        json(),
         copyAndWatch({
             targets: [{
                 src: 'src/index.html',
                 dest: '',
                 transform: (contents, filename) => {
-                    return contents.toString().replace('__BASE_HREF__', settings.href);
+                    return contents.toString().replace('__BASE_HREF__', HREF);
                 }
             }].concat(externs.map((e) => {
                 return {

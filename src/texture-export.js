@@ -87,7 +87,7 @@ class TextureExportPanel extends Panel {
         const doExport = async (exporter, texture) => {
             const t = texture.resource;
 
-            this.content.enabled = false;
+            this.enabled = false;
 
             if (t.cubemap) {
                 const faceNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz'];
@@ -99,7 +99,7 @@ class TextureExportPanel extends Panel {
                 download(`${Helpers.removeExtension(texture.filename)}.${exporter.extension}`, await exporter.run(readPixels(t, null), t.width, t.height));
             }
 
-            this.content.enabled = true;
+            this.enabled = true;
         };
 
         const events = [];

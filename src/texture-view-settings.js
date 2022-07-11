@@ -76,7 +76,7 @@ class TextureViewSettingsPanel extends Panel {
         this.append(new LabelGroup({ text: 'filter', field: filterToggle }));
         this.append(new LabelGroup({ text: 'exposure', field: exposureSlider }));
 
-        faceButtonsContainer.enabled = mipmapSelect.enabled = textureTypeSelect.enabled = alphaToggle.enabled = filterToggle.enabled = exposureSlider.enabled = false;
+        this.enabled = false;
 
         const events = [];
 
@@ -142,8 +142,8 @@ class TextureViewSettingsPanel extends Panel {
             mipmapSelect.options = mips;
 
             // face select
-            faceButtonsContainer.enabled = texture.resource && texture.cubemap;
-            mipmapSelect.enabled = textureTypeSelect.enabled = alphaToggle.enabled = filterToggle.enabled = exposureSlider.enabled = !!texture.resource;
+            this.enabled = !!texture.resource;
+            faceButtonsContainer.enabled = texture.cubemap;
         });
     }
 }

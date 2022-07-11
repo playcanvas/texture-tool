@@ -45,15 +45,16 @@
     "@playcanvas/pcui": "^2.3.3",
     "@rollup/plugin-alias": "^3.1.9",
     "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-json": "^4.1.0",
     "concurrently": "^7.2.2",
     "cross-env": "^7.0.3",
     "eslint": "^8.19.0",
     "jszip": "^3.10.0",
     "playcanvas": "^1.54.1",
-    "rollup": "^2.75.7",
+    "rollup": "^2.76.0",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-import-css": "^3.0.3",
-    "serve": "^13.0.2"
+    "serve": "^13.0.4"
   },
   "scripts": {
     "build": "rollup -c",
