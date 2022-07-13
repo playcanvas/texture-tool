@@ -1,23 +1,11 @@
 import { Observer } from '@playcanvas/observer';
 
-const encodingTable = {
-    'srgb': '0',
-    'linear': '1',
-    'rgbm': '2',
-    'rgbe': '3'
-};
-
-class Texture {
+class TextureDoc {
     constructor(asset) {
         this.asset = asset;
-        this.view = new Observer({
-            filter: false,
-            face: '0',
-            mipmap: '0',
-            type: asset && encodingTable[asset.resource.encoding] || '0',
-            alpha: false,
-            exposure: '0'
-        });
+
+        // observable/editable state
+        this.settings = new Observer();
     }
 
     get filename() {
@@ -70,5 +58,5 @@ class Texture {
 }
 
 export {
-    Texture
+    TextureDoc
 };

@@ -46,7 +46,7 @@ class TextureDetails extends Container {
             return label;
         });
 
-        textureManager.on('textureSelected', t => this.textureSelected(t));
+        textureManager.on('textureDocSelected', t => this.textureSelected(t));
     }
 
     textureSelected(texture) {

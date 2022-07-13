@@ -12,12 +12,12 @@ class FileTabs extends Container {
         this.textureManager = textureManager;
         this.buttons = new Map();
 
-        textureManager.on('textureAdded', texture => this.onTextureAdded(texture));
-        textureManager.on('textureRemoved', texture => this.onTextureRemoved(texture));
-        textureManager.on('textureSelected', texture => this.onTextureSelected(texture));
+        textureManager.on('textureDocAdded', texture => this.onTextureDocAdded(texture));
+        textureManager.on('textureDocRemoved', texture => this.onTextureDocRemoved(texture));
+        textureManager.on('textureDocSelected', texture => this.onTextureDocSelected(texture));
     }
 
-    onTextureAdded(texture) {
+    onTextureDocAdded(texture) {
         const tab = new Container({
             class: 'fileTab',
             flex: true,
@@ -35,11 +35,11 @@ class FileTabs extends Container {
         });
 
         tab.dom.addEventListener('mousedown', () => {
-            this.textureManager.selectTexture(texture);
+            this.textureManager.selectTextureDoc(texture);
         });
 
         button.dom.addEventListener('click', () => {
-            this.textureManager.removeTexture(texture);
+            this.textureManager.removeTextureDoc(texture);
         });
 
         tab.append(label);
@@ -50,12 +50,12 @@ class FileTabs extends Container {
         button.dom.scrollIntoView();
     }
 
-    onTextureRemoved(texture) {
+    onTextureDocRemoved(texture) {
         this.remove(this.buttons.get(texture));
         this.buttons.delete(texture);
     }
 
-    onTextureSelected(texture) {
+    onTextureDocSelected(texture) {
         this.buttons.forEach((b, t) => {
             if (t === texture) {
                 b.dom.classList.add('selected');

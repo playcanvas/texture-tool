@@ -5,7 +5,7 @@ import {
     TEXTURETYPE_DEFAULT, TEXTURETYPE_RGBM, TEXTURETYPE_RGBE,
     FILTER_NEAREST, FILTER_LINEAR, FILTER_LINEAR_MIPMAP_LINEAR
 } from 'playcanvas';
-import { Texture as ToolTexture } from './texture.js';
+import { TextureDoc } from './texture-doc.js';
 import { Helpers } from './helpers.js';
 
 class TextureReprojectPanel extends Panel {
@@ -121,10 +121,10 @@ class TextureReprojectPanel extends Panel {
         this.append(new LabelGroup({ text: 'height', field: height }));
         this.append(buttonContainer);
 
-        this.content.enabled = false;
+        this.enabled = false;
 
         const events = [];
-        textureManager.on('textureSelected', (texture) => {
+        textureManager.on('textureDocSelected', (texture) => {
             // unregister preview events
             events.forEach(ev => ev.unbind());
             events.length = 0;
@@ -132,11 +132,11 @@ class TextureReprojectPanel extends Panel {
             const t = texture.resource;
 
             if (!t) {
-                source.options = {};
-                target.options = {};
+                source.options = [];
+                target.options = [];
                 width = '';
                 height = '';
-                this.content.enabled = false;
+                this.enabled = false;
                 return;
             }
 
@@ -199,7 +199,7 @@ class TextureReprojectPanel extends Panel {
                 t.projection = sourceProjection;
                 t.magFilter = t.encoding === 'rgbe' ? FILTER_NEAREST : FILTER_LINEAR;
                 t.minFilter = t.encoding === 'rgbe' ? FILTER_NEAREST : FILTER_LINEAR_MIPMAP_LINEAR;
-                switch (texture.view.get('type')) {
+                switch (texture.settings.get('view.type')) {
                     case '2':
                         t.type = TEXTURETYPE_RGBM;
                         break;
@@ -242,13 +242,14 @@ class TextureReprojectPanel extends Panel {
                 asset.resource = targetTexture;
                 asset.loaded = true;
 
-                const toolTexture = new ToolTexture(asset);
+                // create the new texture document
+                const textureDoc = new TextureDoc(asset);
                 textureManager.assets.add(asset);
-                textureManager.addTexture(toolTexture);
-                textureManager.selectTexture(toolTexture);
+                textureManager.addTextureDoc(textureDoc);
+                textureManager.selectTextureDoc(textureDoc);
             }));
 
-            this.content.enabled = true;
+            this.enabled = true;
         });
     }
 }

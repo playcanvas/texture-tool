@@ -340,7 +340,7 @@ class FilesBrowserPanel extends Panel {
 
         this.textureToElement = null;
         this.nodeToElement = null;
-        textureManager.on('textureSelected', (texture) => {
+        textureManager.on('textureDocSelected', (texture) => {
             if (this.textureToElement) {
                 const element = this.textureToElement.get(texture);
                 if (element) {
@@ -351,7 +351,7 @@ class FilesBrowserPanel extends Panel {
             }
         });
 
-        textureManager.on('textureRemoved', (texture) => {
+        textureManager.on('textureDocRemoved', (texture) => {
             if (this.textureToElement) {
                 const element = this.textureToElement.get(texture);
                 if (element) {
@@ -371,16 +371,16 @@ class FilesBrowserPanel extends Panel {
         if (node.type === 'file') {
             if (!node.texture) {
                 const url = await node.getUrl();
-                this.textureManager.addTextureByUrl(url, node.name, (err, texture) => {
+                this.textureManager.addTextureDocByUrl(url, node.name, (err, texture) => {
                     URL.revokeObjectURL(url);
                     if (!err) {
                         node.texture = texture;
-                        this.textureManager.selectTexture(texture);
+                        this.textureManager.selectTextureDoc(texture);
                         this.textureToElement.set(texture, item);
                     }
                 });
             } else {
-                this.textureManager.selectTexture(node.texture);
+                this.textureManager.selectTextureDoc(node.texture);
             }
         }
     }

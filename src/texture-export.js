@@ -103,7 +103,7 @@ class TextureExportPanel extends Panel {
         };
 
         const events = [];
-        textureManager.on('textureSelected', (texture) => {
+        textureManager.on('textureDocSelected', (texture) => {
             // unregister preview events
             events.forEach(ev => ev.unbind());
             events.length = 0;

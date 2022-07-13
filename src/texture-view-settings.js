@@ -1,5 +1,12 @@
 import { Panel, Button, Container, LabelGroup, SelectInput, SliderInput, BooleanInput } from '@playcanvas/pcui';
 
+const encodingTable = {
+    'srgb': '0',
+    'linear': '1',
+    'rgbm': '2',
+    'rgbe': '3'
+};
+
 class TextureViewSettingsPanel extends Panel {
     constructor(textureManager, args = { }) {
         Object.assign(args, {
@@ -78,15 +85,30 @@ class TextureViewSettingsPanel extends Panel {
 
         this.enabled = false;
 
-        const events = [];
+        textureManager.on('textureDocAdded', (doc) => {
+            doc.settings.patch({
+                view: {
+                    filter: false,
+                    face: '0',
+                    mipmap: '0',
+                    type: doc.asset && encodingTable[doc.asset.resource.encoding] || '0',
+                    alpha: false,
+                    exposure: '0',
+                    offsetX: 0,
+                    offsetY: 0,
+                    scale: 0
+                }
+            });
+        });
 
-        textureManager.on('textureSelected', (texture) => {
+        const events = [];
+        textureManager.on('textureDocSelected', (texture) => {
             // unregister preview events
             events.forEach(ev => ev.unbind());
             events.length = 0;
 
             // register change events
-            events.push(texture.view.on('face:set', (value) => {
+            events.push(texture.settings.on('view.face:set', (value) => {
                 Object.keys(faceButtons).forEach((face) => {
                     if (face === value) {
                         faceButtons[face].dom.classList.add('depressed');
@@ -95,42 +117,42 @@ class TextureViewSettingsPanel extends Panel {
                     }
                 });
             }));
-            events.push(texture.view.on('mipmap:set', (value) => {
+            events.push(texture.settings.on('view.mipmap:set', (value) => {
                 mipmapSelect.value = value;
             }));
-            events.push(texture.view.on('type:set', (value) => {
+            events.push(texture.settings.on('view.type:set', (value) => {
                 textureTypeSelect.value = value;
             }));
-            events.push(texture.view.on('alpha:set', (value) => {
+            events.push(texture.settings.on('view.alpha:set', (value) => {
                 alphaToggle.value = !!value;
             }));
-            events.push(texture.view.on('filter:set', (value) => {
+            events.push(texture.settings.on('view.filter:set', (value) => {
                 filterToggle.value = !!value;
             }));
-            events.push(texture.view.on('exposure:set', (value) => {
+            events.push(texture.settings.on('view.exposure:set', (value) => {
                 exposureSlider.value = value;
             }));
 
             // register ui events
             Object.keys(faceButtons).forEach((face) => {
                 events.push(faceButtons[face].on('click', () => {
-                    texture.view.set('face', face);
+                    texture.settings.set('view.face', face);
                 }));
             });
             events.push(mipmapSelect.on('change', () => {
-                texture.view.set('mipmap', mipmapSelect.value);
+                texture.settings.set('view.mipmap', mipmapSelect.value);
             }));
             events.push(textureTypeSelect.on('change', () => {
-                texture.view.set('type', textureTypeSelect.value);
+                texture.settings.set('view.type', textureTypeSelect.value);
             }));
             events.push(alphaToggle.on('change', () => {
-                texture.view.set('alpha', alphaToggle.value);
+                texture.settings.set('view.alpha', alphaToggle.value);
             }));
             events.push(filterToggle.on('change', () => {
-                texture.view.set('filter', filterToggle.value);
+                texture.settings.set('view.filter', filterToggle.value);
             }));
             events.push(exposureSlider.on('change', () => {
-                texture.view.set('exposure', `${exposureSlider.value}`);
+                texture.settings.set('view.exposure', `${exposureSlider.value}`);
             }));
 
             // mipmap select
