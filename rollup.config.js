@@ -2,6 +2,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import alias from '@rollup/plugin-alias';
 import json from '@rollup/plugin-json';
 import { terser } from 'rollup-plugin-terser';
+import sourcemaps from 'rollup-plugin-sourcemaps';
 import path from 'path';
 import copyAndWatch from "./copy-and-watch";
 
@@ -69,6 +70,7 @@ export default {
         }),
         alias({ entries: aliasEntries }),
         resolve(),
+        sourcemaps(),
         json(),
         (PROD_BUILD && terser())
     ]
