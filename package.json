@@ -39,27 +39,28 @@
     "src/unused"
   ],
   "devDependencies": {
-    "@babel/eslint-parser": "^7.18.2",
+    "@babel/eslint-parser": "^7.18.9",
     "@playcanvas/eslint-config": "^1.2.0",
     "@playcanvas/observer": "^1.3.1",
-    "@playcanvas/pcui": "^2.3.3",
+    "@playcanvas/pcui": "^2.4.0",
     "@rollup/plugin-alias": "^3.1.9",
-    "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-json": "^4.1.0",
-    "concurrently": "^7.2.2",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "concurrently": "^7.3.0",
     "cross-env": "^7.0.3",
-    "eslint": "^8.19.0",
+    "eslint": "^8.20.0",
     "jszip": "^3.10.0",
-    "playcanvas": "^1.54.1",
-    "rollup": "^2.76.0",
+    "playcanvas": "^1.55.0",
+    "rollup": "^2.77.0",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-import-css": "^3.0.3",
-    "serve": "^13.0.4"
+    "rollup-plugin-terser": "^7.0.2",
+    "serve": "^14.0.1"
   },
   "scripts": {
     "build": "rollup -c",
     "build:watch": "rollup -c -w",
-    "develop": "cross-env BUILD_TYPE=debug concurrently --kill-others \"npm run build:watch\" \"npm run serve\"",
+    "develop": "concurrently --kill-others \"npm run build:watch\" \"npm run serve\"",
     "develop:local": "cross-env ENGINE_PATH=../engine npm run develop",
     "lint": "eslint --ext .js src",
     "serve": "serve dist"
