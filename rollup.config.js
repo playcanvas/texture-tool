@@ -14,7 +14,7 @@ const externs = [
     'static/lib',
     'static/textures',
     'src/styles.css',
-    'src/pcom.css'
+    'src/fonts.css'
 ];
 
 const paths = {};
