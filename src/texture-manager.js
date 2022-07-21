@@ -46,7 +46,7 @@ class TextureManager extends Events {
                 } else {
                     // find another texture in the list
                     const idx = ids.indexOf(textureDoc.id) + 1;
-                    this.selectTextureDoc(this.getTexture(ids[idx === ids.length ? idx - 2 : idx]));
+                    this.selectTextureDoc(this.getTextureDoc(ids[idx === ids.length ? idx - 2 : idx]));
                 }
             }
             this.emit('textureDocRemoved', textureDoc);
