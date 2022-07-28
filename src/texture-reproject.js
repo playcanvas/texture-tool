@@ -3,7 +3,8 @@ import {
     Texture, Asset, reprojectTexture,
     PIXELFORMAT_R8_G8_B8_A8, PIXELFORMAT_RGBA16F, PIXELFORMAT_RGBA32F,
     TEXTURETYPE_DEFAULT, TEXTURETYPE_RGBM, TEXTURETYPE_RGBE,
-    FILTER_NEAREST, FILTER_LINEAR, FILTER_LINEAR_MIPMAP_LINEAR
+    FILTER_NEAREST, FILTER_LINEAR, FILTER_LINEAR_MIPMAP_LINEAR,
+    ADDRESS_REPEAT, ADDRESS_CLAMP_TO_EDGE
 } from 'playcanvas';
 import { TextureDoc } from './texture-doc.js';
 import { Helpers } from './helpers.js';
@@ -134,8 +135,8 @@ class TextureReprojectPanel extends Panel {
             if (!t) {
                 source.options = [];
                 target.options = [];
-                width = '';
-                height = '';
+                width.value = '';
+                height.value = '';
                 this.enabled = false;
                 return;
             }
@@ -199,40 +200,36 @@ class TextureReprojectPanel extends Panel {
                 t.projection = sourceProjection;
                 t.magFilter = t.encoding === 'rgbe' ? FILTER_NEAREST : FILTER_LINEAR;
                 t.minFilter = t.encoding === 'rgbe' ? FILTER_NEAREST : FILTER_LINEAR_MIPMAP_LINEAR;
+                t.addressU = ADDRESS_REPEAT;
+                t.addressV = sourceProjection === 'equirect' ? ADDRESS_CLAMP_TO_EDGE : ADDRESS_REPEAT;
                 switch (texture.settings.get('view.type')) {
-                    case '2':
-                        t.type = TEXTURETYPE_RGBM;
-                        break;
-                    case '3':
-                        t.type = TEXTURETYPE_RGBE;
-                        break;
-                    default:
-                        t.type = TEXTURETYPE_DEFAULT;
-                        break;
+                    case '2': t.type = TEXTURETYPE_RGBM; break;
+                    case '3': t.type = TEXTURETYPE_RGBE; break;
+                    default:  t.type = TEXTURETYPE_DEFAULT; break;
                 }
 
-                // rgbe textures can't be filtered, so convert source texture to RGBA32F first if any sampling
-                // is involved
-                if (t.encoding === 'rgbe' &&
-                    (width.value !== t.width || height.value !== t.height) ||
-                    (sourceProjection !== targetProjection)) {
+                // check if dimensions and projection are the same
+                const sameDims = sourceProjection === targetProjection && width.value === t.width && height.value === t.height;
+
+                // check if source texture is capable of reprojection as-is
+                if (sameDims || (t.encoding !== 'rgbe' && t.mipmaps && t._levels.length > 1)) {
+                    reprojectTexture(t, targetTexture, { numSamples: 1 });
+                } else {
                     const tmp = new Texture(t.device, {
                         cubemap: sourceProjection === 'cube',
                         width: t.width,
                         height: t.height,
                         format: PIXELFORMAT_RGBA32F,
                         type: TEXTURETYPE_DEFAULT,
-                        mipmaps: false,
                         projection: sourceProjection,
+                        addressU: ADDRESS_REPEAT,
+                        addressV: sourceProjection === 'equirect' ? ADDRESS_CLAMP_TO_EDGE : ADDRESS_REPEAT,
                         mipmaps: true
                     });
 
-                    reprojectTexture(t, tmp);
-                    reprojectTexture(tmp, targetTexture);
-
+                    reprojectTexture(t, tmp, { numSamples: 1 });
+                    reprojectTexture(tmp, targetTexture, { numSamples: 1 });
                     tmp.destroy();
-                } else {
-                    reprojectTexture(t, targetTexture);
                 }
 
                 const asset = new Asset(`${Helpers.removeExtension(texture.asset.name)}-${targetProjection}`, 'cubemap', {

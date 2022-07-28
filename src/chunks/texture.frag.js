@@ -1,5 +1,5 @@
 export default /* glsl */`
-#include "codings.glsl"
+#include "decode.glsl"
 
 uniform float mipmap;
 uniform float exposure;
@@ -8,7 +8,7 @@ uniform float scale;
 uniform vec2 viewportSize;
 uniform vec2 texSize;
 
-#if TEXTURE_CUBEMAP == 1
+#if TEXTURE_CUBEMAP
     uniform samplerCube tex;
     uniform float face;
 #else
@@ -32,6 +32,13 @@ vec3 getCubemapUv(vec2 uv, float face) {
     }
 }
 
+vec3 decodeAlpha(vec4 raw) {
+    return vec3(raw.a);
+}
+vec3 encodeGamma(vec3 source) {
+    return pow(source, vec3(1.0 / 2.2));
+}
+
 // calculate tiling
 float tile(vec2 coord, float tileSize) {
     return mod(dot(floor(coord * 2.0 / tileSize), vec2(1.0)), 2.0);
@@ -41,35 +48,20 @@ void main() {
     vec2 uv = (gl_FragCoord.xy - offset) / scale / texSize;
 
     // sample input texture
-#if TEXTURE_CUBEMAP == 1
+#if TEXTURE_CUBEMAP
     vec4 raw = textureCubeLodEXT(tex, getCubemapUv(vec2(uv.x, 1.0 - uv.y), face), mipmap);
 #else
     vec4 raw = texture2DLodEXT(tex, vec2(uv.x, 1.0 - uv.y), mipmap);
 #endif
 
-    // interpret texture based on type
-#if TEXTURE_TYPE == 0
-    vec4 clr = vec4(decodeGamma(raw.xyz), raw.a);       // gamma
-#elif TEXTURE_TYPE == 1
-    vec4 clr = vec4(decodeLinear(raw.xyz), raw.a);      // linear
-#elif TEXTURE_TYPE == 2
-    vec4 clr = vec4(decodeRGBM(raw), 1.0);              // rgbm
- #elif TEXTURE_TYPE == 3
-    vec4 clr = vec4(decodeRGBE(raw), 1.0);              // rgbe
-#elif TEXTURE_TYPE == 4
-    vec4 clr = vec4(raw.aaa, 1.0);                      // a
-#else
-    vec4 clr = vec4(1.0, 1.0, 0.0, 1.0);
-#endif
-
-    vec3 final = clr.xyz;
-    float alpha = clr.a;
+    vec3 final = DECODE_FUNC(raw);
+    float alpha = raw.a;
 
     // apply exposure
     final *= exposure;
 
     // blend with background
-#if TEXTURE_ALPHA == 1
+#if TEXTURE_ALPHA
     vec3 tileClr = mix(vec3(0.3), vec3(0.5), tile(gl_FragCoord.xy, 50.0));
     final = mix(tileClr, final, alpha);
 #endif

@@ -130,7 +130,12 @@ class ShaderDef {
         if (defines) {
             for (const k in defines) {
                 if (defines.hasOwnProperty(k)) {
-                    source.append(`#define ${k} ${defines[k]}`);
+                    const val = defines[k];
+                    if (typeof val === 'string') {
+                        source.append(`#define ${k} ${val}`);
+                    } else if (val) {
+                        source.append(`#define ${k}`);
+                    }
                 }
             }
         }
