@@ -70,7 +70,6 @@ class TextureManager extends Events {
                     if (typeof json[key] === 'object') {
                         recurse(json[key], p);
                     } else {
-                        console.log(`${p}=${textureDoc.settings.get(p)}`);
                         textureDoc.settings.set(p, textureDoc.settings.get(p), undefined, undefined, true);
                     }
                 });
