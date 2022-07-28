@@ -186,7 +186,7 @@ class TextureReprojectPanel extends Panel {
                 }[targetEncoding];
 
                 // create target texture
-                let targetTexture = new Texture(t.device, {
+                const targetTexture = new Texture(t.device, {
                     cubemap: targetProjection === 'cube',
                     width: width.value,
                     height: height.value,

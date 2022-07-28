@@ -70,9 +70,7 @@ class Texture2dPanel extends Container {
         });
 
         textureManager.on('textureDocAdded', (doc) => {
-            doc.settings.patch({
-                
-            });
+            doc.settings.patch({});
         });
 
         const events = [];

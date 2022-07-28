@@ -10,4 +10,5 @@ const versions = [
     ['Pcui', pcuiVersion]
 ];
 
+// print out versions of dependent packages
 console.log(versions.map(entry => `${entry[0]} v${entry[1]}`).join(' '));
