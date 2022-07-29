@@ -49,12 +49,11 @@ function PngExportWorker(href) {
     main();
 }
 
-class PngExport {
+class PngExporter {
     constructor() {
-        this.worker = PngExport.createWorker();
-
         let receiver;
 
+        this.worker = PngExporter.createWorker();
         this.worker.addEventListener('message', (message) => {
             receiver(message);
         });
@@ -74,7 +73,7 @@ class PngExport {
         return new Worker(URL.createObjectURL(workerBlob));
     }
 
-    compress(words, width, height) {
+    run(words, width, height) {
         this.worker.postMessage({
             words: words,
             width: width,
@@ -83,8 +82,12 @@ class PngExport {
 
         return new Promise(this.promiseFunc);
     }
+
+    get extension() {
+        return 'png';
+    }
 }
 
 export {
-    PngExport
+    PngExporter
 };

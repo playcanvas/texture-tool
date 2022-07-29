@@ -55,8 +55,14 @@ class TextureView {
         // construct the material
         this.material = new Material();
 
-        this.material.updateShader = (device) => {
-            const textureTypeTable = ['gamma', 'linear', 'rgbm', 'rgbe', 'a'];
+        this.material.getShaderVariant = (device) => {
+            const decodeFunc = {
+                'gamma': 'decodeGamma',
+                'linear': 'decodeLinear',
+                'rgbm': 'decodeRGBM',
+                'rgbe': 'decodeRGBE',
+                'a': 'decodeAlpha'
+            };
 
             const shaderDef = {
                 vertex: {
@@ -64,9 +70,9 @@ class TextureView {
                 },
                 fragment: {
                     defines: {
-                        TEXTURE_ALPHA: this.alpha ? '1' : '0',
-                        TEXTURE_TYPE: textureTypeTable.indexOf(this.textureType),
-                        TEXTURE_CUBEMAP: this.texture && this.texture.cubemap ? '1' : '0'
+                        TEXTURE_ALPHA: this.alpha,
+                        TEXTURE_CUBEMAP: this.texture && this.texture.cubemap,
+                        DECODE_FUNC: decodeFunc[this.textureType]
                     },
                     source: 'texture.frag',
                     webgl1Extensions: [
@@ -76,7 +82,7 @@ class TextureView {
                 }
             };
 
-            this.material.shader = ShaderDef.createShader(device, shaderDef);
+            return ShaderDef.createShader(device, shaderDef);
         };
 
         // render entity

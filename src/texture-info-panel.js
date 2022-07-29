@@ -42,7 +42,7 @@ class TextureInfoPanel extends Panel {
         this.header.append(this.textureType);
         this.header.append(this.cursorTexel);
 
-        textureManager.on('textureSelected', (texture) => {
+        textureManager.on('textureDocSelected', (texture) => {
             this.setTexture(texture);
         });
     }

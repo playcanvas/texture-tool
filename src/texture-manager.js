@@ -1,18 +1,18 @@
 import { Events } from '@playcanvas/observer';
-import { Texture } from './texture.js';
+import { TextureDoc } from './texture-doc.js';
 
 class TextureManager extends Events {
     constructor(assets) {
         super();
 
         this.assets = assets;
-        this.emptyTexture = new Texture(null);
-        this.textures = new Map();
-        this.selectedTexture = null;
+        this.emptyTextureDoc = new TextureDoc(null);
+        this.textureDocs = new Map();
+        this.selectedTextureDoc = null;
     }
 
     // add a texture asset
-    addTextureByUrl(url, filename, callback) {
+    addTextureDocByUrl(url, filename, callback) {
         this.assets.loadFromUrlAndFilename(url, filename, 'texture', (err, asset) => {
             if (err) {
                 console.error(err);
@@ -20,62 +20,71 @@ class TextureManager extends Events {
                     callback(err, null);
                 }
             } else {
-                this.addTexture(new Texture(asset), callback);
+                this.addTextureDoc(new TextureDoc(asset), callback);
             }
         });
     }
 
-    addTexture(texture, callback) {
-        this.textures.set(texture.id, texture);
-        this.emit('textureAdded', texture);
+    addTextureDoc(textureDoc, callback) {
+        this.textureDocs.set(textureDoc.id, textureDoc);
+        this.emit('textureDocAdded', textureDoc);
         if (callback) {
-            callback(null, texture);
+            callback(null, textureDoc);
         }
     }
 
-    removeTexture(texture) {
-        const id = texture.id;
-        if (!this.textures.has(id)) {
+    removeTextureDoc(textureDoc) {
+        const id = textureDoc.id;
+        if (!this.textureDocs.has(id)) {
             console.error('invalid texture');
         } else {
-            if (texture === this.selectedTexture) {
-                const ids = this.textureIds;
+            if (textureDoc === this.selectedTextureDoc) {
+                const ids = this.textureDocIds;
                 if (ids.length === 1) {
                     // user is closing the last texture, select an empty texture
-                    this.selectTexture(this.emptyTexture);
+                    this.selectTextureDoc(this.emptyTextureDoc);
                 } else {
                     // find another texture in the list
-                    const idx = ids.indexOf(texture.id) + 1;
-                    this.selectTexture(this.getTexture(ids[idx === ids.length ? idx - 2 : idx]));
+                    const idx = ids.indexOf(textureDoc.id) + 1;
+                    this.selectTextureDoc(this.getTextureDoc(ids[idx === ids.length ? idx - 2 : idx]));
                 }
             }
-            this.emit('textureRemoved', texture);
+            this.emit('textureDocRemoved', textureDoc);
 
-            const asset = texture.asset;
+            const asset = textureDoc.asset;
             asset.unload();
             this.assets.remove(id);
-            this.textures.delete(id);
+            this.textureDocs.delete(id);
         }
     }
 
-    selectTexture(texture) {
-        if (texture !== this.selectedTexture) {
-            this.selectedTexture = texture;
-            this.emit('textureSelected', texture);
+    selectTextureDoc(textureDoc) {
+        if (textureDoc !== this.selectedTextureDoc) {
+            this.selectedTextureDoc = textureDoc;
+            this.emit('textureDocSelected', textureDoc);
 
-            // raise change events so everyone is notified of state
-            ['filter', 'face', 'mipmap', 'type', 'alpha', 'exposure'].forEach((key) => {
-                texture.view.set(key, texture.view.get(key), undefined, undefined, true);
-            });
+            // fire changed values on everything
+            const recurse = (json, path) => {
+                Object.keys(json).forEach((key) => {
+                    const p = `${path}${path.length > 0 ? '.' : ''}${key}`;
+                    if (typeof json[key] === 'object') {
+                        recurse(json[key], p);
+                    } else {
+                        textureDoc.settings.set(p, textureDoc.settings.get(p), undefined, undefined, true);
+                    }
+                });
+            };
+
+            recurse(textureDoc.settings.json(), '');
         }
     }
 
-    get textureIds() {
-        return Array.from(this.textures.keys());
+    get textureDocIds() {
+        return Array.from(this.textureDocs.keys());
     }
 
-    getTexture(id) {
-        return this.textures.get(id) || null;
+    getTextureDoc(id) {
+        return this.textureDocs.get(id) || null;
     }
 }
 

@@ -1,108 +1,49 @@
 import resolve from '@rollup/plugin-node-resolve';
 import alias from '@rollup/plugin-alias';
+import json from '@rollup/plugin-json';
+import { terser } from 'rollup-plugin-terser';
+import sourcemaps from 'rollup-plugin-sourcemaps';
 import path from 'path';
-import fs from 'fs';
+import copyAndWatch from "./copy-and-watch";
 
-const settings = {
-    debugBuild: process.env.BUILD_TYPE === 'debug',
-    prodEnv: process.env.NODE_ENV === 'production',
-    enginePath: process.env.ENGINE_PATH,
-    pcuiPath: process.env.PCUI_PATH,
-    pcuiGraphPath: process.env.PCUI_GRAPH_PATH,
-    href: process.env.BASE_HREF || ''
-};
+const PROD_BUILD    = process.env.BUILD_TYPE === 'prod';
+const HREF          = process.env.BASE_HREF || '';
 
 const externs = [
     'static/playcanvas-logo.png',
     'static/lib',
     'static/textures',
     'src/styles.css',
-    'src/pcom.css'
+    'src/fonts.css'
 ];
 
-// get aliases
-const aliasEntries = () => {
-    const entries = [];
-
-    if (settings.pcuiPath) {
-        entries.push({
-            find: /^@playcanvas\/pcui/,
-            replacement: path.resolve(settings.pcuiPath)
-        });
+const paths = {};
+['PCUI_PATH', 'ENGINE_PATH'].forEach((p) => {
+    const envPath = process.env[p];
+    if (envPath) {
+        paths[p] = path.resolve(envPath)
     }
+});
 
-    if (settings.pcuiGraphPath) {
-        entries.push({
-            find: /^@playcanvas\/pcui-graph/,
-            replacement: path.resolve(settings.pcuiGraphPath)
-        });
-    }
+const aliasEntries = [];
 
-    if (settings.enginePath) {
-        entries.push({
-            find: 'playcanvas',
-            replacement: path.resolve(settings.enginePath, settings.debugBuild ? 'build/playcanvas.dbg.mjs' : 'build/playcanvas.mjs')
-        });
-    }
+if (paths.PCUI_PATH) {
+    aliasEntries.push({
+        find: /^@playcanvas\/pcui(.*)/,
+        replacement: `${paths.PCUI_PATH}$1`
+    });
+}
 
-    return {
-        entries: entries
-    };
-};
-
-// custom plugin to copy files and watch them
-function copyAndWatch(config) {
-    const resolvedConfig = {
-        targets: []
-    };
-
-    // resolve source directories into files
-    config.targets.forEach((target) => {
-        const readRec = (pathname) => {
-            if (!fs.existsSync(pathname)) {
-                console.log(`skipping missing file ${target.src}`);
-            } else {
-                if (fs.lstatSync(pathname).isDirectory()) {
-                    const children = fs.readdirSync(pathname);
-                    children.forEach((childPath) => {
-                        readRec(path.join(pathname, childPath));
-                    });
-                } else {
-                    let dest;
-                    if (fs.lstatSync(target.src).isDirectory()) {
-                        dest = path.join(target.dest, path.basename(target.src), path.relative(target.src, pathname));
-                    } else {
-                        dest = path.join(target.dest, path.basename(target.src));
-                    }
-                    resolvedConfig.targets.push({
-                        src: pathname,
-                        dest: dest,
-                        transform: target.transform
-                    });
-                }
-            }
-        };
-        readRec(target.src);
+if (paths.ENGINE_PATH) {
+    aliasEntries.push({
+        find: /^playcanvas$/,
+        replacement: `${paths.ENGINE_PATH}/build/playcanvas.dbg.mjs`
     });
 
-    return {
-        name: 'copy-and-watch',
-        async buildStart() {
-            resolvedConfig.targets.forEach((target) => {
-                this.addWatchFile(target.src);
-            });
-        },
-        async generateBundle() {
-            resolvedConfig.targets.forEach((target) => {
-                const contents = fs.readFileSync(target.src);
-                this.emitFile({
-                    type: 'asset',
-                    fileName: target.dest,
-                    source: target.transform ? target.transform(contents, target.src) : contents
-                })
-            });
-        }
-    }
+    aliasEntries.push({
+        find: /^playcanvas(.*)/,
+        replacement: `${paths.ENGINE_PATH}$1`
+    });
 }
 
 export default {
@@ -110,17 +51,15 @@ export default {
     output: {
         dir: 'dist',
         format: 'es',
-        sourcemap: settings.debugBuild ? 'inline' : null
+        sourcemap: true
     },
     plugins: [
-        alias(aliasEntries()),
-        resolve(),
         copyAndWatch({
             targets: [{
                 src: 'src/index.html',
                 dest: '',
                 transform: (contents, filename) => {
-                    return contents.toString().replace('__BASE_HREF__', settings.href);
+                    return contents.toString().replace('__BASE_HREF__', HREF);
                 }
             }].concat(externs.map((e) => {
                 return {
@@ -128,6 +67,11 @@ export default {
                     dest: ''
                 };
             }))
-        })
+        }),
+        alias({ entries: aliasEntries }),
+        resolve(),
+        sourcemaps(),
+        json(),
+        (PROD_BUILD && terser())
     ]
 };

@@ -69,30 +69,33 @@ class Texture2dPanel extends Container {
             dragging = false;
         });
 
-        const events = [];
+        textureManager.on('textureDocAdded', (doc) => {
+            doc.settings.patch({});
+        });
 
-        textureManager.on('textureSelected', (texture) => {
+        const events = [];
+        textureManager.on('textureDocSelected', (texture) => {
             events.forEach(ev => ev.unbind());
             events.length = 0;
 
-            events.push(texture.view.on('filter:set', (value) => {
+            events.push(texture.settings.on('view.filter:set', (value) => {
                 this.view.setFilter(value);
             }));
-            events.push(texture.view.on('face:set', (value) => {
+            events.push(texture.settings.on('view.face:set', (value) => {
                 this.view.setFace(parseInt(value, 10));
             }));
-            events.push(texture.view.on('mipmap:set', (value) => {
+            events.push(texture.settings.on('view.mipmap:set', (value) => {
                 this.view.setMipmap(parseInt(value, 10));
             }));
-            events.push(texture.view.on('type:set', (value) => {
+            events.push(texture.settings.on('view.type:set', (value) => {
                 this.view.setTextureType({
                     0: 'gamma', 1: 'linear', 2: 'rgbm', 3: 'rgbe', 4: 'a'
                 }[value]);
             }));
-            events.push(texture.view.on('alpha:set', (value) => {
+            events.push(texture.settings.on('view.alpha:set', (value) => {
                 this.view.setAlpha(value);
             }));
-            events.push(texture.view.on('exposure:set', (value) => {
+            events.push(texture.settings.on('view.exposure:set', (value) => {
                 this.view.setExposure(Math.pow(2, parseInt(value, 10)));
             }));
 
