@@ -4,7 +4,8 @@ const encodingTable = {
     'srgb': '0',
     'linear': '1',
     'rgbm': '2',
-    'rgbe': '3'
+    'rgbe': '3',
+    'rgbp': '4'
 };
 
 class TextureViewSettingsPanel extends Panel {
