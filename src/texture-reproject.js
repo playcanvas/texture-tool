@@ -2,7 +2,7 @@ import { Button, Panel, Container, SelectInput, LabelGroup, NumericInput } from 
 import {
     Texture, Asset, reprojectTexture,
     PIXELFORMAT_R8_G8_B8_A8, PIXELFORMAT_RGBA16F, PIXELFORMAT_RGBA32F,
-    TEXTURETYPE_DEFAULT, TEXTURETYPE_RGBM, TEXTURETYPE_RGBE,
+    TEXTURETYPE_DEFAULT, TEXTURETYPE_RGBM, TEXTURETYPE_RGBE, TEXTURETYPE_RGBP,
     FILTER_NEAREST, FILTER_LINEAR, FILTER_LINEAR_MIPMAP_LINEAR,
     ADDRESS_REPEAT, ADDRESS_CLAMP_TO_EDGE
 } from 'playcanvas';
@@ -37,7 +37,7 @@ class TextureReprojectPanel extends Panel {
             1: 'rgbe',
             2: 'rgbp',
             3: 'linear',
-            4: 'srgb',
+            4: 'srgb'
         };
 
         const eindices = {
