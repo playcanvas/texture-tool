@@ -198,7 +198,8 @@ class TextureReprojectPanel extends Panel {
                     format: format,
                     type: type,
                     mipmaps: false,
-                    projection: targetProjection
+                    projection: targetProjection,
+                    anisotropy: t.device.maxAnisotropy
                 });
 
                 // reprojectTexture function uses the texture's own setup so apply view settings to the texture
@@ -230,7 +231,8 @@ class TextureReprojectPanel extends Panel {
                         projection: sourceProjection,
                         addressU: ADDRESS_REPEAT,
                         addressV: sourceProjection === 'equirect' ? ADDRESS_CLAMP_TO_EDGE : ADDRESS_REPEAT,
-                        mipmaps: true
+                        mipmaps: true,
+                        anisotropy: t.device.maxAnisotropy
                     });
 
                     reprojectTexture(t, tmp, { numSamples: 1 });
