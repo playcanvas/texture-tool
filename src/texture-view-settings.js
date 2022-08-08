@@ -4,7 +4,8 @@ const encodingTable = {
     'srgb': '0',
     'linear': '1',
     'rgbm': '2',
-    'rgbe': '3'
+    'rgbe': '3',
+    'rgbp': '4'
 };
 
 class TextureViewSettingsPanel extends Panel {
@@ -56,7 +57,8 @@ class TextureViewSettingsPanel extends Panel {
                 { v: '1', t: 'linear' },
                 { v: '2', t: 'rgbm' },
                 { v: '3', t: 'rgbe' },
-                { v: '4', t: 'a' }
+                { v: '4', t: 'rgbp' },
+                { v: '5', t: 'a' }
             ],
             flexGrow: 1
         });

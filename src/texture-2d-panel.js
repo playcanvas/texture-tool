@@ -89,7 +89,7 @@ class Texture2dPanel extends Container {
             }));
             events.push(texture.settings.on('view.type:set', (value) => {
                 this.view.setTextureType({
-                    0: 'gamma', 1: 'linear', 2: 'rgbm', 3: 'rgbe', 4: 'a'
+                    0: 'gamma', 1: 'linear', 2: 'rgbm', 3: 'rgbe', 4: 'rgbp', 5: 'a'
                 }[value]);
             }));
             events.push(texture.settings.on('view.alpha:set', (value) => {

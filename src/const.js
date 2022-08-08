@@ -33,6 +33,7 @@ import {
     TEXTURETYPE_DEFAULT,
     TEXTURETYPE_RGBM,
     TEXTURETYPE_RGBE,
+    TEXTURETYPE_RGBP,
     TEXTURETYPE_SWIZZLEGGGR
 } from 'playcanvas';
 
@@ -74,6 +75,7 @@ const TextureTypeTable = {
     [TEXTURETYPE_DEFAULT]: 'default',
     [TEXTURETYPE_RGBM]: 'rgbm',
     [TEXTURETYPE_RGBE]: 'rgbe',
+    [TEXTURETYPE_RGBP]: 'rgbp',
     [TEXTURETYPE_SWIZZLEGGGR]: 'swizzleGGGR'
 };
 

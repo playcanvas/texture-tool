@@ -35,6 +35,7 @@ vec3 getCubemapUv(vec2 uv, float face) {
 vec3 decodeAlpha(vec4 raw) {
     return vec3(raw.a);
 }
+
 vec3 encodeGamma(vec3 source) {
     return pow(source, vec3(1.0 / 2.2));
 }
