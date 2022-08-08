@@ -50,7 +50,7 @@
     "cross-env": "^7.0.3",
     "eslint": "^8.21.0",
     "jszip": "^3.10.1",
-    "playcanvas": "^1.55.1",
+    "playcanvas": "^1.55.3",
     "rollup": "^2.77.2",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-import-css": "^3.0.3",
