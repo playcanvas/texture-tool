@@ -1,6 +1,6 @@
 import { Helpers } from './helpers.js';
 import { RenderTarget } from 'playcanvas';
-import { Button, Panel, Container } from '@playcanvas/pcui';
+import { Button, Panel, Container } from 'pcui';
 import { PngExporter } from './png-exporter.js';
 import { HdrExporter } from './hdr-exporter.js';
 
@@ -44,7 +44,7 @@ const download = (filename, data) => {
 class TextureExportPanel extends Panel {
     constructor(textureManager, args = { }) {
         Object.assign(args, {
-            id: 'textureExportPane',
+            id: 'texture-export-pane',
             headerText: 'Export',
             collapsible: true,
             flexGrow: 1
@@ -57,27 +57,27 @@ class TextureExportPanel extends Panel {
 
         // png export
         const exportToPng = new Button({
-            class: 'inspectorButton',
+            class: 'inspector-button',
             text: 'EXPORT TO PNG',
             icon: '\E228',
             enabled: false
         });
 
         const exportToPngContainer = new Container({
-            class: 'inspectorButtonContainer'
+            class: 'inspector-button-container'
         });
         exportToPngContainer.append(exportToPng);
 
         // hdr export
         const exportToHdr = new Button({
-            class: 'inspectorButton',
+            class: 'inspector-button',
             text: 'EXPORT TO HDR',
             icon: '\E228',
             enabled: false
         });
 
         const exportToHdrContainer = new Container({
-            class: 'inspectorButtonContainer'
+            class: 'inspector-button-container'
         });
         exportToHdrContainer.append(exportToHdr);
 
@@ -127,7 +127,11 @@ class TextureExportPanel extends Panel {
 
             exportToPng.enabled = !!texture.resource;
             exportToHdr.enabled = texture.resource && texture.resource.encoding === 'rgbe';
+
+            this.enabled = !!texture.resource;
         });
+
+        this.enabled = false;
     }
 }
 

@@ -1,4 +1,4 @@
-import { Button, Panel, Container, SelectInput, LabelGroup, NumericInput } from '@playcanvas/pcui';
+import { Button, Panel, Container, SelectInput, LabelGroup, NumericInput } from 'pcui';
 import {
     Texture, Asset, reprojectTexture,
     PIXELFORMAT_R8_G8_B8_A8, PIXELFORMAT_RGBA16F, PIXELFORMAT_RGBA32F,
@@ -12,7 +12,7 @@ import { Helpers } from './helpers.js';
 class TextureReprojectPanel extends Panel {
     constructor(textureManager, args = { }) {
         Object.assign(args, {
-            id: 'textureReprojectPane',
+            id: 'texture-reproject-pane',
             headerText: 'Reproject',
             collapsible: true
         });
@@ -106,12 +106,12 @@ class TextureReprojectPanel extends Panel {
 
         // reproject
         const reprojectButton = new Button({
-            class: 'inspectorButton',
+            class: 'inspector-button',
             text: 'Reproject'
         });
 
         const buttonContainer = new Container({
-            class: 'inspectorButtonContainer',
+            class: 'inspector-button-container',
             flex: true,
             flexDirection: 'row'
         });
@@ -124,8 +124,6 @@ class TextureReprojectPanel extends Panel {
         this.append(new LabelGroup({ text: 'width', field: width }));
         this.append(new LabelGroup({ text: 'height', field: height }));
         this.append(buttonContainer);
-
-        this.enabled = false;
 
         const events = [];
         textureManager.on('textureDocSelected', (texture) => {
@@ -256,6 +254,8 @@ class TextureReprojectPanel extends Panel {
 
             this.enabled = true;
         });
+
+        this.enabled = false;
     }
 }
 

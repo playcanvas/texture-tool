@@ -1,4 +1,4 @@
-import { Panel, Button, Container, LabelGroup, SelectInput, SliderInput, BooleanInput } from '@playcanvas/pcui';
+import { Panel, Button, Container, LabelGroup, SelectInput, SliderInput, BooleanInput } from 'pcui';
 
 const encodingTable = {
     'srgb': '0',
@@ -11,7 +11,7 @@ const encodingTable = {
 class TextureViewSettingsPanel extends Panel {
     constructor(textureManager, args = { }) {
         Object.assign(args, {
-            id: 'textureViewSettingsPane',
+            id: 'texture-view-settings-pane',
             headerText: 'View',
             collapsible: true,
             flexGrow: 0
@@ -24,16 +24,16 @@ class TextureViewSettingsPanel extends Panel {
         // -x +z +x -z
         //    -y
         const faceButtonsContainer = new Container({
-            id: 'cubemapFaceButtonsContainer'
+            id: 'cubemap-face-buttons-container'
         });
 
         const faceButtons = {
-            0: new Button({ id: 'cubemapFacePx', class: 'cubemapFace', text: '+x' }),
-            1: new Button({ id: 'cubemapFaceNx', class: 'cubemapFace', text: '-x' }),
-            2: new Button({ id: 'cubemapFacePy', class: 'cubemapFace', text: '+y' }),
-            3: new Button({ id: 'cubemapFaceNy', class: 'cubemapFace', text: '-y' }),
-            4: new Button({ id: 'cubemapFacePz', class: 'cubemapFace', text: '+z' }),
-            5: new Button({ id: 'cubemapFaceNz', class: 'cubemapFace', text: '-z' })
+            0: new Button({ id: 'cubemap-face-px', class: 'cubemap-face', text: '+x' }),
+            1: new Button({ id: 'cubemap-face-nx', class: 'cubemap-face', text: '-x' }),
+            2: new Button({ id: 'cubemap-face-py', class: 'cubemap-face', text: '+y' }),
+            3: new Button({ id: 'cubemap-face-ny', class: 'cubemap-face', text: '-y' }),
+            4: new Button({ id: 'cubemap-face-pz', class: 'cubemap-face', text: '+z' }),
+            5: new Button({ id: 'cubemap-face-nz', class: 'cubemap-face', text: '-z' })
         };
 
         Object.keys(faceButtons).forEach((face) => {
@@ -84,8 +84,6 @@ class TextureViewSettingsPanel extends Panel {
         this.append(new LabelGroup({ text: 'alpha', field: alphaToggle }));
         this.append(new LabelGroup({ text: 'filter', field: filterToggle }));
         this.append(new LabelGroup({ text: 'exposure', field: exposureSlider }));
-
-        this.enabled = false;
 
         textureManager.on('textureDocAdded', (doc) => {
             doc.settings.patch({
@@ -166,9 +164,12 @@ class TextureViewSettingsPanel extends Panel {
             mipmapSelect.options = mips;
 
             // face select
-            this.enabled = !!texture.resource;
             faceButtonsContainer.enabled = texture.cubemap;
+
+            this.enabled = !!texture.resource;
         });
+
+        this.enabled = false;
     }
 }
 

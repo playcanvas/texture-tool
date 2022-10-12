@@ -1,7 +1,7 @@
 import { path } from 'playcanvas';
 
 // pcui
-import { Container } from '@playcanvas/pcui';
+import { Container } from 'pcui';
 
 // rendering
 import { Renderer } from './renderer.js';
@@ -35,7 +35,7 @@ const root = new Container({
 });
 
 const leftContainer = new Container({
-    id: 'leftContainer',
+    id: 'left-container',
     resizable: 'right',
     resizeMin: 100,
     resizeMax: 1000,
@@ -45,11 +45,11 @@ const leftContainer = new Container({
 });
 
 const centerContainer = new Container({
-    id: 'centerContainer'
+    id: 'center-container'
 });
 
 const rightContainer = new Container({
-    id: 'rightContainer',
+    id: 'right-container',
     resizable: 'left',
     resizeMin: 100,
     resizeMax: 1000,

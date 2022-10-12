@@ -1,4 +1,4 @@
-import { Label, LabelGroup, Container } from '@playcanvas/pcui';
+import { Label, LabelGroup, Container } from 'pcui';
 import { PixelFormatTable, TextureTypeTable } from './const';
 
 const attributes = [{
@@ -38,7 +38,6 @@ class TextureDetails extends Container {
             });
 
             this.append(new LabelGroup({
-                class: 'texture-details-item-group',
                 text: attribute.label,
                 field: label
             }));

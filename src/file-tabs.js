@@ -1,9 +1,9 @@
-import { Container, Label } from '@playcanvas/pcui';
+import { Container, Label } from 'pcui';
 
 class FileTabs extends Container {
     constructor(textureManager, args = {}) {
         Object.assign(args, {
-            id: 'fileTabsContainer',
+            id: 'file-tabs-container',
             flex: true,
             flexDirection: 'row'
         });
@@ -19,18 +19,18 @@ class FileTabs extends Container {
 
     onTextureDocAdded(texture) {
         const tab = new Container({
-            class: 'fileTab',
+            class: 'file-tab',
             flex: true,
             flexDirection: 'row'
         });
 
         const label = new Label({
-            class: 'fileTabLabel',
+            class: 'file-tab-label',
             text: texture.filename
         });
 
         const button = new Label({
-            class: 'fileTabClose',
+            class: 'file-tab-close',
             text: '×'
         });
 
