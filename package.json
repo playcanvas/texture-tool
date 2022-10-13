@@ -28,7 +28,6 @@
       "requireConfigFile": false
     },
     "rules": {
-      "no-undef": "error",
       "import/no-unresolved": "off"
     },
     "globals": {

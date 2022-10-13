@@ -34,7 +34,6 @@ const externs = [
     'static/playcanvas-logo.png',
     'static/lib',
     'static/textures',
-    // 'src/styles.css',
     'src/fonts.css'
 ];
 
