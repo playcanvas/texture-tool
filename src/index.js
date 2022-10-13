@@ -6,7 +6,7 @@ import { version as textureToolVersion } from '../package.json';
 // import { version as engineVersion } from 'playcanvas';
 
 const versions = [
-    ['TextureTool', textureToolVersion],
+    ['TextureTool', textureToolVersion]
     // ['Engine', engineVersion],
     // ['Pcui', pcuiVersion]
 ];
