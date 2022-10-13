@@ -4,7 +4,7 @@ import {
     PIXELFORMAT_R8_G8_B8_A8, PIXELFORMAT_RGBA16F, PIXELFORMAT_RGBA32F,
     TEXTURETYPE_DEFAULT, TEXTURETYPE_RGBM, TEXTURETYPE_RGBE, TEXTURETYPE_RGBP,
     FILTER_NEAREST, FILTER_LINEAR, FILTER_LINEAR_MIPMAP_LINEAR,
-    ADDRESS_REPEAT, ADDRESS_CLAMP_TO_EDGE
+    ADDRESS_REPEAT, ADDRESS_CLAMP_TO_EDGE, EnvLighting
 } from 'playcanvas';
 import { TextureDoc } from './texture-doc.js';
 import { Helpers } from './helpers.js';
@@ -22,7 +22,8 @@ class TextureReprojectPanel extends Panel {
         const projections = {
             0: 'cube',
             1: 'equirect',
-            2: 'octahedral'
+            2: 'octahedral',
+            3: 'envAtlas'
         };
 
         const pindices = {
@@ -60,7 +61,8 @@ class TextureReprojectPanel extends Panel {
         const targetProjections = [
             { v: '0', t: 'cube' },
             { v: '1', t: 'equirect' },
-            { v: '2', t: 'octahedral' }
+            { v: '2', t: 'octahedral' },
+            { v: '3', t: 'envAtlas' }
         ];
 
         // source
@@ -143,7 +145,7 @@ class TextureReprojectPanel extends Panel {
             }
 
             const onTargetProjectionChanged = () => {
-                height.enabled = projections[target.value] !== 'cube';
+                height.enabled = ['cube', 'envAtlas'].indexOf(projections[target.value]) === -1;
                 if (!height.enabled) {
                     height.value = width.value;
                 }
@@ -234,11 +236,19 @@ class TextureReprojectPanel extends Panel {
                     });
 
                     reprojectTexture(t, tmp, { numSamples: 1 });
-                    reprojectTexture(tmp, targetTexture, { numSamples: 1 });
+                    if (targetProjection === 'envAtlas') {
+                        const lighting = EnvLighting.generateLightingSource(tmp);
+                        EnvLighting.generateAtlas(lighting, {
+                            target: targetTexture
+                        });
+                        lighting.destroy();
+                    } else {
+                        reprojectTexture(tmp, targetTexture, { numSamples: 1 });
+                    }
                     tmp.destroy();
                 }
 
-                const asset = new Asset(`${Helpers.removeExtension(texture.asset.name)}-${targetProjection}`, 'cubemap', {
+                const asset = new Asset(`${Helpers.removeExtension(texture.asset.name)}-${targetProjection}`, targetProjection === 'cube' ? 'cubemap' : 'texture', {
                     filename: `${Helpers.removeExtension(texture.filename)}-${targetProjection}`,
                     url: ''
                 }, null);
@@ -256,6 +266,10 @@ class TextureReprojectPanel extends Panel {
         });
 
         this.enabled = false;
+    }
+
+    generateEnvAtlas(source, target) {
+
     }
 }
 
