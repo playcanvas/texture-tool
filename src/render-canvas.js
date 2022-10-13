@@ -1,10 +1,10 @@
-import { Container } from '@playcanvas/pcui';
+import { Container } from 'pcui';
 
 // implements a pcui canvas element with rendering
 class RenderCanvas extends Container {
     constructor(renderer, composition = null, args = {}) {
         Object.assign(args, {
-            class: 'renderCanvasContainer',
+            class: 'render-canvas-container',
             flex: true,
             flexGrow: 1,
             flexShrink: 1

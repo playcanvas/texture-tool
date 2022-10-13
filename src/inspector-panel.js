@@ -1,4 +1,4 @@
-import { Container } from '@playcanvas/pcui';
+import { Container } from 'pcui';
 import { TextureViewSettingsPanel } from './texture-view-settings.js';
 import { TextureReprojectPanel } from './texture-reproject.js';
 import { TextureExportPanel } from './texture-export.js';

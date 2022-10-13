@@ -1,4 +1,4 @@
-import { Panel, Label } from '@playcanvas/pcui';
+import { Panel, Label } from 'pcui';
 import { PixelFormatTable, TextureTypeTable } from './const.js';
 
 class TextureInfoPanel extends Panel {
@@ -13,27 +13,27 @@ class TextureInfoPanel extends Panel {
         // footer
         this.textureStructure = new Label({
             width: 80,
-            class: 'centerAlign'
+            class: 'center-align'
         });
 
         this.textureDims = new Label({
             width: 80,
-            class: 'centerAlign'
+            class: 'center-align'
         });
 
         this.texturePixelFormat = new Label({
             width: 80,
-            class: 'centerAlign'
+            class: 'center-align'
         });
 
         this.textureType = new Label({
             width: 80,
-            class: 'centerAlign'
+            class: 'center-align'
         });
 
         this.cursorTexel = new Label({
             width: 80,
-            class: 'centerAlign'
+            class: 'center-align'
         });
 
         this.header.append(this.textureStructure);

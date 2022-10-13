@@ -1,5 +1,5 @@
 import * as pc from 'playcanvas';
-import { Panel, Button, SelectInput } from '@playcanvas/pcui';
+import { Panel, Button, SelectInput } from 'pcui';
 import { OrbitCamera } from './orbit-camera.js';
 import { RenderCanvas } from './render-canvas.js';
 import { CubemapViewMaterial } from './cubemap-material.js';
@@ -11,7 +11,7 @@ const calcMipmaps = (width, height) => {
 class CubemapView extends Panel {
     constructor(renderer, args = {}) {
         Object.assign(args, {
-            class: 'renderView',
+            class: 'render-view',
             flex: true,
             flexGrow: 1,
             flexShrink: 1

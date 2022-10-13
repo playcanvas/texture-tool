@@ -76,7 +76,7 @@ class Renderer {
 
         // render
         this._app.batcher.updateAll();
-        this._app.renderer.renderComposition(composition);
+        this._app.renderComposition(composition);
 
         // copy the result to the target canvas
         const context = canvas.getContext('2d');

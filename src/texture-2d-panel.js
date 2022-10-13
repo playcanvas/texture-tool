@@ -1,4 +1,4 @@
-import { Container } from '@playcanvas/pcui';
+import { Container } from 'pcui';
 import { RenderCanvas } from './render-canvas.js';
 import { TextureView } from './texture-view.js';
 import { TextureInfoPanel } from './texture-info-panel.js';
@@ -6,7 +6,7 @@ import { TextureInfoPanel } from './texture-info-panel.js';
 class Texture2dPanel extends Container {
     constructor(renderer, textureManager, args = {}) {
         Object.assign(args, {
-            class: 'Texture2dPanel',
+            class: 'texture-2d-panel',
             flex: true,
             flexGrow: 1,
             flexShrink: 1

@@ -1,9 +1,9 @@
-import { Container, Button } from '@playcanvas/pcui';
+import { Container, Button } from 'pcui';
 
 class FeedbackPanel extends Container {
     constructor(args = { }) {
         Object.assign(args, {
-            id: 'feedbackPane'
+            id: 'feedback-pane'
         });
 
         super(args);

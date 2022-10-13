@@ -124,7 +124,13 @@ class Schema {
         };
 
         // define properties
-        schema.forEach((schemaEntry, index) => (schemaEntry.array ? defineArrayProperty(typeClass, schemaEntry, index) : defineProperty(typeClass, schemaEntry, index)));
+        schema.forEach((schemaEntry, index) => {
+            if (schemaEntry.array) {
+                defineArrayProperty(typeClass, schemaEntry, index);
+            } else {
+                defineProperty(typeClass, schemaEntry, index);
+            }
+        });
 
         return typeClass;
     }

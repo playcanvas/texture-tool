@@ -1,14 +1,15 @@
+@import '../node_modules/@playcanvas/pcui/dist/pcui-theme-grey.scss';
+
 /* texture-tool stylesheet */
 
 * {
-    font-size: 12px;
+    font-size: 14px;
 }
 
 html, body, #root {
     height: 100%;
     margin: 0;
     padding: 0;
-    background-color:#364346;
 }
 
 body {
@@ -31,10 +32,6 @@ body {
 
 .pcui-panel-header-title {
     padding-left: 4px;
-}
-
-.pcui-menu {
-    font-size: 13px;
 }
 
 .pcui-menu-item-content > span {
@@ -67,13 +64,17 @@ body {
     line-height: 20px;
 }
 
-.inspectorButtonContainer {
+.inspector-panel-container {
+    background-color: $bcg-primary;
+}
+
+.inspector-button-container {
     display: flex;
     flex-direction: row;
     justify-content: center;
 }
 
-.inspectorButton {
+.inspector-button {
     width: 90%;
 }
 
@@ -105,19 +106,10 @@ body {
     border-top: 1px solid #232e30;
 }
 
-.texture-details-item-group {
-
-}
-
 .texture-details-value {
-    /* font-size: 12px; */
     background-color: #2c393c;
     padding: 4px;
     border: 1px solid #232e30;
-}
-
-.pcui-treeview-item-text {
-    /* font-size: 12px; */
 }
 
 #root .pcui-label-group {
@@ -126,7 +118,6 @@ body {
 }
 
 #root .pcui-label-group > .pcui-label:first-child {
-    /* font-size: 12px; */
     width: 40%;
 }
 
@@ -141,7 +132,7 @@ body {
     overflow: hidden;
 }
 
-#leftContainer {
+#left-container {
     height: 100%;
     min-width: 0;
     min-height: 0;
@@ -150,18 +141,17 @@ body {
     border-right: 1px solid #20292b;
 }
 
-#centerContainer {
+#center-container {
     height: 100%;
     min-width: 0;
     min-height: 0;
-    background-color: black;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
     flex-shrink: 1;
 }
 
-#rightContainer {
+#right-container {
     height: 100%;
     min-width: 0;
     min-height: 0;
@@ -170,69 +160,73 @@ body {
     border-left: 1px solid #20292b;
 }
 
-.renderCanvasContainer {
-    background-color: #252e30;
+.render-canvas-container {
+    background-color: $bcg-dark;
 }
 
-#fileTabsContainer {
-    height: 32px;
-    background-color: #364346;
+#file-tabs-container {
+    height: 38px;
+    background-color: $bcg-primary;
     overflow-x: auto;
     overflow-y: hidden;
-    border-bottom: 1px solid #20292b;
+    border-bottom: 1px solid $bcg-darkest;
 }
 
-.fileTab {
-    height: 32px;
+.file-tab {
+    height: calc(100% - 2px);
     margin: 0px;
     padding: 0px;
-    border: 1px solid #20292b;
-    border-bottom: 0;
-    border-radius: 8px 8px 0px 0px;
-    background-color: #2c393c;
+    border-style: solid;
+    border-color: $bcg-darkest;
+    border-width: 2px 2px 0px 2px;
+    border-radius: 10px 10px 0px 0px;
+    background-color: $bcg-primary;
     flex-shrink: 0;
-    color: #b1b8ba;
+    color: $text-secondary;
     cursor: pointer;
     align-items: center;
 }
 
-.fileTab.selected {
-    background-color: #232e30;
-    color: white;
+.file-tab.selected {
+    background-color: $bcg-darkest;
 }
 
-.fileTabLabel {
-    margin: 0px 0px 0px 4px;
+.file-tab.selected .file-tab-label {
+    color: $text-active;
 }
 
-.fileTabClose {
-    margin: 0px 0px 0px 2px;
+.file-tab-label {
+    margin: 0px 0px 0px 8px;
+}
+
+.file-tab-close {
+    margin: 0px 2px 0px 2px;
     padding: 2px 4px;
 }
 
-.fileTabClose:hover {
-    background-color: #5b7073;
+.file-tab-close:hover {
+    color: $text-active;
 }
 
-#cubemapFaceButtonsContainer {
+#cubemap-face-buttons-container {
     margin: 6px;
     position: relative;
     height: 96px;
 }
 
-.cubemapFace {
+.cubemap-face {
     width: 32px;
     height: 32px;
     margin: 0px;
     position: absolute;
 }
 
-#cubemapFacePx { top: 32px; left: 64px; }
-#cubemapFacePy { top:  0px; left: 32px; }
-#cubemapFacePz { top: 32px; left: 32px; }
-#cubemapFaceNx { top: 32px; left:  0px; }
-#cubemapFaceNy { top: 64px; left: 32px; }
-#cubemapFaceNz { top: 32px; left: 96px; }
+#cubemap-face-px { top: 32px; left: 64px; }
+#cubemap-face-py { top:  0px; left: 32px; }
+#cubemap-face-pz { top: 32px; left: 32px; }
+#cubemap-face-nx { top: 32px; left:  0px; }
+#cubemap-face-ny { top: 64px; left: 32px; }
+#cubemap-face-nz { top: 32px; left: 96px; }
 
 @keyframes busy-colors {
     0% { color: white; }
@@ -249,10 +243,6 @@ body {
     color: white !important;
 }
 
-.compactDivider {
-    margin: 0px !important;
-}
-
 .draggable {
     cursor: grab;
     cursor: move;
@@ -264,11 +254,7 @@ body {
     cursor: grabbing !important;
 }
 
-.rightAlign {
-    text-align: right;
-}
-
-.centerAlign {
+.center-align {
     text-align: center;
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "texture-tool",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": "PlayCanvas <support@playcanvas.com>",
   "homepage": "https://playcanvas.com/texture-tool",
   "description": "PlayCanvas Texture Tool",
@@ -28,7 +28,7 @@
       "requireConfigFile": false
     },
     "rules": {
-      "no-undef": "error"
+      "import/no-unresolved": "off"
     },
     "globals": {
       "Set": "readonly",
@@ -39,21 +39,22 @@
     "src/unused"
   ],
   "devDependencies": {
-    "@babel/eslint-parser": "^7.18.9",
-    "@playcanvas/eslint-config": "^1.2.0",
+    "@babel/eslint-parser": "^7.19.1",
+    "@playcanvas/eslint-config": "^1.3.0",
     "@playcanvas/observer": "^1.3.1",
-    "@playcanvas/pcui": "^2.6.0",
+    "@playcanvas/pcui": "^2.7.1",
     "@rollup/plugin-alias": "^3.1.9",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
-    "concurrently": "^7.3.0",
+    "concurrently": "^7.4.0",
     "cross-env": "^7.0.3",
-    "eslint": "^8.21.0",
+    "eslint": "^8.25.0",
     "jszip": "^3.10.1",
-    "playcanvas": "^1.55.3",
+    "playcanvas": "^1.57.1",
     "rollup": "^2.77.2",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-import-css": "^3.0.3",
+    "rollup-plugin-sass": "^1.12.16",
     "rollup-plugin-sourcemaps": "^0.6.3",
     "rollup-plugin-terser": "^7.0.2",
     "serve": "^14.0.1"
