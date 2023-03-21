@@ -145,6 +145,10 @@ class TextureReprojectPanel extends Panel {
             }
 
             const onTargetProjectionChanged = () => {
+                if (projections[target.value] === 'envAtlas') {
+                    encoding.value = 2;
+                    width.value = 512;
+                }
                 height.enabled = ['cube', 'envAtlas'].indexOf(projections[target.value]) === -1;
                 if (!height.enabled) {
                     height.value = width.value;
@@ -214,12 +218,14 @@ class TextureReprojectPanel extends Panel {
                     case '4': t.type = TEXTURETYPE_RGBP; break;
                     default:  t.type = TEXTURETYPE_DEFAULT; break;
                 }
+                t.anisotropy = t.device.maxAnisotropy;
 
                 // check if dimensions and projection are the same
-                const sameDims = sourceProjection === targetProjection && width.value === t.width && height.value === t.height;
+                const sameProjection = sourceProjection === targetProjection;
+                const sameDims = width.value === t.width && height.value === t.height;
 
                 // check if source texture is capable of reprojection as-is
-                if (sameDims || (t.encoding !== 'rgbe' && t.mipmaps && t._levels.length > 1)) {
+                if (sameProjection && (sameDims || (t.encoding !== 'rgbe' && t.mipmaps && t._levels.length > 1))) {
                     reprojectTexture(t, targetTexture, { numSamples: 1 });
                 } else {
                     const tmp = new Texture(t.device, {
@@ -236,8 +242,12 @@ class TextureReprojectPanel extends Panel {
                     });
 
                     reprojectTexture(t, tmp, { numSamples: 1 });
+
                     if (targetProjection === 'envAtlas') {
-                        const lighting = EnvLighting.generateLightingSource(tmp);
+                        const lighting = EnvLighting.generateLightingSource(tmp, {
+                            size: 256
+                        });
+                        lighting.anisotropy = t.device.maxAnisotropy;
                         EnvLighting.generateAtlas(lighting, {
                             target: targetTexture
                         });

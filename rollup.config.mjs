@@ -14,28 +14,13 @@ const PCUI_DIR = process.env.PCUI_PATH || 'node_modules/@playcanvas/pcui';
 
 const ENGINE_NAME = PROD_BUILD ? 'playcanvas.min.mjs' : 'playcanvas.dbg.mjs';
 const ENGINE_PATH = path.resolve(ENGINE_DIR, 'build', ENGINE_NAME);
-const PCUI_PATH = path.resolve(PCUI_DIR, 'dist/pcui.mjs');
+const PCUI_PATH = path.resolve(PCUI_DIR, 'dist/module/src/index.mjs');
 
 // define supported module overrides
 const aliasEntries = {
     'playcanvas': ENGINE_PATH,
     'pcui': PCUI_PATH
 };
-
-const tsCompilerOptions = {
-    baseUrl: '.',
-    paths: {
-        'playcanvas': [ENGINE_PATH],
-        'pcui': [PCUI_PATH]
-    }
-};
-
-const externs = [
-    'static/playcanvas-logo.png',
-    'static/lib',
-    'static/textures',
-    'src/fonts.css'
-];
 
 export default {
     input: 'src/index.js',
@@ -52,13 +37,12 @@ export default {
                 transform: (contents, filename) => {
                     return contents.toString().replace('__BASE_HREF__', HREF);
                 }
-            }].concat(externs.map((e) => {
-                return {
-                    src: e,
-                    dest: ''
-                };
-            }))
-        }),
+            },
+            { src: 'static/playcanvas-logo.png' },
+            { src: 'static/lib' },
+            { src: 'static/textures' },
+            { src: 'src/fonts.css' }
+        ]}),
         alias({ entries: aliasEntries }),
         resolve(),
         sass({

@@ -50,15 +50,11 @@ const centerContainer = new Container({
 
 const rightContainer = new Container({
     id: 'right-container',
-    resizable: 'left',
-    resizeMin: 100,
-    resizeMax: 1000,
     width: 320,
     flex: true
 });
 
 root.append(leftContainer);
-root.append(centerContainer);
 root.append(rightContainer);
 
 // construct renderer instance
@@ -67,13 +63,15 @@ const dropHandler = new DropHandler(root.dom, textureManager);
 const browserPanel = new FilesBrowserPanel(textureManager, dropHandler);
 leftContainer.append(browserPanel);
 
-const fileTabs = new FileTabs(textureManager);
 const texture2dPanel = new Texture2dPanel(renderer, textureManager);
-centerContainer.append(fileTabs);
 centerContainer.append(texture2dPanel);
 
 const inspectorPanel = new InspectorPanel(textureManager);
-rightContainer.append(inspectorPanel);
+centerContainer.append(inspectorPanel);
+
+const fileTabs = new FileTabs(textureManager);
+rightContainer.append(fileTabs);
+rightContainer.append(centerContainer);
 
 // handle invocation args
 (() => {
