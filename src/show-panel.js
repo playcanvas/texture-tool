@@ -1,18 +1,10 @@
 import { Panel, Button, Container, LabelGroup, SelectInput, SliderInput, BooleanInput } from 'pcui';
 
-const encodingTable = {
-    'srgb': '0',
-    'linear': '1',
-    'rgbm': '2',
-    'rgbe': '3',
-    'rgbp': '4'
-};
-
-class TextureViewSettingsPanel extends Panel {
+class ShowPanel extends Panel {
     constructor(textureManager, args = { }) {
         Object.assign(args, {
-            id: 'texture-view-settings-pane',
-            headerText: 'View',
+            id: 'show-panel',
+            headerText: 'Show',
             collapsible: true,
             flexGrow: 0
         });
@@ -51,14 +43,14 @@ class TextureViewSettingsPanel extends Panel {
 
         // texture type
         const textureTypeSelect = new SelectInput({
-            value: '0',
+            value: 'gamma',
             options: [
-                { v: '0', t: 'gamma' },
-                { v: '1', t: 'linear' },
-                { v: '2', t: 'rgbm' },
-                { v: '3', t: 'rgbe' },
-                { v: '4', t: 'rgbp' },
-                { v: '5', t: 'a' }
+                { v: 'gamma', t: 'gamma' },
+                { v: 'linear', t: 'linear' },
+                { v: 'rgbm', t: 'rgbm' },
+                { v: 'rgbe', t: 'rgbe' },
+                { v: 'rgbp', t: 'rgbp' },
+                { v: 'a', t: 'a' }
             ],
             flexGrow: 1
         });
@@ -85,13 +77,18 @@ class TextureViewSettingsPanel extends Panel {
         this.append(new LabelGroup({ text: 'filter', field: filterToggle }));
         this.append(new LabelGroup({ text: 'exposure', field: exposureSlider }));
 
+        const getTextureType = (texture) => {
+            const encoding = texture?.asset?.resource?.encoding || 'gamma';
+            return encoding === 'srgb' ? 'gamma' : encoding;
+        };
+
         textureManager.on('textureDocAdded', (doc) => {
             doc.settings.patch({
                 view: {
                     filter: false,
                     face: '0',
                     mipmap: '0',
-                    type: doc.asset && encodingTable[doc.asset.resource.encoding] || '0',
+                    type: getTextureType(doc),
                     alpha: false,
                     exposure: '0',
                     offsetX: 0,
@@ -174,5 +171,5 @@ class TextureViewSettingsPanel extends Panel {
 }
 
 export {
-    TextureViewSettingsPanel
+    ShowPanel
 };

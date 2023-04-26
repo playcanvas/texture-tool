@@ -9,7 +9,7 @@ import {
 import { TextureDoc } from './texture-doc.js';
 import { Helpers } from './helpers.js';
 
-class TextureReprojectPanel extends Panel {
+class ReprojectPanel extends Panel {
     constructor(textureManager, args = { }) {
         Object.assign(args, {
             id: 'texture-reproject-pane',
@@ -213,9 +213,9 @@ class TextureReprojectPanel extends Panel {
                 t.addressU = ADDRESS_REPEAT;
                 t.addressV = sourceProjection === 'equirect' ? ADDRESS_CLAMP_TO_EDGE : ADDRESS_REPEAT;
                 switch (texture.settings.get('view.type')) {
-                    case '2': t.type = TEXTURETYPE_RGBM; break;
-                    case '3': t.type = TEXTURETYPE_RGBE; break;
-                    case '4': t.type = TEXTURETYPE_RGBP; break;
+                    case 'rgbm': t.type = TEXTURETYPE_RGBM; break;
+                    case 'rgbe': t.type = TEXTURETYPE_RGBE; break;
+                    case 'rgbp': t.type = TEXTURETYPE_RGBP; break;
                     default:  t.type = TEXTURETYPE_DEFAULT; break;
                 }
                 t.anisotropy = t.device.maxAnisotropy;
@@ -284,5 +284,5 @@ class TextureReprojectPanel extends Panel {
 }
 
 export {
-    TextureReprojectPanel
+    ReprojectPanel
 };

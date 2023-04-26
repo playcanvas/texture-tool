@@ -1,6 +1,6 @@
 import { Container } from 'pcui';
-import { TextureViewSettingsPanel } from './texture-view-settings.js';
-import { TextureReprojectPanel } from './texture-reproject.js';
+import { ShowPanel } from './show-panel.js';
+import { ReprojectPanel } from './reproject-panel.js';
 import { TextureExportPanel } from './export-panel.js';
 import { FeedbackPanel } from './feedback-panel.js';
 
@@ -17,8 +17,8 @@ class InspectorPanel extends Container {
         });
         super(args);
 
-        this.append(new TextureViewSettingsPanel(textureManager));
-        this.append(new TextureReprojectPanel(textureManager));
+        this.append(new ShowPanel(textureManager));
+        this.append(new ReprojectPanel(textureManager));
         this.append(new TextureExportPanel(textureManager));
         this.append(new FeedbackPanel());
     }
