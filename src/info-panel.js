@@ -1,7 +1,7 @@
 import { Panel, Label } from 'pcui';
 import { PixelFormatTable, TextureTypeTable } from './const.js';
 
-class TextureInfoPanel extends Panel {
+class InfoPanel extends Panel {
     constructor(textureManager, args = { }) {
         Object.assign(args, {
             headerText: '-',
@@ -66,5 +66,5 @@ class TextureInfoPanel extends Panel {
 }
 
 export {
-    TextureInfoPanel
+    InfoPanel
 };

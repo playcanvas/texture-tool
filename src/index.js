@@ -2,14 +2,8 @@ import './main.js';
 import './style.scss';
 
 import { version as textureToolVersion } from '../package.json';
-// import { version as pcuiVersion } from 'pcui';
-// import { version as engineVersion } from 'playcanvas';
-
-const versions = [
-    ['TextureTool', textureToolVersion]
-    // ['Engine', engineVersion],
-    // ['Pcui', pcuiVersion]
-];
+import { version as pcuiVersion, revision as pcuiRevision } from 'pcui';
+import { version as engineVersion, revision as engineRevision } from 'playcanvas';
 
 // print out versions of dependent packages
-console.log(versions.map(entry => `${entry[0]} v${entry[1]}`).join(' '));
+console.log(`Texture Tool v${textureToolVersion} | PCUI v${pcuiVersion} (${pcuiRevision}) | PlayCanvas Engine v${engineVersion} (${engineRevision})`);

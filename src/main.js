@@ -9,7 +9,7 @@ import { TextureManager } from './texture-manager.js';
 
 // ui
 import { FileTabs } from './file-tabs.js';
-import { Texture2dPanel } from './texture-2d-panel.js';
+import { ViewportPanel } from './viewport-panel.js';
 import { DropHandler } from './drop-handler.js';
 import { FilesBrowserPanel } from './files-browser-panel.js';
 import { InspectorPanel } from './inspector-panel.js';
@@ -58,43 +58,49 @@ root.append(leftContainer);
 root.append(rightContainer);
 
 // construct renderer instance
-const dropHandler = new DropHandler(root.dom, textureManager);
-
-const browserPanel = new FilesBrowserPanel(textureManager, dropHandler);
-leftContainer.append(browserPanel);
-
-const texture2dPanel = new Texture2dPanel(renderer, textureManager);
-centerContainer.append(texture2dPanel);
-
-const inspectorPanel = new InspectorPanel(textureManager);
-centerContainer.append(inspectorPanel);
-
-const fileTabs = new FileTabs(textureManager);
-rightContainer.append(fileTabs);
+leftContainer.append(new FilesBrowserPanel(textureManager, new DropHandler(root.dom, textureManager)));
+centerContainer.append(new ViewportPanel(renderer, textureManager));
+centerContainer.append(new InspectorPanel(textureManager));
+rightContainer.append(new FileTabs(textureManager));
 rightContainer.append(centerContainer);
 
-// handle invocation args
-(() => {
-    // extract query params. taken from https://stackoverflow.com/a/21152762
-    const urlParams = {};
-    if (location.search) {
-        location.search.substr(1).split("&").forEach((item) => {
-            const s = item.split("="),
-                k = s[0],
-                v = s[1] && decodeURIComponent(s[1]);
-            (urlParams[k] = urlParams[k] || []).push(v);
-        });
-    }
+// handle search params
+setTimeout(() => {
+    // handle load param and ready promise for visual testing harness
+    const url = new URL(window.location.href);
 
-    // handle load url param
-    const loadUrls = (urlParams.load || []).concat(urlParams.assetUrl || []);
-    if (loadUrls.length > 0) {
-        loadUrls.forEach((url, index) => {
-            textureManager.addTextureDocByUrl(url, path.getBasename(url).split('?')[0], (err, texture) => {
+    const keys = Array.from(url.searchParams.keys());
+    const values = Array.from(url.searchParams.values());
+    let i = 0;
+    let activeTexture = null;
+
+    const handleNextParam = () => {
+        if (i === keys.length) {
+            return;
+        }
+
+        const param = keys[i];
+        const value = values[i++];
+        if (param === 'load') {
+            textureManager.addTextureDocByUrl(value, path.getBasename(value).split('?')[0], (err, texture) => {
                 if (!err && texture) {
                     textureManager.selectTextureDoc(texture);
                 }
+                activeTexture = texture;
+                handleNextParam();
             });
-        });
-    }
-})();
+        } else if (param === 'type') {
+            if (activeTexture?.resource) {
+                if (['srgb', 'gamma', 'linear', 'rgbm', 'rgbe', 'rgbp', 'a'].includes(value)) {
+                    activeTexture.settings.set('view.type', value === 'srgb' ? 'gamma' : value);
+                }
+            }
+            handleNextParam();
+        } else {
+            console.warn('skipping unknown param: ' + param);
+            handleNextParam();
+        }
+    };
+
+    handleNextParam();
+});

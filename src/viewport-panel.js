@@ -1,9 +1,9 @@
 import { Container } from 'pcui';
 import { RenderCanvas } from './render-canvas.js';
 import { TextureView } from './texture-view.js';
-import { TextureInfoPanel } from './texture-info-panel.js';
+import { InfoPanel } from './info-panel.js';
 
-class Texture2dPanel extends Container {
+class ViewportPanel extends Container {
     constructor(renderer, textureManager, args = {}) {
         Object.assign(args, {
             class: 'texture-2d-panel',
@@ -19,7 +19,7 @@ class Texture2dPanel extends Container {
         this.texture = null;
 
         this.append(this.canvas);
-        this.append(new TextureInfoPanel(textureManager));
+        this.append(new InfoPanel(textureManager));
 
         // handle mouse events
         this.dom.addEventListener('wheel', (event) => {
@@ -70,7 +70,10 @@ class Texture2dPanel extends Container {
         });
 
         textureManager.on('textureDocAdded', (doc) => {
-            doc.settings.patch({});
+            // doc.settings.patch({
+            //     viewport: {
+            //     }
+            // });
         });
 
         const events = [];
@@ -88,9 +91,7 @@ class Texture2dPanel extends Container {
                 this.view.setMipmap(parseInt(value, 10));
             }));
             events.push(texture.settings.on('view.type:set', (value) => {
-                this.view.setTextureType({
-                    0: 'gamma', 1: 'linear', 2: 'rgbm', 3: 'rgbe', 4: 'rgbp', 5: 'a'
-                }[value]);
+                this.view.setTextureType(value);
             }));
             events.push(texture.settings.on('view.alpha:set', (value) => {
                 this.view.setAlpha(value);
@@ -106,5 +107,5 @@ class Texture2dPanel extends Container {
 }
 
 export {
-    Texture2dPanel
+    ViewportPanel
 };
