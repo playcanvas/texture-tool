@@ -65,7 +65,7 @@ rightContainer.append(new FileTabs(textureManager));
 rightContainer.append(centerContainer);
 
 // handle search params
-setTimeout(async () => {
+setTimeout(() => {
     // handle load param and ready promise for visual testing harness
     const url = new URL(window.location.href);
 

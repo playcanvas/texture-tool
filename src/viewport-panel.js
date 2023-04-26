@@ -70,11 +70,10 @@ class ViewportPanel extends Container {
         });
 
         textureManager.on('textureDocAdded', (doc) => {
-            doc.settings.patch({
-                viewport: {
-                    
-                }
-            });
+            // doc.settings.patch({
+            //     viewport: {
+            //     }
+            // });
         });
 
         const events = [];
