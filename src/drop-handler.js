@@ -15,7 +15,7 @@ class DropHandler extends Events {
             if (ev.dataTransfer.types.includes(transferType)) {
                 ev.preventDefault();
                 ev.stopPropagation();
-                ev.dataTransfer.dropEffect = "copy";
+                ev.dataTransfer.dropEffect = 'copy';
             }
         });
 

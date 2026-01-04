@@ -1,4 +1,5 @@
 import { Panel, Label } from 'pcui';
+
 import { PixelFormatTable, TextureTypeTable } from './const.js';
 
 class InfoPanel extends Panel {

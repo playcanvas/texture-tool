@@ -14,7 +14,8 @@ import {
     PIXELFORMAT_R8_G8_B8_A8,
     TEXTURETYPE_DEFAULT
 } from 'playcanvas';
-import { ShaderDef } from './shader-gen';
+
+import { ShaderDef } from './shader-gen.js';
 
 class TextureView {
     constructor(canvas) {
@@ -118,7 +119,7 @@ class TextureView {
         // handle canvas resize
         this.canvas.on('resize', () => {
             this.setViewport(this.canvas.canvasWidth * window.devicePixelRatio,
-                             this.canvas.canvasHeight * window.devicePixelRatio);
+                this.canvas.canvasHeight * window.devicePixelRatio);
         });
 
         // handle renders

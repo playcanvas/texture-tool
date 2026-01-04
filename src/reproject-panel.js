@@ -6,8 +6,9 @@ import {
     FILTER_NEAREST, FILTER_LINEAR, FILTER_LINEAR_MIPMAP_LINEAR,
     ADDRESS_REPEAT, ADDRESS_CLAMP_TO_EDGE, EnvLighting
 } from 'playcanvas';
-import { TextureDoc } from './texture-doc.js';
+
 import { Helpers } from './helpers.js';
+import { TextureDoc } from './texture-doc.js';
 
 class ReprojectPanel extends Panel {
     constructor(textureManager, args = { }) {

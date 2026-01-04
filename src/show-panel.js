@@ -156,7 +156,7 @@ class ShowPanel extends Panel {
             const numMipmaps = texture.numMipmaps;
             const mips = [];
             for (let i = 0; i < numMipmaps; ++i) {
-                mips.push({ v: '' + i, t: '' + i });
+                mips.push({ v: `${i}`, t: `${i}` });
             }
             mipmapSelect.options = mips;
 
