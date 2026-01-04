@@ -1,18 +1,13 @@
+import { Container } from 'pcui';
 import { path } from 'playcanvas';
 
-// pcui
-import { Container } from 'pcui';
-
-// rendering
-import { Renderer } from './renderer.js';
-import { TextureManager } from './texture-manager.js';
-
-// ui
-import { FileTabs } from './file-tabs.js';
-import { ViewportPanel } from './viewport-panel.js';
 import { DropHandler } from './drop-handler.js';
+import { FileTabs } from './file-tabs.js';
 import { FilesBrowserPanel } from './files-browser-panel.js';
 import { InspectorPanel } from './inspector-panel.js';
+import { Renderer } from './renderer.js';
+import { TextureManager } from './texture-manager.js';
+import { ViewportPanel } from './viewport-panel.js';
 
 // globals
 const renderer = new Renderer();
@@ -97,7 +92,7 @@ setTimeout(() => {
             }
             handleNextParam();
         } else {
-            console.warn('skipping unknown param: ' + param);
+            console.warn(`skipping unknown param: ${param}`);
             handleNextParam();
         }
     };

@@ -1,7 +1,8 @@
 import { Container } from 'pcui';
+
+import { InfoPanel } from './info-panel.js';
 import { RenderCanvas } from './render-canvas.js';
 import { TextureView } from './texture-view.js';
-import { InfoPanel } from './info-panel.js';
 
 class ViewportPanel extends Container {
     constructor(renderer, textureManager, args = {}) {

@@ -33,8 +33,8 @@ class RenderCanvas extends Container {
                 this.needsResize = true;
                 this.canvasWidth = width;
                 this.canvasHeight = height;
-                this.canvas.style.width = width + 'px';
-                this.canvas.style.height = height + 'py';
+                this.canvas.style.width = `${width}px`;
+                this.canvas.style.height = `${height}py`;
                 this.emit('resize', width, height);
             }
         });

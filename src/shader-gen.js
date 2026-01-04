@@ -16,6 +16,7 @@ import {
     shaderChunks,
     Shader
 } from 'playcanvas';
+
 import { Chunks } from './chunks.js';
 
 const attributeSemantics = {
@@ -62,7 +63,7 @@ class ShaderDef {
         const fragSource = new ShaderSource();
 
         if (device.webgl2) {
-            const version = `#version 300 es`;
+            const version = '#version 300 es';
             vertSource.append(version);
             vertSource.append(shaderChunks.gles3VS);
 
@@ -106,9 +107,9 @@ class ShaderDef {
     static _collectAttributes(source) {
         const result = {};
         let attrs = 0;
-        let found = source.indexOf("attribute");
+        let found = source.indexOf('attribute');
         while (found >= 0) {
-            if (found > 0 && source[found - 1] === "/") break;
+            if (found > 0 && source[found - 1] === '/') break;
             const endOfLine = source.indexOf(';', found);
             const startOfAttribName = source.lastIndexOf(' ', endOfLine);
             const attribName = source.substr(startOfAttribName + 1, endOfLine - (startOfAttribName + 1));
@@ -117,11 +118,11 @@ class ShaderDef {
             if (semantic !== undefined) {
                 result[attribName] = semantic;
             } else {
-                result[attribName] = "ATTR" + attrs;
+                result[attribName] = `ATTR${attrs}`;
                 attrs++;
             }
 
-            found = source.indexOf("attribute", found + 1);
+            found = source.indexOf('attribute', found + 1);
         }
         return result;
     }

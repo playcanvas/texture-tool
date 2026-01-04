@@ -1,5 +1,5 @@
-import { path } from 'playcanvas';
 import { Panel, Container, Button, TreeView, TreeViewItem, TextInput } from 'pcui';
+import { path } from 'playcanvas';
 
 class FileNode {
     constructor(name, source) {

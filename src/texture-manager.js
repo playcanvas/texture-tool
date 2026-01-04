@@ -1,4 +1,5 @@
 import { Events } from '@playcanvas/observer';
+
 import { TextureDoc } from './texture-doc.js';
 
 class TextureManager extends Events {

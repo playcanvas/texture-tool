@@ -151,9 +151,9 @@ class Helpers {
     }
 
     static downloadTextFile(name, text) {
-        const type = name.split(".").pop();
+        const type = name.split('.').pop();
         this.downloadBlob(name, new Blob([text], {
-            type: `text/${type === "txt" ? "plain" : type}`
+            type: `text/${type === 'txt' ? 'plain' : type}`
         }));
     }
 

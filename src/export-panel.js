@@ -1,8 +1,9 @@
-import { Helpers } from './helpers.js';
-import { RenderTarget } from 'playcanvas';
 import { Button, Panel, Container } from 'pcui';
-import { PngExporter } from './png-exporter.js';
+import { RenderTarget } from 'playcanvas';
+
 import { HdrExporter } from './hdr-exporter.js';
+import { Helpers } from './helpers.js';
+import { PngExporter } from './png-exporter.js';
 
 const readPixels = (texture, face) => {
     const rt = new RenderTarget({ colorBuffer: texture, depth: false, face: face });
@@ -20,7 +21,7 @@ const readPixels = (texture, face) => {
 
 // download the data uri
 const download = (filename, data) => {
-    const blob = new Blob([data], { type: "octet/stream" });
+    const blob = new Blob([data], { type: 'octet/stream' });
     const url = window.URL.createObjectURL(blob);
 
     const lnk = document.createElement('a');
@@ -29,13 +30,13 @@ const download = (filename, data) => {
 
     // create a "fake" click-event to trigger the download
     if (document.createEvent) {
-        const e = document.createEvent("MouseEvents");
-        e.initMouseEvent("click", true, true, window,
-                         0, 0, 0, 0, 0, false, false, false,
-                         false, 0, null);
+        const e = document.createEvent('MouseEvents');
+        e.initMouseEvent('click', true, true, window,
+            0, 0, 0, 0, 0, false, false, false,
+            false, 0, null);
         lnk.dispatchEvent(e);
     } else if (lnk.fireEvent) {
-        lnk.fireEvent("onclick");
+        lnk.fireEvent('onclick');
     }
 
     window.URL.revokeObjectURL(url);
