@@ -3,7 +3,7 @@ import {
     LayerComposition,
     Entity,
     Mesh,
-    Material,
+    ShaderMaterial,
     MeshInstance,
     Color,
     Texture,
@@ -12,10 +12,11 @@ import {
     FILTER_LINEAR_MIPMAP_LINEAR,
     FILTER_NEAREST_MIPMAP_LINEAR,
     PIXELFORMAT_R8_G8_B8_A8,
-    TEXTURETYPE_DEFAULT
+    TEXTURETYPE_DEFAULT,
+    SEMANTIC_POSITION,
+    ShaderChunks,
+    SHADERLANGUAGE_GLSL
 } from 'playcanvas';
-
-import { ShaderDef } from './shader-gen.js';
 
 class TextureView {
     constructor(canvas) {
@@ -54,38 +55,7 @@ class TextureView {
         mesh.update();
 
         // construct the material
-        this.material = new Material();
-
-        this.material.getShaderVariant = (device) => {
-            const decodeFunc = {
-                'gamma': 'decodeGamma',
-                'linear': 'decodeLinear',
-                'rgbm': 'decodeRGBM',
-                'rgbe': 'decodeRGBE',
-                'rgbp': 'decodeRGBP',
-                'a': 'decodeAlpha'
-            };
-
-            const shaderDef = {
-                vertex: {
-                    source: 'texture.vert'
-                },
-                fragment: {
-                    defines: {
-                        TEXTURE_ALPHA: this.alpha,
-                        TEXTURE_CUBEMAP: this.texture && this.texture.cubemap,
-                        DECODE_FUNC: decodeFunc[this.textureType]
-                    },
-                    source: 'texture.frag',
-                    webgl1Extensions: [
-                        'GL_OES_standard_derivatives',
-                        'GL_EXT_shader_texture_lod'
-                    ]
-                }
-            };
-
-            return ShaderDef.createShader(device, shaderDef);
-        };
+        this.material = new ShaderMaterial();
 
         // render entity
         this.render = new Entity();
@@ -273,12 +243,116 @@ class TextureView {
         }
     }
 
+    // Build the fragment shader source with current settings.
+    // Original shader logic from src/chunks/texture.frag.js, adapted for ShaderMaterial API.
+    buildFragmentShader() {
+        const decodeFunc = {
+            'gamma': 'decodeGamma',
+            'linear': 'decodeLinear',
+            'rgbm': 'decodeRGBM',
+            'rgbe': 'decodeRGBE',
+            'rgbp': 'decodeRGBP',
+            'a': 'decodeAlpha'
+        };
+
+        const isCubemap = this.texture && this.texture.cubemap;
+        const decodeFuncName = decodeFunc[this.textureType];
+
+        // Get decode functions from engine, add custom decodeAlpha
+        const device = this.canvas.renderer.app.graphicsDevice;
+        const chunks = ShaderChunks.get(device, SHADERLANGUAGE_GLSL);
+        const decodeFunctions = `
+${chunks.get('decodePS')}
+vec3 decodeAlpha(vec4 raw) {
+    return vec3(raw.a);
+}
+`;
+
+        return `
+${decodeFunctions}
+
+uniform float mipmap;
+uniform float exposure;
+uniform vec2 offset;
+uniform float scale;
+uniform vec2 viewportSize;
+uniform vec2 texSize;
+
+${isCubemap ? 'uniform samplerCube tex;' : 'uniform sampler2D tex;'}
+${isCubemap ? 'uniform float face;' : ''}
+
+${isCubemap ? `
+vec3 getCubemapUv(vec2 uv, float face) {
+    vec2 st = uv * 2.0 - 1.0;
+    if (face == 0.0) {
+        return vec3(1, -st.y, -st.x);
+    } else if (face == 1.0) {
+        return vec3(-1, -st.y, st.x);
+    } else if (face == 2.0) {
+        return vec3(st.x, 1, st.y);
+    } else if (face == 3.0) {
+        return vec3(st.x, -1, -st.y);
+    } else if (face == 4.0) {
+        return vec3(st.x, -st.y, 1);
+    } else {
+        return vec3(-st.x, -st.y, -1);
+    }
+}
+` : ''}
+
+vec3 encodeGamma(vec3 source) {
+    return pow(source, vec3(1.0 / 2.2));
+}
+
+float tile(vec2 coord, float tileSize) {
+    return mod(dot(floor(coord * 2.0 / tileSize), vec2(1.0)), 2.0);
+}
+
+void main() {
+    vec2 uv = (gl_FragCoord.xy - offset) / scale / texSize;
+
+    ${isCubemap ?
+        'vec4 raw = textureCubeLod(tex, getCubemapUv(vec2(uv.x, 1.0 - uv.y), face), mipmap);' :
+        'vec4 raw = textureLod(tex, vec2(uv.x, 1.0 - uv.y), mipmap);'}
+
+    vec3 final = ${decodeFuncName}(raw);
+    float alpha = raw.a;
+
+    final *= exposure;
+
+    ${this.alpha ? `
+    vec3 tileClr = mix(vec3(0.3), vec3(0.5), tile(gl_FragCoord.xy, 50.0));
+    final = mix(tileClr, final, alpha);
+    ` : ''}
+
+    float oob = any(lessThan(uv, vec2(0.0))) || any(greaterThan(uv, vec2(1.0))) ? 0.0 : 1.0;
+    final = mix(vec3(0.15), final, oob);
+
+    gl_FragColor = vec4(encodeGamma(final), 1.0);
+}
+`;
+    }
+
     // prepare the material for rendering
     prepare() {
         if (this.rebuildMaterial) {
             this.rebuildMaterial = false;
-            this.material.shader = null;
-            this.material.clearVariants();
+
+            const isCubemap = this.texture && this.texture.cubemap;
+            const uniqueName = `texture-view-${this.textureType}-${this.alpha ? 'alpha' : 'noalpha'}-${isCubemap ? 'cube' : '2d'}`;
+
+            this.material.shaderDesc = {
+                uniqueName: uniqueName,
+                attributes: { vertex_position: SEMANTIC_POSITION },
+                vertexGLSL: `
+attribute vec3 vertex_position;
+
+void main() {
+    gl_Position = vec4(vertex_position * 2.0 - 1.0, 1.0);
+}
+`,
+                fragmentGLSL: this.buildFragmentShader()
+            };
         }
         this.material.setParameter('tex', this.texture?.resource || this.defaultTex);
         this.material.setParameter('face', this.face);

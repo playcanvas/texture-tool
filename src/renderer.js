@@ -75,8 +75,10 @@ class Renderer {
         this._app.systems.fire('postUpdate', ms, false);
 
         // render
+        this._app.graphicsDevice.frameStart();
         this._app.batcher.updateAll();
         this._app.renderComposition(composition);
+        this._app.graphicsDevice.frameEnd();
 
         // copy the result to the target canvas
         const context = canvas.getContext('2d');
