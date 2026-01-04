@@ -3,7 +3,6 @@ import copyAndWatch from "./copy-and-watch.mjs";
 import resolve from '@rollup/plugin-node-resolve';
 import alias from '@rollup/plugin-alias';
 import json from '@rollup/plugin-json';
-import sourcemaps from 'rollup-plugin-sourcemaps';
 import sass from 'rollup-plugin-sass';
 
 const PROD_BUILD = process.env.BUILD_TYPE === 'prod';
@@ -28,6 +27,9 @@ export default {
         format: 'es',
         sourcemap: true
     },
+    watch: {
+        include: 'src/**'
+    },
     plugins: [
         copyAndWatch({
             targets: [{
@@ -49,7 +51,6 @@ export default {
             output: 'dist/style.css',
             outputStyle: 'compressed'
         }),
-        sourcemaps(),
         json()
     ]
 };
