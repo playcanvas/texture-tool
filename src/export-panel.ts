@@ -1,5 +1,5 @@
 import { Button, Panel, Container } from 'pcui';
-import { RenderTarget, Texture } from 'playcanvas';
+import { RenderTarget, Texture, WebglGraphicsDevice } from 'playcanvas';
 import type { EventHandle } from '@playcanvas/observer';
 
 import { HdrExporter } from './hdr-exporter';
@@ -16,11 +16,12 @@ interface Exporter {
 const readPixels = (texture: Texture, face: number | null): Uint32Array => {
     const rt = new RenderTarget({ colorBuffer: texture, depth: false, face: face ?? undefined });
     const data = new Uint8ClampedArray(texture.width * texture.height * 4);
-    const device = texture.device;
+    const device = texture.device as WebglGraphicsDevice;
+    const gl = device.gl;
 
-    (device as any).setFramebuffer((rt as any)._glFrameBuffer);
+    device.setFramebuffer(rt.impl._glFrameBuffer);
     device.initRenderTarget(rt);
-    (device as any).gl.readPixels(0, 0, texture.width, texture.height, (device as any).gl.RGBA, (device as any).gl.UNSIGNED_BYTE, data);
+    gl.readPixels(0, 0, texture.width, texture.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
 
     rt.destroy();
 
