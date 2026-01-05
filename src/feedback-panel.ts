@@ -16,7 +16,7 @@ class FeedbackPanel extends Container {
         const githubButton = new Button({
             text: 'GITHUB',
             icon: '\E259',
-            flexGrow: 1
+            flexGrow: '1'
         });
 
         githubButton.on('click', () => {

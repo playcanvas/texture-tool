@@ -14,8 +14,8 @@ class InfoPanel extends Panel {
     constructor(textureManager: TextureManager, args: Record<string, any> = {}) {
         Object.assign(args, {
             headerText: '-',
-            flexGrow: 0,
-            flexShrink: 0
+            flexGrow: '0',
+            flexShrink: '0'
         });
         super(args);
 

@@ -20,8 +20,8 @@ class ViewportPanel extends Container {
         Object.assign(args, {
             class: 'texture-2d-panel',
             flex: true,
-            flexGrow: 1,
-            flexShrink: 1
+            flexGrow: '1',
+            flexShrink: '1'
         });
         super(args);
 

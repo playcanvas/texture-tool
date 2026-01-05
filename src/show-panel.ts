@@ -11,7 +11,7 @@ class ShowPanel extends Panel {
             id: 'show-panel',
             headerText: 'Show',
             collapsible: true,
-            flexGrow: 0
+            flexGrow: '0'
         });
 
         super(args);
@@ -43,7 +43,7 @@ class ShowPanel extends Panel {
         const mipmapSelect = new SelectInput({
             value: '0',
             options: [],
-            flexGrow: 1
+            flexGrow: '1'
         });
 
         // texture type
@@ -57,7 +57,7 @@ class ShowPanel extends Panel {
                 { v: 'rgbp', t: 'rgbp' },
                 { v: 'a', t: 'a' }
             ],
-            flexGrow: 1
+            flexGrow: '1'
         });
 
         // alpha
@@ -72,7 +72,7 @@ class ShowPanel extends Panel {
             min: -5,
             max: 5,
             precision: 1,
-            flexGrow: 1
+            flexGrow: '1'
         });
 
         // label groups

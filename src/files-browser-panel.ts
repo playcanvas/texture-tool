@@ -172,7 +172,7 @@ class FilesBrowserPanel extends Panel {
             id: 'files-browser',
             headerText: 'TEXTURE TOOL',
             flex: true,
-            flexGrow: 1
+            flexGrow: '1'
         });
 
         super(args);
@@ -190,8 +190,8 @@ class FilesBrowserPanel extends Panel {
             class: 'files-browser-group',
             flex: true,
             flexDirection: 'row',
-            flexGrow: 0,
-            flexShrink: 0
+            flexGrow: '0',
+            flexShrink: '0'
         });
 
         // files input element
@@ -209,8 +209,8 @@ class FilesBrowserPanel extends Panel {
         const filesButton = new Button({
             class: 'files-browser-button',
             text: 'Add Files...',
-            flexGrow: 1,
-            flexShrink: 1,
+            flexGrow: '1',
+            flexShrink: '1',
             width: 50
         });
 
@@ -268,8 +268,8 @@ class FilesBrowserPanel extends Panel {
         const directoryButton = new Button({
             class: 'files-browser-button',
             text: 'Mount Folder...',
-            flexGrow: 1,
-            flexShrink: 1,
+            flexGrow: '1',
+            flexShrink: '1',
             width: 50
         });
 
@@ -287,8 +287,8 @@ class FilesBrowserPanel extends Panel {
 
         const treeViewContainer = new Container({
             id: 'files-browser-tree-view-container',
-            flexGrow: 1,
-            flexShrink: 1
+            flexGrow: '1',
+            flexShrink: '1'
         });
 
         const treeView = new TreeView({
@@ -306,21 +306,21 @@ class FilesBrowserPanel extends Panel {
         const urlGroup = new Container({
             flex: true,
             flexDirection: 'row',
-            flexGrow: 0,
-            flexShrink: 0
+            flexGrow: '0',
+            flexShrink: '0'
         });
 
         const urlInput = new TextInput({
             placeholder: 'url',
-            flexGrow: 1
+            flexGrow: '1'
         });
 
         const urlAddButton = new Button({
             id: 'browser-panel-entry-button',
             text: '',
             icon: '\E120',
-            flexGrow: 0,
-            flexShrink: 0,
+            flexGrow: '0',
+            flexShrink: '0',
             width: 30,
             height: 24
         });

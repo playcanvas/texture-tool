@@ -18,8 +18,8 @@ class RenderCanvas extends Container {
         Object.assign(args, {
             class: 'render-canvas-container',
             flex: true,
-            flexGrow: 1,
-            flexShrink: 1
+            flexGrow: '1',
+            flexShrink: '1'
         });
         super(args);
 

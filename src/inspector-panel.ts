@@ -15,7 +15,7 @@ class InspectorPanel extends Container {
             resizeMax: 1000,
             flex: true,
             flexDirection: 'column',
-            flexGrow: 1
+            flexGrow: '1'
         });
         super(args);
 
