@@ -1,9 +1,17 @@
 import { Panel, Label } from 'pcui';
 
-import { PixelFormatTable, TextureTypeTable } from './const.js';
+import { PixelFormatTable, TextureTypeTable } from './const';
+import type { TextureManager } from './texture-manager';
+import type { TextureDoc } from './texture-doc';
 
 class InfoPanel extends Panel {
-    constructor(textureManager, args = { }) {
+    textureStructure: Label;
+    textureDims: Label;
+    texturePixelFormat: Label;
+    textureType: Label;
+    cursorTexel: Label;
+
+    constructor(textureManager: TextureManager, args: Record<string, any> = {}) {
         Object.assign(args, {
             headerText: '-',
             flexGrow: 0,
@@ -43,12 +51,12 @@ class InfoPanel extends Panel {
         this.header.append(this.textureType);
         this.header.append(this.cursorTexel);
 
-        textureManager.on('textureDocSelected', (texture) => {
+        textureManager.on('textureDocSelected', (texture: TextureDoc) => {
             this.setTexture(texture);
         });
     }
 
-    setTexture(texture) {
+    setTexture(texture: TextureDoc): void {
         // filename
         this.headerText = texture.url.startsWith('blob:') ? texture.filename : texture.url;
 
@@ -59,10 +67,10 @@ class InfoPanel extends Panel {
         this.textureDims.text = `${texture.width}x${texture.height}`;
 
         // pixel format
-        this.texturePixelFormat.text = `${PixelFormatTable[texture.format] || '???'}`;
+        this.texturePixelFormat.text = `${PixelFormatTable[texture.format!] || '???'}`;
 
         // texture type
-        this.textureType.text = `${TextureTypeTable[texture.type] || '???'}`;
+        this.textureType.text = `${TextureTypeTable[texture.type!] || '???'}`;
     }
 }
 

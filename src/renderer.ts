@@ -1,8 +1,8 @@
-import { basisInitialize, Application } from 'playcanvas';
+import { basisInitialize, Application, LayerComposition } from 'playcanvas';
+import type { CameraComponent, Layer } from 'playcanvas';
 
 // initialize basis
-
-const getAssetPath = (assetPath) => {
+const getAssetPath = (assetPath: string): string => {
     return assetPath;
 };
 
@@ -14,6 +14,10 @@ basisInitialize({
 });
 
 class Renderer {
+    private _canvas: HTMLCanvasElement;
+    private _app: Application;
+    private _renderRequest: number | null;
+
     constructor() {
         // create the canvas (which will remain invisible)
         this._canvas = document.createElement('canvas');
@@ -26,7 +30,7 @@ class Renderer {
             }
         });
 
-        this._app.loader.getHandler('texture').imgParser.crossOrigin = 'anonymous';
+        (this._app.loader.getHandler('texture') as any).imgParser.crossOrigin = 'anonymous';
 
         // taken from Application.start()
         this._app.systems.fire('initialize', this._app.root);
@@ -35,11 +39,11 @@ class Renderer {
         this._renderRequest = null;
     }
 
-    get app() {
+    get app(): Application {
         return this._app;
     }
 
-    render(canvas, composition) {
+    render(canvas: HTMLCanvasElement, composition?: LayerComposition): void {
         // ensure back buffer is large enough
         if (canvas.width > this._canvas.width ||
             canvas.height > this._canvas.height) {
@@ -48,14 +52,14 @@ class Renderer {
         }
 
         // default to app scene
-        composition = composition || this._app.scene.layers;
+        const comp = composition || this._app.scene.layers;
 
         // step through all cameras in the composition and set their viewport
         // based on the device backbuffer.
         // NOTE: we can't rely on composition.cameras here because that list
         // only gets populated during renderComposition.
-        const seen = new Set();
-        for (const layer of composition.layerList) {
+        const seen = new Set<CameraComponent>();
+        for (const layer of comp.layerList as Layer[]) {
             for (const camera of layer.cameras) {
                 if (!seen.has(camera)) {
                     seen.add(camera);
@@ -77,11 +81,11 @@ class Renderer {
         // render
         this._app.graphicsDevice.frameStart();
         this._app.batcher.updateAll();
-        this._app.renderComposition(composition);
+        this._app.renderComposition(comp);
         this._app.graphicsDevice.frameEnd();
 
         // copy the result to the target canvas
-        const context = canvas.getContext('2d');
+        const context = canvas.getContext('2d')!;
         context.globalCompositeOperation = 'copy';
         context.drawImage(this._canvas, 0, this._canvas.height - canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
     }

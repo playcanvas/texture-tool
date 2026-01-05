@@ -17,9 +17,43 @@ import {
     ShaderChunks,
     SHADERLANGUAGE_GLSL
 } from 'playcanvas';
+import type { RenderCanvas } from './render-canvas';
+import type { TextureDoc } from './texture-doc';
+
+interface TexelCoord {
+    u: number;
+    v: number;
+}
+
+interface PixelCoord {
+    x: number;
+    y: number;
+}
 
 class TextureView {
-    constructor(canvas) {
+    canvas: RenderCanvas;
+    composition: LayerComposition;
+    layer: Layer;
+    root: Entity;
+    material: ShaderMaterial;
+    render: Entity;
+    camera: Entity;
+    defaultTex: Texture;
+    rebuildMaterial: boolean;
+    texture: TextureDoc | null;
+    textureType: string;
+    alpha: boolean;
+    face: number;
+    filter: boolean;
+    mipmap: number;
+    exposure: number;
+    offsetX: number;
+    offsetY: number;
+    scale: number;
+    viewportW: number;
+    viewportH: number;
+
+    constructor(canvas: RenderCanvas) {
         const device = canvas.renderer.app.graphicsDevice;
 
         this.canvas = canvas;
@@ -30,12 +64,12 @@ class TextureView {
         this.layer = new Layer({
             id: -2,
             enabled: true,
-            opaqueSortMost: 2,
+            opaqueSortMode: 2,
             transparentSortMode: 3
         });
         this.composition.push(this.layer);
 
-        this.canvas.composition = this.composition;
+        (this.canvas as any).composition = this.composition;
 
         // root entity
         this.root = new Entity();
@@ -78,11 +112,11 @@ class TextureView {
             layers: []
         });
         this.camera.setLocalPosition(0, 0, 2.2);
-        this.camera.camera.layers = [this.layer.id];
+        this.camera.camera!.layers = [this.layer.id];
         this.root.addChild(this.camera);
 
-        this.layer.addMeshInstances(this.render.render.meshInstances);
-        this.layer.addCamera(this.camera.camera);
+        this.layer.addMeshInstances(this.render.render!.meshInstances);
+        this.layer.addCamera(this.camera.camera!);
 
         this.root.syncHierarchy();
 
@@ -93,7 +127,7 @@ class TextureView {
         });
 
         // handle renders
-        this.canvas.on('prerender', (frameTime) => {
+        this.canvas.on('prerender', () => {
             // set filtering
             if (this.texture && this.texture.resource) {
                 this.texture.resource.magFilter = this.filter ? FILTER_LINEAR : FILTER_NEAREST;
@@ -103,7 +137,7 @@ class TextureView {
         });
 
         // create default texture
-        const data = new Uint8ClampedArray([64, 64, 64, 255]);
+        const data = new Uint8Array([64, 64, 64, 255]);
         this.defaultTex = new Texture(device, {
             cubemap: false,
             width: 1,
@@ -128,10 +162,10 @@ class TextureView {
         this.viewportH = 150;
     }
 
-    setTexture(texture) {
+    setTexture(texture: TextureDoc): void {
         if (texture !== this.texture) {
             this.texture = texture;
-            this.scale = Math.min(this.viewportW / this.texture.width, this.viewportH / this.texture.height);
+            this.scale = Math.min(this.viewportW / this.texture.width!, this.viewportH / this.texture.height!);
             this.offsetX = 0;
             this.offsetY = 0;
             this.clamp();
@@ -140,14 +174,14 @@ class TextureView {
         }
     }
 
-    setFace(value) {
+    setFace(value: number): void {
         if (value !== this.face) {
             this.face = value;
             this.canvas.render();
         }
     }
 
-    setTextureType(value) {
+    setTextureType(value: string): void {
         if (value !== this.textureType) {
             this.textureType = value;
             this.rebuildMaterial = true;
@@ -155,7 +189,7 @@ class TextureView {
         }
     }
 
-    setAlpha(value) {
+    setAlpha(value: boolean): void {
         if (value !== this.alpha) {
             this.alpha = value;
             this.rebuildMaterial = true;
@@ -163,34 +197,34 @@ class TextureView {
         }
     }
 
-    setFilter(value) {
+    setFilter(value: boolean): void {
         if (value !== this.filter) {
             this.filter = value;
             this.canvas.render();
         }
     }
 
-    setMipmap(value) {
+    setMipmap(value: number): void {
         if (value !== this.mipmap) {
             this.mipmap = value;
             this.canvas.render();
         }
     }
 
-    setExposure(value) {
+    setExposure(value: number): void {
         if (value !== this.exposure) {
             this.exposure = value;
             this.canvas.render();
         }
     }
 
-    setViewport(width, height) {
+    setViewport(width: number, height: number): void {
         this.viewportW = width;
         this.viewportH = height;
         this.clamp();
     }
 
-    setScale(scale, pixelX, pixelY) {
+    setScale(scale: number, pixelX: number, pixelY: number): void {
         const tex = this.pixelToTexel(pixelX, this.viewportH - pixelY);
 
         // update scale
@@ -204,27 +238,27 @@ class TextureView {
         this.clamp();
     }
 
-    setOffset(offsetX, offsetY) {
+    setOffset(offsetX: number, offsetY: number): void {
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         this.clamp();
     }
 
-    pixelToTexel(x, y) {
+    pixelToTexel(x: number, y: number): TexelCoord {
         return {
             u: (x - this.offsetX) / this.scale,
             v: (y - this.offsetY) / this.scale
         };
     }
 
-    texelToPixel(u, v) {
+    texelToPixel(u: number, v: number): PixelCoord {
         return {
             x: u * this.scale + this.offsetX,
             y: v * this.scale + this.offsetY
         };
     }
 
-    clamp() {
+    clamp(): void {
         if (this.texture) {
             // clamp scale
             const minScale = 0.2; // Math.min(this.viewportW / this.texture.width, this.viewportH / this.texture.height);
@@ -232,11 +266,11 @@ class TextureView {
             this.scale = Math.max(minScale, Math.min(maxScale, this.scale));
 
             // clamp offsetX
-            const diffX = this.scale * this.texture.width - this.viewportW;
+            const diffX = this.scale * this.texture.width! - this.viewportW;
             this.offsetX = diffX < 0 ? diffX * -0.5 : Math.max(-diffX, Math.min(0, this.offsetX));
 
             // clamp offsetY
-            const diffY = this.scale * this.texture.height - this.viewportH;
+            const diffY = this.scale * this.texture.height! - this.viewportH;
             this.offsetY = diffY < 0 ? diffY * -0.5 : Math.max(-diffY, Math.min(0, this.offsetY));
 
             this.canvas.render();
@@ -245,8 +279,8 @@ class TextureView {
 
     // Build the fragment shader source with current settings.
     // Original shader logic from src/chunks/texture.frag.js, adapted for ShaderMaterial API.
-    buildFragmentShader() {
-        const decodeFunc = {
+    buildFragmentShader(): string {
+        const decodeFunc: Record<string, string> = {
             'gamma': 'decodeGamma',
             'linear': 'decodeLinear',
             'rgbm': 'decodeRGBM',
@@ -334,7 +368,7 @@ void main() {
     }
 
     // prepare the material for rendering
-    prepare() {
+    prepare(): void {
         if (this.rebuildMaterial) {
             this.rebuildMaterial = false;
 

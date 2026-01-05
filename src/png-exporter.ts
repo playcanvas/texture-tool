@@ -1,14 +1,15 @@
-function PngExportWorker(href) {
-    const initLodepng = () => {
-        return new Promise((resolve, reject) => {
-            self.importScripts(`${href}lib/lodepng/lodepng.js`);
-            resolve(self.lodepng({
+// Worker function - kept as a string template for blob creation
+function PngExportWorker(href: string): void {
+    const initLodepng = (): Promise<any> => {
+        return new Promise((resolve) => {
+            (self as any).importScripts(`${href}lib/lodepng/lodepng.js`);
+            resolve((self as any).lodepng({
                 locateFile: () => `${href}lib/lodepng/lodepng.wasm`
             }));
         });
     };
 
-    const compress = (lodepng, words, width, height) => {
+    const compress = (lodepng: any, words: Uint32Array, width: number, height: number): Uint8Array => {
         const resultDataPtrPtr = lodepng._malloc(4);
         const resultSizePtr = lodepng._malloc(4);
         const imageData = lodepng._malloc(width * height * 4);
@@ -32,48 +33,59 @@ function PngExportWorker(href) {
         return result;
     };
 
-    const main = async () => {
+    const main = async (): Promise<void> => {
         const lodepng = await initLodepng();
 
-        self.onmessage = (message) => {
+        self.onmessage = (message: MessageEvent) => {
             const data = message.data;
 
             // compress
             const result = compress(lodepng, data.words, data.width, data.height);
 
             // return
-            self.postMessage({ result: result }, [result.buffer]);
+            (self as any).postMessage({ result: result }, [result.buffer]);
         };
     };
 
     main();
 }
 
+interface PngExportMessage {
+    data: {
+        result: Uint8Array;
+    };
+}
+
 class PngExporter {
+    worker: Worker;
+    promiseFunc: (resolve: (value: Uint8Array) => void, reject: (reason?: any) => void) => void;
+
     constructor() {
-        let receiver;
+        let receiver: ((message: PngExportMessage) => void) | null;
 
         this.worker = PngExporter.createWorker();
-        this.worker.addEventListener('message', (message) => {
-            receiver(message);
+        this.worker.addEventListener('message', (message: MessageEvent) => {
+            if (receiver) {
+                receiver(message as PngExportMessage);
+            }
         });
 
-        this.promiseFunc = (resolve, reject) => {
-            receiver = (message) => {
+        this.promiseFunc = (resolve) => {
+            receiver = (message: PngExportMessage) => {
                 resolve(message.data.result);
                 receiver = null;
             };
         };
     }
 
-    static createWorker() {
+    static createWorker(): Worker {
         const workerBlob = new Blob([`(${PngExportWorker.toString()})('${window.location.href.split('?')[0]}')\n\n`], {
             type: 'application/javascript'
         });
         return new Worker(URL.createObjectURL(workerBlob));
     }
 
-    run(words, width, height) {
+    run(words: Uint32Array, width: number, height: number): Promise<Uint8Array> {
         this.worker.postMessage({
             words: words,
             width: width,
@@ -83,7 +95,7 @@ class PngExporter {
         return new Promise(this.promiseFunc);
     }
 
-    get extension() {
+    get extension(): string {
         return 'png';
     }
 }

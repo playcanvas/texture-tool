@@ -1,7 +1,7 @@
 import { Container, Button } from 'pcui';
 
 class FeedbackPanel extends Container {
-    constructor(args = { }) {
+    constructor(args: Record<string, any> = {}) {
         Object.assign(args, {
             id: 'feedback-pane'
         });

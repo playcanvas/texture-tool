@@ -1,9 +1,10 @@
 import path from 'path';
-import copyAndWatch from "./copy-and-watch.mjs";
+import { copyAndWatch } from './plugins/copy-and-watch.mjs';
 import resolve from '@rollup/plugin-node-resolve';
 import alias from '@rollup/plugin-alias';
 import json from '@rollup/plugin-json';
 import sass from 'rollup-plugin-sass';
+import typescript from '@rollup/plugin-typescript';
 
 const PROD_BUILD = process.env.BUILD_TYPE === 'prod';
 const HREF       = process.env.BASE_HREF || '';
@@ -20,8 +21,21 @@ const aliasEntries = {
     'pcui': PCUI_PATH
 };
 
+const TARGETS = [
+    {
+        src: 'src/index.html',
+        transform: (contents) => {
+            return contents.toString().replace('__BASE_HREF__', HREF);
+        }
+    },
+    { src: 'static/playcanvas-logo.png' },
+    { src: 'static/lib' },
+    { src: 'static/textures' },
+    { src: 'src/fonts.css' }
+];
+
 export default {
-    input: 'src/index.js',
+    input: 'src/index.ts',
     output: {
         dir: 'dist',
         format: 'es',
@@ -31,21 +45,12 @@ export default {
         include: 'src/**'
     },
     plugins: [
-        copyAndWatch({
-            targets: [{
-                src: 'src/index.html',
-                dest: '',
-                transform: (contents, filename) => {
-                    return contents.toString().replace('__BASE_HREF__', HREF);
-                }
-            },
-            { src: 'static/playcanvas-logo.png' },
-            { src: 'static/lib' },
-            { src: 'static/textures' },
-            { src: 'src/fonts.css' }
-        ]}),
+        copyAndWatch(TARGETS),
         alias({ entries: aliasEntries }),
         resolve(),
+        typescript({
+            tsconfig: './tsconfig.json'
+        }),
         sass({
             insert: false,
             output: 'dist/style.css',
