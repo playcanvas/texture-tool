@@ -54,7 +54,8 @@ export default {
         sass({
             insert: false,
             output: 'dist/style.css',
-            outputStyle: 'compressed'
+            outputStyle: 'compressed',
+            api: 'modern'
         }),
         json()
     ]
