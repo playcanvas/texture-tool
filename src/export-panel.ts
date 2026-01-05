@@ -31,7 +31,7 @@ const readPixels = (texture: Texture, face: number | null): Uint32Array => {
 
 // download the data uri
 const download = (filename: string, data: Uint8Array): void => {
-    const blob = new Blob([data.buffer], { type: 'octet/stream' });
+    const blob = new Blob([data.buffer as ArrayBuffer], { type: 'octet/stream' });
     const url = window.URL.createObjectURL(blob);
 
     const lnk = document.createElement('a');

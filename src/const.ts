@@ -77,7 +77,7 @@ const TextureTypeTable: { [key: number]: string } = {
     [TEXTURETYPE_RGBE]: 'rgbe',
     [TEXTURETYPE_RGBP]: 'rgbp',
     [TEXTURETYPE_SWIZZLEGGGR]: 'swizzleGGGR'
-};
+} as { [key: number]: string };
 
 export {
     PixelFormatTable,

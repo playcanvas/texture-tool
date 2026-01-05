@@ -13,11 +13,12 @@ class FeedbackPanel extends Container {
             flexDirection: 'row'
         });
 
+        // flexGrow missing from ButtonArgs (PCUI bug)
         const githubButton = new Button({
             text: 'GITHUB',
             icon: '\E259',
             flexGrow: '1'
-        });
+        } as any);
 
         githubButton.on('click', () => {
             window.open('https://github.com/playcanvas/texture-tool');

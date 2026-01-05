@@ -40,13 +40,14 @@ class ShowPanel extends Panel {
         this.append(faceButtonsContainer);
 
         // mipmap select
+        // flexGrow missing from SelectInputArgs (PCUI bug)
         const mipmapSelect = new SelectInput({
             value: '0',
             options: [],
             flexGrow: '1'
-        });
+        } as any);
 
-        // texture type
+        // flexGrow missing from SelectInputArgs (PCUI bug)
         const textureTypeSelect = new SelectInput({
             value: 'gamma',
             options: [
@@ -58,7 +59,7 @@ class ShowPanel extends Panel {
                 { v: 'a', t: 'a' }
             ],
             flexGrow: '1'
-        });
+        } as any);
 
         // alpha
         const alphaToggle = new BooleanInput();

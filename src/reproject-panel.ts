@@ -143,8 +143,8 @@ class ReprojectPanel extends Panel {
             if (!t) {
                 source.options = [];
                 target.options = [];
-                width.value = '';
-                height.value = '';
+                width.value = 0;
+                height.value = 0;
                 this.enabled = false;
                 return;
             }

@@ -206,13 +206,14 @@ class FilesBrowserPanel extends Panel {
             this.rebuildTreeUI();
         };
 
+        // flexGrow/flexShrink missing from ButtonArgs (PCUI bug)
         const filesButton = new Button({
             class: 'files-browser-button',
             text: 'Add Files...',
             flexGrow: '1',
             flexShrink: '1',
             width: 50
-        });
+        } as any);
 
         // open file picker
         filesButton.on('click', async () => {
@@ -265,13 +266,14 @@ class FilesBrowserPanel extends Panel {
             this.rebuildTreeUI();
         };
 
+        // flexGrow/flexShrink missing from ButtonArgs (PCUI bug)
         const directoryButton = new Button({
             class: 'files-browser-button',
             text: 'Mount Folder...',
             flexGrow: '1',
             flexShrink: '1',
             width: 50
-        });
+        } as any);
 
         directoryButton.on('click', async () => {
             if (window.showDirectoryPicker) {
@@ -310,11 +312,13 @@ class FilesBrowserPanel extends Panel {
             flexShrink: '0'
         });
 
+        // flexGrow missing from TextInputArgs (PCUI bug)
         const urlInput = new TextInput({
             placeholder: 'url',
             flexGrow: '1'
-        });
+        } as any);
 
+        // flexGrow/flexShrink missing from ButtonArgs (PCUI bug)
         const urlAddButton = new Button({
             id: 'browser-panel-entry-button',
             text: '',
@@ -323,7 +327,7 @@ class FilesBrowserPanel extends Panel {
             flexShrink: '0',
             width: 30,
             height: 24
-        });
+        } as any);
 
         urlAddButton.on('click', () => {
             const url = urlInput.value;
