@@ -1,7 +1,5 @@
 import { Container } from 'pcui';
-interface EventHandleLike {
-    unbind: () => void;
-}
+import type { EventHandle } from '@playcanvas/observer';
 
 import { InfoPanel } from './info-panel';
 import { RenderCanvas } from './render-canvas';
@@ -88,7 +86,7 @@ class ViewportPanel extends Container {
             // });
         });
 
-        const events: EventHandleLike[] = [];
+        const events: EventHandle[] = [];
         textureManager.on('textureDocSelected', (texture: TextureDoc) => {
             events.forEach(ev => ev.unbind());
             events.length = 0;

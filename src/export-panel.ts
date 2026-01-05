@@ -1,8 +1,6 @@
 import { Button, Panel, Container } from 'pcui';
 import { RenderTarget, Texture } from 'playcanvas';
-interface EventHandleLike {
-    unbind: () => void;
-}
+import type { EventHandle } from '@playcanvas/observer';
 
 import { HdrExporter } from './hdr-exporter';
 import { Helpers } from './helpers';
@@ -113,7 +111,7 @@ class TextureExportPanel extends Panel {
             this.enabled = true;
         };
 
-        const events: EventHandleLike[] = [];
+        const events: EventHandle[] = [];
         textureManager.on('textureDocSelected', (texture: TextureDoc) => {
             // unregister preview events
             events.forEach(ev => ev.unbind());

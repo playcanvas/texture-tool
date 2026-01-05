@@ -1,7 +1,5 @@
 import { Panel, Button, Container, LabelGroup, SelectInput, SliderInput, BooleanInput } from 'pcui';
-interface EventHandleLike {
-    unbind: () => void;
-}
+import type { EventHandle } from '@playcanvas/observer';
 import type { TextureManager } from './texture-manager';
 import type { TextureDoc } from './texture-doc';
 
@@ -104,7 +102,7 @@ class ShowPanel extends Panel {
             });
         });
 
-        const events: EventHandleLike[] = [];
+        const events: EventHandle[] = [];
         textureManager.on('textureDocSelected', (texture: TextureDoc) => {
             // unregister preview events
             events.forEach(ev => ev.unbind());

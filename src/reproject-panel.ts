@@ -6,9 +6,7 @@ import {
     FILTER_NEAREST, FILTER_LINEAR, FILTER_LINEAR_MIPMAP_LINEAR,
     ADDRESS_REPEAT, ADDRESS_CLAMP_TO_EDGE, EnvLighting
 } from 'playcanvas';
-interface EventHandleLike {
-    unbind: () => void;
-}
+import type { EventHandle } from '@playcanvas/observer';
 
 import { Helpers } from './helpers';
 import { TextureDoc } from './texture-doc';
@@ -132,7 +130,7 @@ class ReprojectPanel extends Panel {
         this.append(new LabelGroup({ text: 'height', field: height }));
         this.append(buttonContainer);
 
-        const events: EventHandleLike[] = [];
+        const events: EventHandle[] = [];
         textureManager.on('textureDocSelected', (texture: TextureDoc) => {
             // unregister preview events
             events.forEach(ev => ev.unbind());
