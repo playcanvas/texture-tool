@@ -1,4 +1,4 @@
-import { Button, Panel, Container, SelectInput, LabelGroup, NumericInput } from 'pcui';
+import { Button, Panel, Container, SelectInput, LabelGroup, NumericInput } from '@playcanvas/pcui';
 import {
     Texture, Asset, reprojectTexture,
     PIXELFORMAT_R8_G8_B8_A8, PIXELFORMAT_RGBA16F, PIXELFORMAT_RGBA32F,

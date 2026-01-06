@@ -1,4 +1,4 @@
-import { Panel, Label } from 'pcui';
+import { Panel, Label } from '@playcanvas/pcui';
 
 import { PixelFormatTable, TextureTypeTable } from './const';
 import type { TextureManager } from './texture-manager';

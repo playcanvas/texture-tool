@@ -1,4 +1,4 @@
-import { Button, Panel, Container } from 'pcui';
+import { Button, Panel, Container } from '@playcanvas/pcui';
 import { RenderTarget, Texture, WebglGraphicsDevice } from 'playcanvas';
 import type { EventHandle } from '@playcanvas/observer';
 

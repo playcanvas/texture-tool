@@ -25,7 +25,6 @@
     "@playcanvas/eslint-config": "2.1.0",
     "@playcanvas/observer": "1.6.6",
     "@playcanvas/pcui": "5.4.1",
-    "@rollup/plugin-alias": "6.0.0",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-node-resolve": "16.0.3",
     "@rollup/plugin-typescript": "12.1.4",
@@ -33,7 +32,6 @@
     "@typescript-eslint/eslint-plugin": "8.51.0",
     "@typescript-eslint/parser": "8.51.0",
     "concurrently": "9.2.1",
-    "cross-env": "10.1.0",
     "eslint": "9.39.2",
     "eslint-import-resolver-typescript": "4.4.4",
     "globals": "17.0.0",
@@ -48,7 +46,6 @@
     "build": "rollup -c",
     "build:watch": "rollup -c -w",
     "develop": "concurrently --kill-others \"npm run build:watch\" \"npm run serve\"",
-    "develop:local": "cross-env ENGINE_PATH=../engine npm run develop",
     "lint": "eslint src",
     "serve": "serve dist"
   }

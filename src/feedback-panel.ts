@@ -1,4 +1,4 @@
-import { Container, Button } from 'pcui';
+import { Container, Button } from '@playcanvas/pcui';
 
 class FeedbackPanel extends Container {
     constructor(args: Record<string, any> = {}) {

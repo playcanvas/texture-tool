@@ -1,4 +1,4 @@
-import { Panel, Container, Button, TreeView, TreeViewItem, TextInput } from 'pcui';
+import { Panel, Container, Button, TreeView, TreeViewItem, TextInput } from '@playcanvas/pcui';
 import { path } from 'playcanvas';
 import type { TextureManager } from './texture-manager';
 import type { TextureDoc } from './texture-doc';

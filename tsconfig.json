@@ -13,11 +13,7 @@
         "resolveJsonModule": true,
         "sourceMap": true,
         "target": "es2022",
-        "skipLibCheck": true,
-        "paths": {
-            "pcui": ["node_modules/@playcanvas/pcui/types/index.d.ts"],
-            "playcanvas": ["node_modules/playcanvas/build/playcanvas.d.ts"]
-        }
+        "skipLibCheck": true
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules", "dist"]
