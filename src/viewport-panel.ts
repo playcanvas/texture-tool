@@ -1,4 +1,4 @@
-import { Container } from 'pcui';
+import { Container } from '@playcanvas/pcui';
 import type { EventHandle } from '@playcanvas/observer';
 
 import { InfoPanel } from './info-panel';

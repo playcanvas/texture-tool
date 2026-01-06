@@ -1,4 +1,4 @@
-import { Container } from 'pcui';
+import { Container } from '@playcanvas/pcui';
 import { path } from 'playcanvas';
 
 import { DropHandler } from './drop-handler';

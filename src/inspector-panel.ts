@@ -1,4 +1,4 @@
-import { Container } from 'pcui';
+import { Container } from '@playcanvas/pcui';
 
 import { TextureExportPanel } from './export-panel';
 import { FeedbackPanel } from './feedback-panel';

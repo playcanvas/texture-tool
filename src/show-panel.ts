@@ -1,4 +1,4 @@
-import { Panel, Button, Container, LabelGroup, SelectInput, SliderInput, BooleanInput } from 'pcui';
+import { Panel, Button, Container, LabelGroup, SelectInput, SliderInput, BooleanInput } from '@playcanvas/pcui';
 import type { EventHandle } from '@playcanvas/observer';
 import type { TextureManager } from './texture-manager';
 import type { TextureDoc } from './texture-doc';

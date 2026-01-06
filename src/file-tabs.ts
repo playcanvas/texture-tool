@@ -1,4 +1,4 @@
-import { Container, Label } from 'pcui';
+import { Container, Label } from '@playcanvas/pcui';
 import type { TextureManager } from './texture-manager';
 import type { TextureDoc } from './texture-doc';
 

@@ -1,4 +1,4 @@
-import { Container } from 'pcui';
+import { Container } from '@playcanvas/pcui';
 import type { LayerComposition } from 'playcanvas';
 import type { Renderer } from './renderer';
 
