@@ -1,12 +1,15 @@
 import { Panel, Button, Container, LabelGroup, SelectInput, SliderInput, BooleanInput } from 'pcui';
+import type { EventHandle } from '@playcanvas/observer';
+import type { TextureManager } from './texture-manager';
+import type { TextureDoc } from './texture-doc';
 
 class ShowPanel extends Panel {
-    constructor(textureManager, args = { }) {
+    constructor(textureManager: TextureManager, args: Record<string, any> = {}) {
         Object.assign(args, {
             id: 'show-panel',
             headerText: 'Show',
             collapsible: true,
-            flexGrow: 0
+            flexGrow: '0'
         });
 
         super(args);
@@ -19,7 +22,7 @@ class ShowPanel extends Panel {
             id: 'cubemap-face-buttons-container'
         });
 
-        const faceButtons = {
+        const faceButtons: Record<string, Button> = {
             0: new Button({ id: 'cubemap-face-px', class: 'cubemap-face', text: '+x' }),
             1: new Button({ id: 'cubemap-face-nx', class: 'cubemap-face', text: '-x' }),
             2: new Button({ id: 'cubemap-face-py', class: 'cubemap-face', text: '+y' }),
@@ -35,13 +38,14 @@ class ShowPanel extends Panel {
         this.append(faceButtonsContainer);
 
         // mipmap select
+        // flexGrow missing from SelectInputArgs (PCUI bug)
         const mipmapSelect = new SelectInput({
             value: '0',
             options: [],
-            flexGrow: 1
-        });
+            flexGrow: '1'
+        } as any);
 
-        // texture type
+        // flexGrow missing from SelectInputArgs (PCUI bug)
         const textureTypeSelect = new SelectInput({
             value: 'gamma',
             options: [
@@ -52,8 +56,8 @@ class ShowPanel extends Panel {
                 { v: 'rgbp', t: 'rgbp' },
                 { v: 'a', t: 'a' }
             ],
-            flexGrow: 1
-        });
+            flexGrow: '1'
+        } as any);
 
         // alpha
         const alphaToggle = new BooleanInput();
@@ -67,7 +71,7 @@ class ShowPanel extends Panel {
             min: -5,
             max: 5,
             precision: 1,
-            flexGrow: 1
+            flexGrow: '1'
         });
 
         // label groups
@@ -77,12 +81,12 @@ class ShowPanel extends Panel {
         this.append(new LabelGroup({ text: 'filter', field: filterToggle }));
         this.append(new LabelGroup({ text: 'exposure', field: exposureSlider }));
 
-        const getTextureType = (texture) => {
-            const encoding = texture?.asset?.resource?.encoding || 'gamma';
+        const getTextureType = (texture: TextureDoc): string => {
+            const encoding = (texture?.asset?.resource as any)?.encoding || 'gamma';
             return encoding === 'srgb' ? 'gamma' : encoding;
         };
 
-        textureManager.on('textureDocAdded', (doc) => {
+        textureManager.on('textureDocAdded', (doc: TextureDoc) => {
             doc.settings.patch({
                 view: {
                     filter: false,
@@ -98,14 +102,14 @@ class ShowPanel extends Panel {
             });
         });
 
-        const events = [];
-        textureManager.on('textureDocSelected', (texture) => {
+        const events: EventHandle[] = [];
+        textureManager.on('textureDocSelected', (texture: TextureDoc) => {
             // unregister preview events
             events.forEach(ev => ev.unbind());
             events.length = 0;
 
             // register change events
-            events.push(texture.settings.on('view.face:set', (value) => {
+            events.push(texture.settings.on('view.face:set', (value: string) => {
                 Object.keys(faceButtons).forEach((face) => {
                     if (face === value) {
                         faceButtons[face].dom.classList.add('depressed');
@@ -114,19 +118,19 @@ class ShowPanel extends Panel {
                     }
                 });
             }));
-            events.push(texture.settings.on('view.mipmap:set', (value) => {
+            events.push(texture.settings.on('view.mipmap:set', (value: string) => {
                 mipmapSelect.value = value;
             }));
-            events.push(texture.settings.on('view.type:set', (value) => {
+            events.push(texture.settings.on('view.type:set', (value: string) => {
                 textureTypeSelect.value = value;
             }));
-            events.push(texture.settings.on('view.alpha:set', (value) => {
+            events.push(texture.settings.on('view.alpha:set', (value: boolean) => {
                 alphaToggle.value = !!value;
             }));
-            events.push(texture.settings.on('view.filter:set', (value) => {
+            events.push(texture.settings.on('view.filter:set', (value: boolean) => {
                 filterToggle.value = !!value;
             }));
-            events.push(texture.settings.on('view.exposure:set', (value) => {
+            events.push(texture.settings.on('view.exposure:set', (value: number) => {
                 exposureSlider.value = value;
             }));
 
@@ -154,14 +158,14 @@ class ShowPanel extends Panel {
 
             // mipmap select
             const numMipmaps = texture.numMipmaps;
-            const mips = [];
+            const mips: { v: string; t: string }[] = [];
             for (let i = 0; i < numMipmaps; ++i) {
                 mips.push({ v: `${i}`, t: `${i}` });
             }
             mipmapSelect.options = mips;
 
             // face select
-            faceButtonsContainer.enabled = texture.cubemap;
+            faceButtonsContainer.enabled = !!texture.cubemap;
 
             this.enabled = !!texture.resource;
         });

@@ -1,12 +1,13 @@
 import { Container } from 'pcui';
 
-import { TextureExportPanel } from './export-panel.js';
-import { FeedbackPanel } from './feedback-panel.js';
-import { ReprojectPanel } from './reproject-panel.js';
-import { ShowPanel } from './show-panel.js';
+import { TextureExportPanel } from './export-panel';
+import { FeedbackPanel } from './feedback-panel';
+import { ReprojectPanel } from './reproject-panel';
+import { ShowPanel } from './show-panel';
+import type { TextureManager } from './texture-manager';
 
 class InspectorPanel extends Container {
-    constructor(textureManager, args = {}) {
+    constructor(textureManager: TextureManager, args: Record<string, any> = {}) {
         Object.assign(args, {
             class: 'inspector-panel-container',
             resizable: 'left',
@@ -14,7 +15,7 @@ class InspectorPanel extends Container {
             resizeMax: 1000,
             flex: true,
             flexDirection: 'column',
-            flexGrow: 1
+            flexGrow: '1'
         });
         super(args);
 

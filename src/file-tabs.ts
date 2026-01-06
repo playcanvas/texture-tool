@@ -1,7 +1,12 @@
 import { Container, Label } from 'pcui';
+import type { TextureManager } from './texture-manager';
+import type { TextureDoc } from './texture-doc';
 
 class FileTabs extends Container {
-    constructor(textureManager, args = {}) {
+    textureManager: TextureManager;
+    buttons: Map<TextureDoc, Container>;
+
+    constructor(textureManager: TextureManager, args: Record<string, any> = {}) {
         Object.assign(args, {
             id: 'file-tabs-container',
             flex: true,
@@ -12,12 +17,12 @@ class FileTabs extends Container {
         this.textureManager = textureManager;
         this.buttons = new Map();
 
-        textureManager.on('textureDocAdded', texture => this.onTextureDocAdded(texture));
-        textureManager.on('textureDocRemoved', texture => this.onTextureDocRemoved(texture));
-        textureManager.on('textureDocSelected', texture => this.onTextureDocSelected(texture));
+        textureManager.on('textureDocAdded', (texture: TextureDoc) => this.onTextureDocAdded(texture));
+        textureManager.on('textureDocRemoved', (texture: TextureDoc) => this.onTextureDocRemoved(texture));
+        textureManager.on('textureDocSelected', (texture: TextureDoc) => this.onTextureDocSelected(texture));
     }
 
-    onTextureDocAdded(texture) {
+    onTextureDocAdded(texture: TextureDoc): void {
         const tab = new Container({
             class: 'file-tab',
             flex: true,
@@ -50,12 +55,15 @@ class FileTabs extends Container {
         button.dom.scrollIntoView();
     }
 
-    onTextureDocRemoved(texture) {
-        this.remove(this.buttons.get(texture));
+    onTextureDocRemoved(texture: TextureDoc): void {
+        const tab = this.buttons.get(texture);
+        if (tab) {
+            this.remove(tab);
+        }
         this.buttons.delete(texture);
     }
 
-    onTextureDocSelected(texture) {
+    onTextureDocSelected(texture: TextureDoc): void {
         this.buttons.forEach((b, t) => {
             if (t === texture) {
                 b.dom.classList.add('selected');

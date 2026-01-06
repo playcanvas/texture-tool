@@ -1,18 +1,30 @@
 import { Container } from 'pcui';
+import type { LayerComposition } from 'playcanvas';
+import type { Renderer } from './renderer';
 
 // implements a pcui canvas element with rendering
 class RenderCanvas extends Container {
-    constructor(renderer, composition = null, args = {}) {
+    renderer: Renderer;
+    composition: LayerComposition;
+    renderRequest: number | null;
+    canvas: HTMLCanvasElement;
+    needsResize: boolean;
+    canvasWidth: number;
+    canvasHeight: number;
+    observer: ResizeObserver;
+    animationFrame: (timeStamp: number) => void;
+
+    constructor(renderer: Renderer, composition: LayerComposition | null = null, args: Record<string, any> = {}) {
         Object.assign(args, {
             class: 'render-canvas-container',
             flex: true,
-            flexGrow: 1,
-            flexShrink: 1
+            flexGrow: '1',
+            flexShrink: '1'
         });
         super(args);
 
         this.renderer = renderer;
-        this.composition = composition || this.renderer.app.defaultLayerComposition;
+        this.composition = composition || this.renderer.app.scene.layers;
         this.renderRequest = null;
 
         // canvas
@@ -25,7 +37,7 @@ class RenderCanvas extends Container {
         this.canvasHeight = 150;
 
         // resize observer
-        this.observer = new ResizeObserver((entries) => {
+        this.observer = new ResizeObserver(() => {
             const rect = this.dom.getBoundingClientRect();
             const width = Math.floor(rect.width);
             const height = Math.floor(rect.height);
@@ -34,14 +46,14 @@ class RenderCanvas extends Container {
                 this.canvasWidth = width;
                 this.canvasHeight = height;
                 this.canvas.style.width = `${width}px`;
-                this.canvas.style.height = `${height}py`;
+                this.canvas.style.height = `${height}px`;
                 this.emit('resize', width, height);
             }
         });
         this.observer.observe(this.dom);
 
         // animation frame
-        this.animationFrame = (timeStamp) => {
+        this.animationFrame = () => {
             // clear request
             this.renderRequest = null;
 
@@ -60,7 +72,7 @@ class RenderCanvas extends Container {
         };
     }
 
-    render() {
+    render(): void {
         if (!this.renderRequest) {
             this.renderRequest = window.requestAnimationFrame(this.animationFrame);
         }

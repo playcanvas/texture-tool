@@ -1,27 +1,32 @@
 import { Container } from 'pcui';
 import { path } from 'playcanvas';
 
-import { DropHandler } from './drop-handler.js';
-import { FileTabs } from './file-tabs.js';
-import { FilesBrowserPanel } from './files-browser-panel.js';
-import { InspectorPanel } from './inspector-panel.js';
-import { Renderer } from './renderer.js';
-import { TextureManager } from './texture-manager.js';
-import { ViewportPanel } from './viewport-panel.js';
+import { DropHandler } from './drop-handler';
+import { FileTabs } from './file-tabs';
+import { FilesBrowserPanel } from './files-browser-panel';
+import { InspectorPanel } from './inspector-panel';
+import { Renderer } from './renderer';
+import { TextureManager } from './texture-manager';
+import { ViewportPanel } from './viewport-panel';
+import { TextureDoc } from './texture-doc';
 
 // globals
 const renderer = new Renderer();
 const textureManager = new TextureManager(renderer.app.assets);
 
 // disable global drag/drop
-window.addEventListener('dragover', (ev) => {
+window.addEventListener('dragover', (ev: DragEvent) => {
     ev.preventDefault();
-    ev.dataTransfer.dropEffect = 'none';
+    if (ev.dataTransfer) {
+        ev.dataTransfer.dropEffect = 'none';
+    }
 }, false);
 
-window.addEventListener('drop', (ev) => {
+window.addEventListener('drop', (ev: DragEvent) => {
     ev.preventDefault();
-    ev.dataTransfer.dropEffect = 'none';
+    if (ev.dataTransfer) {
+        ev.dataTransfer.dropEffect = 'none';
+    }
 }, false);
 
 // construct application containers
@@ -67,7 +72,7 @@ setTimeout(() => {
     const keys = Array.from(url.searchParams.keys());
     const values = Array.from(url.searchParams.values());
     let i = 0;
-    let activeTexture = null;
+    let activeTexture: TextureDoc | null = null;
 
     const handleNextParam = () => {
         if (i === keys.length) {
@@ -77,7 +82,7 @@ setTimeout(() => {
         const param = keys[i];
         const value = values[i++];
         if (param === 'load') {
-            textureManager.addTextureDocByUrl(value, path.getBasename(value).split('?')[0], (err, texture) => {
+            textureManager.addTextureDocByUrl(value, path.getBasename(value).split('?')[0], (err: Error | null, texture: TextureDoc | null) => {
                 if (!err && texture) {
                     textureManager.selectTextureDoc(texture);
                 }

@@ -1,65 +1,96 @@
 import { Panel, Container, Button, TreeView, TreeViewItem, TextInput } from 'pcui';
 import { path } from 'playcanvas';
+import type { TextureManager } from './texture-manager';
+import type { TextureDoc } from './texture-doc';
+import type { DropHandler } from './drop-handler';
+
+interface FileSource {
+    handle?: FileSystemFileHandle;
+    entry?: FileSystemEntry;
+    file?: File;
+    url?: string;
+}
+
+interface DirectorySource {
+    handle?: FileSystemDirectoryHandle;
+    entry?: FileSystemDirectoryEntry;
+}
+
+type NodeType = 'file' | 'directory';
+
+interface TreeViewItemWithNode extends TreeViewItem {
+    node: FileNode | DirectoryNode;
+}
 
 class FileNode {
-    constructor(name, source) {
+    name: string;
+    source: FileSource;
+    hidden: boolean;
+    texture: TextureDoc | null;
+
+    constructor(name: string, source: FileSource) {
         this.name = name;
         this.source = source;
         this.hidden = false;
         this.texture = null;
     }
 
-    get type() {
+    get type(): NodeType {
         return 'file';
     }
 
-    async getUrl() {
+    async getUrl(): Promise<string> {
         const source = this.source;
         if (source.handle) {
             const file = await source.handle.getFile();
             return URL.createObjectURL(file);
         } else if (source.entry) {
             return new Promise((resolve, reject) => {
-                source.entry.file((file) => {
+                (source.entry as FileSystemFileEntry).file((file: File) => {
                     resolve(URL.createObjectURL(file));
-                }, (err) => {
+                }, (err: Error) => {
                     reject(err);
                 });
             });
         } else if (source.file) {
             return URL.createObjectURL(source.file);
         }
-        return source.url;
+        return source.url!;
     }
 }
 
 class DirectoryNode {
-    constructor(name, source) {
+    name: string;
+    source: DirectorySource | null;
+    children: (FileNode | DirectoryNode)[];
+    hidden: boolean;
+
+    constructor(name: string, source: DirectorySource | null = null) {
         this.name = name;
         this.source = source;
         this.children = [];
         this.hidden = false;
     }
 
-    add(node) {
+    add(node: FileNode | DirectoryNode): void {
         this.children.push(node);
     }
 
-    get type() {
+    get type(): NodeType {
         return 'directory';
     }
 
-    async mountHandle(handle) {
-        let result;
+    async mountHandle(handle: FileSystemHandle): Promise<FileNode | DirectoryNode> {
+        let result: FileNode | DirectoryNode;
         if (handle.kind === 'file') {
             result = new FileNode(handle.name, {
-                handle: handle
+                handle: handle as FileSystemFileHandle
             });
-        } else if (handle.kind === 'directory') {
+        } else {
             result = new DirectoryNode(handle.name, {
-                handle: handle
+                handle: handle as FileSystemDirectoryHandle
             });
-            for await (const childHandle of handle.values()) {
+            for await (const childHandle of (handle as FileSystemDirectoryHandle).values()) {
                 await result.mountHandle(childHandle);
             }
         }
@@ -67,25 +98,26 @@ class DirectoryNode {
         return result;
     }
 
-    async mountEntry(entry) {
-        let result;
+    async mountEntry(entry: FileSystemEntry): Promise<FileNode | DirectoryNode> {
+        let result: FileNode | DirectoryNode;
         if (entry.isFile) {
             result = new FileNode(entry.fullPath.substring(1), {
                 entry: entry
             });
-        } else if (entry.isDirectory) {
+        } else {
             result = new DirectoryNode(entry.fullPath.substring(1), {
-                entry: entry
+                entry: entry as FileSystemDirectoryEntry
             });
 
-            const reader = entry.createReader();
-            await new Promise((resolve, reject) => {
+            const reader = (entry as FileSystemDirectoryEntry).createReader();
+            const dirResult = result as DirectoryNode;
+            await new Promise<void>((resolve) => {
                 const recurse = () => {
-                    reader.readEntries(async (entries) => {
+                    reader.readEntries(async (entries: FileSystemEntry[]) => {
                         if (entries.length) {
                             for (let i = 0; i < entries.length; ++i) {
                                 // eslint-disable-next-line no-await-in-loop
-                                await result.mountEntry(entries[i]);
+                                await dirResult.mountEntry(entries[i]);
                             }
                             recurse();
                         } else {
@@ -100,19 +132,19 @@ class DirectoryNode {
         return result;
     }
 
-    mountFile(filename, file) {
+    mountFile(filename: string, file: File): void {
         this.add(new FileNode(filename, {
             file: file
         }));
     }
 
-    mountUrl(filename, url) {
+    mountUrl(filename: string, url: string): void {
         this.add(new FileNode(filename, {
             url: url
         }));
     }
 
-    sort() {
+    sort(): void {
         this.children.sort((a, b) => {
             if (a.type !== b.type) {
                 return a.type === 'directory' ? -1 : 1;
@@ -122,19 +154,25 @@ class DirectoryNode {
 
         this.children.forEach((c) => {
             if (c.type === 'directory') {
-                c.sort();
+                (c as DirectoryNode).sort();
             }
         });
     }
 }
 
 class FilesBrowserPanel extends Panel {
-    constructor(textureManager, dropHandler, args = {}) {
+    textureManager: TextureManager;
+    root: DirectoryNode;
+    treeView: TreeView;
+    textureToElement: Map<TextureDoc, TreeViewItemWithNode> | null;
+    nodeToElement: Map<FileNode | DirectoryNode, TreeViewItemWithNode> | null;
+
+    constructor(textureManager: TextureManager, dropHandler: DropHandler, args: Record<string, any> = {}) {
         Object.assign(args, {
             id: 'files-browser',
             headerText: 'TEXTURE TOOL',
             flex: true,
-            flexGrow: 1
+            flexGrow: '1'
         });
 
         super(args);
@@ -152,29 +190,30 @@ class FilesBrowserPanel extends Panel {
             class: 'files-browser-group',
             flex: true,
             flexDirection: 'row',
-            flexGrow: 0,
-            flexShrink: 0
+            flexGrow: '0',
+            flexShrink: '0'
         });
 
         // files input element
         const filesInputElement = document.createElement('input');
         filesInputElement.type = 'file';
         filesInputElement.multiple = true;
-        filesInputElement.onchange = (e) => {
-            const files = Array.from(filesInputElement.files);
+        filesInputElement.onchange = () => {
+            const files = Array.from(filesInputElement.files || []);
             files.forEach((f) => {
                 this.root.mountFile(f.name, f);
             });
             this.rebuildTreeUI();
         };
 
+        // flexGrow/flexShrink missing from ButtonArgs (PCUI bug)
         const filesButton = new Button({
             class: 'files-browser-button',
             text: 'Add Files...',
-            flexGrow: 1,
-            flexShrink: 1,
+            flexGrow: '1',
+            flexShrink: '1',
             width: 50
-        });
+        } as any);
 
         // open file picker
         filesButton.on('click', async () => {
@@ -189,7 +228,7 @@ class FilesBrowserPanel extends Panel {
                     this.rebuildTreeUI();
 
                     nodes.forEach((node) => {
-                        const ui = this.nodeToElement.get(node);
+                        const ui = this.nodeToElement?.get(node);
                         if (ui) {
                             this.treeView.deselect();
                             ui.selected = true;
@@ -203,37 +242,38 @@ class FilesBrowserPanel extends Panel {
         });
 
         // directory input element
-        const directoryInputElement = document.createElement('input');
+        const directoryInputElement = document.createElement('input') as HTMLInputElement & { webkitdirectory: boolean };
         directoryInputElement.type = 'file';
         directoryInputElement.multiple = true;
         directoryInputElement.webkitdirectory = true;
-        directoryInputElement.onchange = (e) => {
-            const files = Array.from(directoryInputElement.files);
+        directoryInputElement.onchange = () => {
+            const files = Array.from(directoryInputElement.files || []);
             files.forEach((f) => {
                 // split the full path into parts and add to the directory tree
-                const path = f.webkitRelativePath.split('/');
-                let node = this.root;
-                for (let i = 0; i < path.length - 1; ++i) {
-                    const p = path[i];
+                const pathParts = f.webkitRelativePath.split('/');
+                let node: DirectoryNode = this.root;
+                for (let i = 0; i < pathParts.length - 1; ++i) {
+                    const p = pathParts[i];
                     let child = node.children.find(v => v.name === p);
                     if (!child || child.type !== 'directory') {
                         child = new DirectoryNode(p, null);
                         node.add(child);
                     }
-                    node = child;
+                    node = child as DirectoryNode;
                 }
                 node.mountFile(f.name, f);
             });
             this.rebuildTreeUI();
         };
 
+        // flexGrow/flexShrink missing from ButtonArgs (PCUI bug)
         const directoryButton = new Button({
             class: 'files-browser-button',
             text: 'Mount Folder...',
-            flexGrow: 1,
-            flexShrink: 1,
+            flexGrow: '1',
+            flexShrink: '1',
             width: 50
-        });
+        } as any);
 
         directoryButton.on('click', async () => {
             if (window.showDirectoryPicker) {
@@ -249,8 +289,8 @@ class FilesBrowserPanel extends Panel {
 
         const treeViewContainer = new Container({
             id: 'files-browser-tree-view-container',
-            flexGrow: 1,
-            flexShrink: 1
+            flexGrow: '1',
+            flexShrink: '1'
         });
 
         const treeView = new TreeView({
@@ -260,7 +300,7 @@ class FilesBrowserPanel extends Panel {
             allowRenaming: false
         });
 
-        treeView.on('select', item => this.onItemSelected(item));
+        treeView.on('select', (item: TreeViewItemWithNode) => this.onItemSelected(item));
 
         treeViewContainer.append(treeView);
 
@@ -268,24 +308,26 @@ class FilesBrowserPanel extends Panel {
         const urlGroup = new Container({
             flex: true,
             flexDirection: 'row',
-            flexGrow: 0,
-            flexShrink: 0
+            flexGrow: '0',
+            flexShrink: '0'
         });
 
+        // flexGrow missing from TextInputArgs (PCUI bug)
         const urlInput = new TextInput({
             placeholder: 'url',
-            flexGrow: 1
-        });
+            flexGrow: '1'
+        } as any);
 
+        // flexGrow/flexShrink missing from ButtonArgs (PCUI bug)
         const urlAddButton = new Button({
             id: 'browser-panel-entry-button',
             text: '',
             icon: '\E120',
-            flexGrow: 0,
-            flexShrink: 0,
+            flexGrow: '0',
+            flexShrink: '0',
             width: 30,
             height: 24
-        });
+        } as any);
 
         urlAddButton.on('click', () => {
             const url = urlInput.value;
@@ -304,20 +346,21 @@ class FilesBrowserPanel extends Panel {
         this.append(treeViewContainer);
 
         // handle drag and drop
-        dropHandler.on('filesDropped', async (fileItems) => { // eslint-disable-line require-await
-            const itemPromises = [];
+        dropHandler.on('filesDropped', (fileItems: DataTransferItemList) => {
+            const itemPromises: Promise<FileSystemHandle | FileSystemEntry | null>[] = [];
             for (let i = 0; i < fileItems.length; ++i) {
                 const item = fileItems[i];
                 if (item.getAsFileSystemHandle) {
                     itemPromises.push(item.getAsFileSystemHandle());
                 } else if (item.webkitGetAsEntry) {
-                    itemPromises.push(item.webkitGetAsEntry());
+                    itemPromises.push(Promise.resolve(item.webkitGetAsEntry()));
                 }
             }
 
             Promise.all(itemPromises).then((items) => {
                 const nodePromises = items.map((item) => {
-                    return item.kind ? this.root.mountHandle(item) : this.root.mountEntry(item);
+                    if (!item) return Promise.resolve(null);
+                    return (item as any).kind ? this.root.mountHandle(item as FileSystemHandle) : this.root.mountEntry(item as FileSystemEntry);
                 });
 
                 Promise.all(nodePromises).then((nodes) => {
@@ -325,11 +368,11 @@ class FilesBrowserPanel extends Panel {
 
                     // if user dragged in images, select each in turn
                     nodes.forEach((node) => {
-                        if (node.type === 'file') {
-                            const ui = this.nodeToElement.get(node);
+                        if (node && node.type === 'file') {
+                            const ui = this.nodeToElement?.get(node);
                             if (ui) {
                                 this.treeView.deselect();
-                                ui.selected  = true;
+                                ui.selected = true;
                                 ui.dom.scrollIntoView();
                             }
                         }
@@ -340,7 +383,7 @@ class FilesBrowserPanel extends Panel {
 
         this.textureToElement = null;
         this.nodeToElement = null;
-        textureManager.on('textureDocSelected', (texture) => {
+        textureManager.on('textureDocSelected', (texture: TextureDoc) => {
             if (this.textureToElement) {
                 const element = this.textureToElement.get(texture);
                 if (element) {
@@ -351,11 +394,11 @@ class FilesBrowserPanel extends Panel {
             }
         });
 
-        textureManager.on('textureDocRemoved', (texture) => {
+        textureManager.on('textureDocRemoved', (texture: TextureDoc) => {
             if (this.textureToElement) {
                 const element = this.textureToElement.get(texture);
-                if (element) {
-                    element.node.texture = null;
+                if (element && element.node.type === 'file') {
+                    (element.node as FileNode).texture = null;
                     this.textureToElement.delete(texture);
                 }
             }
@@ -366,26 +409,27 @@ class FilesBrowserPanel extends Panel {
     }
 
     // called when an item is selected
-    async onItemSelected(item) {
+    async onItemSelected(item: TreeViewItemWithNode): Promise<void> {
         const node = item.node;
         if (node.type === 'file') {
-            if (!node.texture) {
-                const url = await node.getUrl();
-                this.textureManager.addTextureDocByUrl(url, node.name, (err, texture) => {
+            const fileNode = node as FileNode;
+            if (!fileNode.texture) {
+                const url = await fileNode.getUrl();
+                this.textureManager.addTextureDocByUrl(url, fileNode.name, (err, texture) => {
                     URL.revokeObjectURL(url);
-                    if (!err) {
-                        node.texture = texture;
+                    if (!err && texture) {
+                        fileNode.texture = texture;
                         this.textureManager.selectTextureDoc(texture);
-                        this.textureToElement.set(texture, item);
+                        this.textureToElement?.set(texture, item);
                     }
                 });
             } else {
-                this.textureManager.selectTextureDoc(node.texture);
+                this.textureManager.selectTextureDoc(fileNode.texture);
             }
         }
     }
 
-    isImageFilename(filename) {
+    isImageFilename(filename: string): boolean {
         const extensions = ['.dds', '.png', '.jpg', '.jpeg', '.basis', '.ktx', '.ktx2', '.hdr', '.pvr'];
         for (let i = 0; i < extensions.length; ++i) {
             if (filename.endsWith(extensions[i])) {
@@ -395,15 +439,16 @@ class FilesBrowserPanel extends Panel {
         return false;
     }
 
-    updateHiddenFlags() {
-        const recurse = (node) => {
-            let hidden;
+    updateHiddenFlags(): void {
+        const recurse = (node: FileNode | DirectoryNode): boolean => {
+            let hidden: boolean;
             if (node.type === 'file') {
                 hidden = !this.isImageFilename(node.name);
             } else {
                 hidden = true;
-                for (let i = 0; i < node.children.length; ++i) {
-                    hidden = recurse(node.children[i]) && hidden;   // NOTE: don't short-circuit
+                const dirNode = node as DirectoryNode;
+                for (let i = 0; i < dirNode.children.length; ++i) {
+                    hidden = recurse(dirNode.children[i]) && hidden;   // NOTE: don't short-circuit
                 }
             }
             node.hidden = hidden;
@@ -413,26 +458,26 @@ class FilesBrowserPanel extends Panel {
         recurse(this.root);
     }
 
-    rebuildTreeUI() {
+    rebuildTreeUI(): void {
         this.textureToElement = new Map();
         this.nodeToElement = new Map();
 
-        const recurse = (ui, children) => {
+        const recurse = (ui: TreeView | TreeViewItem, children: (FileNode | DirectoryNode)[]) => {
             children.forEach((node) => {
                 if (!node.hidden) {
                     const treeViewItem = new TreeViewItem({
                         text: node.name,
                         class: node.type === 'file' ? 'files-browser-tree-view-file-item' : 'files-browser-tree-view-directory-item',
                         open: false
-                    });
-                    if (node.texture) {
-                        this.textureToElement.set(node.texture, treeViewItem);
+                    }) as TreeViewItemWithNode;
+                    if ((node as FileNode).texture) {
+                        this.textureToElement!.set((node as FileNode).texture!, treeViewItem);
                     }
-                    this.nodeToElement.set(node, treeViewItem);
+                    this.nodeToElement!.set(node, treeViewItem);
                     treeViewItem.node = node;
                     ui.append(treeViewItem);
                     if (node.type === 'directory') {
-                        recurse(treeViewItem, node.children);
+                        recurse(treeViewItem, (node as DirectoryNode).children);
                     }
                 }
             });

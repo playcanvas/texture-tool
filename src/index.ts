@@ -1,4 +1,4 @@
-import './main.js';
+import './main';
 import './style.scss';
 
 import { version as pcuiVersion, revision as pcuiRevision } from 'pcui';

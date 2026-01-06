@@ -37,7 +37,7 @@ import {
     TEXTURETYPE_SWIZZLEGGGR
 } from 'playcanvas';
 
-const PixelFormatTable = {
+const PixelFormatTable: { [key: number]: string } = {
     [PIXELFORMAT_A8]: 'A8',
     [PIXELFORMAT_L8]: 'L8',
     [PIXELFORMAT_L8_A8]: 'LA8',
@@ -71,13 +71,13 @@ const PixelFormatTable = {
     [PIXELFORMAT_ATC_RGBA]: 'ATC_A'
 };
 
-const TextureTypeTable = {
+const TextureTypeTable: { [key: number]: string } = {
     [TEXTURETYPE_DEFAULT]: 'default',
     [TEXTURETYPE_RGBM]: 'rgbm',
     [TEXTURETYPE_RGBE]: 'rgbe',
     [TEXTURETYPE_RGBP]: 'rgbp',
     [TEXTURETYPE_SWIZZLEGGGR]: 'swizzleGGGR'
-};
+} as { [key: number]: string };
 
 export {
     PixelFormatTable,

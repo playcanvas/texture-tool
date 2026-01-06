@@ -1,18 +1,27 @@
 import { Button, Panel, Container } from 'pcui';
-import { RenderTarget } from 'playcanvas';
+import { RenderTarget, Texture, WebglGraphicsDevice } from 'playcanvas';
+import type { EventHandle } from '@playcanvas/observer';
 
-import { HdrExporter } from './hdr-exporter.js';
-import { Helpers } from './helpers.js';
-import { PngExporter } from './png-exporter.js';
+import { HdrExporter } from './hdr-exporter';
+import { Helpers } from './helpers';
+import { PngExporter } from './png-exporter';
+import type { TextureManager } from './texture-manager';
+import type { TextureDoc } from './texture-doc';
 
-const readPixels = (texture, face) => {
-    const rt = new RenderTarget({ colorBuffer: texture, depth: false, face: face });
+interface Exporter {
+    run(words: Uint32Array, width: number, height: number): Promise<Uint8Array> | Uint8Array;
+    extension: string;
+}
+
+const readPixels = (texture: Texture, face: number | null): Uint32Array => {
+    const rt = new RenderTarget({ colorBuffer: texture, depth: false, face: face ?? undefined });
     const data = new Uint8ClampedArray(texture.width * texture.height * 4);
-    const device = texture.device;
+    const device = texture.device as WebglGraphicsDevice;
+    const gl = device.gl;
 
-    device.setFramebuffer(rt._glFrameBuffer);
+    device.setFramebuffer(rt.impl._glFrameBuffer);
     device.initRenderTarget(rt);
-    device.gl.readPixels(0, 0, texture.width, texture.height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, data);
+    gl.readPixels(0, 0, texture.width, texture.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
 
     rt.destroy();
 
@@ -20,8 +29,8 @@ const readPixels = (texture, face) => {
 };
 
 // download the data uri
-const download = (filename, data) => {
-    const blob = new Blob([data], { type: 'octet/stream' });
+const download = (filename: string, data: Uint8Array): void => {
+    const blob = new Blob([data.buffer as ArrayBuffer], { type: 'octet/stream' });
     const url = window.URL.createObjectURL(blob);
 
     const lnk = document.createElement('a');
@@ -35,20 +44,20 @@ const download = (filename, data) => {
             0, 0, 0, 0, 0, false, false, false,
             false, 0, null);
         lnk.dispatchEvent(e);
-    } else if (lnk.fireEvent) {
-        lnk.fireEvent('onclick');
+    } else if ((lnk as any).fireEvent) {
+        (lnk as any).fireEvent('onclick');
     }
 
     window.URL.revokeObjectURL(url);
 };
 
 class TextureExportPanel extends Panel {
-    constructor(textureManager, args = { }) {
+    constructor(textureManager: TextureManager, args: Record<string, any> = {}) {
         Object.assign(args, {
             id: 'texture-export-pane',
             headerText: 'Export',
             collapsible: true,
-            flexGrow: 1
+            flexGrow: '1'
         });
 
         super(args);
@@ -85,15 +94,15 @@ class TextureExportPanel extends Panel {
         this.append(exportToPngContainer);
         this.append(exportToHdrContainer);
 
-        const doExport = async (exporter, texture) => {
-            const t = texture.resource;
+        const doExport = async (exporter: Exporter, texture: TextureDoc): Promise<void> => {
+            const t = texture.resource!;
 
             this.enabled = false;
 
             if (t.cubemap) {
                 const faceNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz'];
                 for (let face = 0; face < 6; ++face) {
-                    // eslint-disable-next-line
+                    // eslint-disable-next-line no-await-in-loop
                     download(`${Helpers.removeExtension(texture.filename)}_${faceNames[face]}.${exporter.extension}`, await exporter.run(readPixels(t, face), t.width, t.height));
                 }
             } else {
@@ -103,8 +112,8 @@ class TextureExportPanel extends Panel {
             this.enabled = true;
         };
 
-        const events = [];
-        textureManager.on('textureDocSelected', (texture) => {
+        const events: EventHandle[] = [];
+        textureManager.on('textureDocSelected', (texture: TextureDoc) => {
             // unregister preview events
             events.forEach(ev => ev.unbind());
             events.length = 0;
@@ -127,7 +136,7 @@ class TextureExportPanel extends Panel {
             }));
 
             exportToPng.enabled = !!texture.resource;
-            exportToHdr.enabled = texture.resource && texture.resource.encoding === 'rgbe';
+            exportToHdr.enabled = !!(texture.resource && (texture.resource as any).encoding === 'rgbe');
 
             this.enabled = !!texture.resource;
         });
