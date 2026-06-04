@@ -22,20 +22,18 @@
     "url": "git+https://github.com/playcanvas/texture-tool.git"
   },
   "devDependencies": {
-    "@playcanvas/eslint-config": "2.1.0",
+    "@playcanvas/eslint-config": "3.0.0-beta.8",
     "@playcanvas/observer": "1.7.1",
     "@playcanvas/pcui": "6.1.4",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-node-resolve": "16.0.3",
     "@rollup/plugin-typescript": "12.1.4",
     "@types/react": "19.2.17",
-    "@typescript-eslint/eslint-plugin": "8.61.0",
-    "@typescript-eslint/parser": "8.61.0",
     "concurrently": "10.0.3",
     "eslint": "9.39.4",
-    "eslint-import-resolver-typescript": "4.4.5",
     "globals": "17.6.0",
     "playcanvas": "2.19.7",
+    "prettier": "3.9.6",
     "rollup": "4.62.0",
     "rollup-plugin-sass": "1.15.3",
     "serve": "14.2.6",
@@ -46,7 +44,10 @@
     "build": "rollup -c",
     "build:watch": "rollup -c -w",
     "develop": "concurrently --kill-others \"npm run build:watch\" \"npm run serve\"",
+    "fmt": "prettier --check .",
+    "fmt:fix": "prettier --write .",
     "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "serve": "serve dist"
   }
 }
