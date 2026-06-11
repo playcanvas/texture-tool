@@ -148,11 +148,18 @@ class ReprojectPanel extends Panel {
             }
 
             const onTargetProjectionChanged = () => {
-                if (projections[target.value] === 'envAtlas') {
+                const projection = projections[target.value];
+                const isEnvAtlas = projection === 'envAtlas';
+                if (isEnvAtlas) {
                     encoding.value = '2';
+                    // envAtlas uses a fixed atlas layout defined by generateAtlas internally;
+                    // 512px ensures correct shader UV sampling and mip grid alignment
                     width.value = 512;
                 }
-                height.enabled = ['cube', 'envAtlas'].indexOf(projections[target.value]) === -1;
+                // envAtlas width and encoding are locked to engine-defined atlas format
+                width.enabled = !isEnvAtlas;
+                encoding.enabled = !isEnvAtlas;
+                height.enabled = !['cube', 'envAtlas'].includes(projection);
                 if (!height.enabled) {
                     height.value = width.value;
                 }
@@ -264,7 +271,7 @@ class ReprojectPanel extends Panel {
                 const asset = new Asset(`${Helpers.removeExtension(texture.asset!.name)}-${targetProjection}`, targetProjection === 'cube' ? 'cubemap' : 'texture', {
                     filename: `${Helpers.removeExtension(texture.filename)}-${targetProjection}`,
                     url: ''
-                }, null);
+                });
                 asset.resource = targetTexture;
                 asset.loaded = true;
 
