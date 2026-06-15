@@ -99,17 +99,19 @@ class TextureExportPanel extends Panel {
 
             this.enabled = false;
 
-            if (t.cubemap) {
-                const faceNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz'];
-                for (let face = 0; face < 6; ++face) {
-                    // eslint-disable-next-line no-await-in-loop
-                    download(`${Helpers.removeExtension(texture.filename)}_${faceNames[face]}.${exporter.extension}`, await exporter.run(readPixels(t, face), t.width, t.height));
+            try {
+                if (t.cubemap) {
+                    const faceNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz'];
+                    for (let face = 0; face < 6; ++face) {
+                        // eslint-disable-next-line no-await-in-loop
+                        download(`${Helpers.removeExtension(texture.filename)}_${faceNames[face]}.${exporter.extension}`, await exporter.run(readPixels(t, face), t.width, t.height));
+                    }
+                } else {
+                    download(`${Helpers.removeExtension(texture.filename)}.${exporter.extension}`, await exporter.run(readPixels(t, null), t.width, t.height));
                 }
-            } else {
-                download(`${Helpers.removeExtension(texture.filename)}.${exporter.extension}`, await exporter.run(readPixels(t, null), t.width, t.height));
+            } finally {
+                this.enabled = true;
             }
-
-            this.enabled = true;
         };
 
         const events: EventHandle[] = [];
@@ -122,17 +124,27 @@ class TextureExportPanel extends Panel {
             events.push(exportToPng.on('click', async () => {
                 exportToPng.dom.classList.add('busy-anim');
                 exportToPng.text = 'BUSY...';
-                await doExport(pngExporter, texture);
-                exportToPng.dom.classList.remove('busy-anim');
-                exportToPng.text = 'EXPORT TO PNG';
+                try {
+                    await doExport(pngExporter, texture);
+                } catch (err) {
+                    console.error(err);
+                } finally {
+                    exportToPng.dom.classList.remove('busy-anim');
+                    exportToPng.text = 'EXPORT TO PNG';
+                }
             }));
 
             events.push(exportToHdr.on('click', async () => {
                 exportToHdr.dom.classList.add('busy-anim');
                 exportToHdr.text = 'BUSY...';
-                await doExport(hdrExporter, texture);
-                exportToHdr.dom.classList.remove('busy-anim');
-                exportToHdr.text = 'EXPORT TO HDR';
+                try {
+                    await doExport(hdrExporter, texture);
+                } catch (err) {
+                    console.error(err);
+                } finally {
+                    exportToHdr.dom.classList.remove('busy-anim');
+                    exportToHdr.text = 'EXPORT TO HDR';
+                }
             }));
 
             exportToPng.enabled = !!texture.resource;
