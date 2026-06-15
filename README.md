@@ -22,7 +22,7 @@ https://playcanvas.com/texture-tool
 - **Alpha Channel** - Toggle alpha channel visualization with checkerboard background
 - **Filtering Toggle** - Switch between linear and nearest filtering
 - **Reprojection** - Convert between equirectangular and cubemap projections
-- **Export** - Save textures as PNG or HDR files
+- **Export** - Save textures as PNG, WebP (lossless), or HDR files
 
 ## Supported Formats
 
@@ -32,6 +32,7 @@ The texture tool can load the following texture formats:
 |--------|-----------|
 | PNG | `.png` |
 | JPEG | `.jpg`, `.jpeg` |
+| WebP | `.webp` |
 | HDR | `.hdr` |
 | DDS | `.dds` |
 | KTX | `.ktx`, `.ktx2` |

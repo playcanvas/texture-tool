@@ -5,6 +5,7 @@ import type { EventHandle } from '@playcanvas/observer';
 import { HdrExporter } from './hdr-exporter';
 import { Helpers } from './helpers';
 import { PngExporter } from './png-exporter';
+import { WebpExporter } from './webp-exporter';
 import type { TextureManager } from './texture-manager';
 import type { TextureDoc } from './texture-doc';
 
@@ -63,6 +64,7 @@ class TextureExportPanel extends Panel {
         super(args);
 
         const pngExporter = new PngExporter();
+        const webpExporter = new WebpExporter();
         const hdrExporter = new HdrExporter();
 
         // png export
@@ -78,6 +80,19 @@ class TextureExportPanel extends Panel {
         });
         exportToPngContainer.append(exportToPng);
 
+        // webp export
+        const exportToWebp = new Button({
+            class: 'inspector-button',
+            text: 'EXPORT TO WEBP',
+            icon: '\E228',
+            enabled: false
+        });
+
+        const exportToWebpContainer = new Container({
+            class: 'inspector-button-container'
+        });
+        exportToWebpContainer.append(exportToWebp);
+
         // hdr export
         const exportToHdr = new Button({
             class: 'inspector-button',
@@ -92,6 +107,7 @@ class TextureExportPanel extends Panel {
         exportToHdrContainer.append(exportToHdr);
 
         this.append(exportToPngContainer);
+        this.append(exportToWebpContainer);
         this.append(exportToHdrContainer);
 
         const doExport = async (exporter: Exporter, texture: TextureDoc): Promise<void> => {
@@ -134,6 +150,19 @@ class TextureExportPanel extends Panel {
                 }
             }));
 
+            events.push(exportToWebp.on('click', async () => {
+                exportToWebp.dom.classList.add('busy-anim');
+                exportToWebp.text = 'BUSY...';
+                try {
+                    await doExport(webpExporter, texture);
+                } catch (err) {
+                    console.error(err);
+                } finally {
+                    exportToWebp.dom.classList.remove('busy-anim');
+                    exportToWebp.text = 'EXPORT TO WEBP';
+                }
+            }));
+
             events.push(exportToHdr.on('click', async () => {
                 exportToHdr.dom.classList.add('busy-anim');
                 exportToHdr.text = 'BUSY...';
@@ -148,6 +177,7 @@ class TextureExportPanel extends Panel {
             }));
 
             exportToPng.enabled = !!texture.resource;
+            exportToWebp.enabled = !!texture.resource;
             exportToHdr.enabled = !!(texture.resource && (texture.resource as any).encoding === 'rgbe');
 
             this.enabled = !!texture.resource;
