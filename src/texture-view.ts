@@ -395,7 +395,7 @@ void main() {
         this.material.setParameter('offset', [this.offsetX, this.offsetY]);
         this.material.setParameter('scale', this.scale);
         this.material.setParameter('viewportSize', [this.viewportW, this.viewportH]);
-        this.material.setParameter('texSize', this.texture ? [this.texture.width, this.texture.height] : [1, 1]);
+        this.material.setParameter('texSize', this.texture ? [this.texture.width ?? 1, this.texture.height ?? 1] : [1, 1]);
         this.material.update();
     }
 }

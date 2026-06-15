@@ -31,7 +31,7 @@ window.addEventListener('drop', (ev: DragEvent) => {
 
 // construct application containers
 const root = new Container({
-    dom: document.getElementById('root')
+    dom: document.getElementById('root')!
 });
 
 const leftContainer = new Container({
