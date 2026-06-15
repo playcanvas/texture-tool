@@ -30,3 +30,6 @@ interface DataTransferItem {
     getAsFileSystemHandle?: () => Promise<FileSystemHandle>;
 }
 
+// Style imports handled by the bundler
+declare module '*.scss';
+

@@ -37,6 +37,7 @@ class TextureView {
     root: Entity;
     material: ShaderMaterial;
     render: Entity;
+    meshInstance: MeshInstance;
     camera: Entity;
     defaultTex: Texture;
     rebuildMaterial: boolean;
@@ -92,11 +93,12 @@ class TextureView {
         this.material = new ShaderMaterial();
 
         // render entity
+        this.meshInstance = new MeshInstance(mesh, this.material);
         this.render = new Entity();
         this.render.addComponent('render', {
             material: this.material,
             meshInstances: [
-                new MeshInstance(mesh, this.material)
+                this.meshInstance
             ]
         });
         this.root.addChild(this.render);
@@ -149,6 +151,7 @@ class TextureView {
 
         this.rebuildMaterial = true;
         this.texture = null;
+        this.meshInstance.visible = false;
         this.textureType = 'gamma';
         this.alpha = false;
         this.face = 0;
@@ -165,10 +168,13 @@ class TextureView {
     setTexture(texture: TextureDoc): void {
         if (texture !== this.texture) {
             this.texture = texture;
-            this.scale = Math.min(this.viewportW / this.texture.width!, this.viewportH / this.texture.height!);
-            this.offsetX = 0;
-            this.offsetY = 0;
-            this.clamp();
+            this.meshInstance.visible = !!texture.resource;
+            if (texture.resource) {
+                this.scale = Math.min(this.viewportW / this.texture.width!, this.viewportH / this.texture.height!);
+                this.offsetX = 0;
+                this.offsetY = 0;
+                this.clamp();
+            }
             this.rebuildMaterial = true;
             this.canvas.render();
         }
@@ -395,7 +401,7 @@ void main() {
         this.material.setParameter('offset', [this.offsetX, this.offsetY]);
         this.material.setParameter('scale', this.scale);
         this.material.setParameter('viewportSize', [this.viewportW, this.viewportH]);
-        this.material.setParameter('texSize', this.texture ? [this.texture.width, this.texture.height] : [1, 1]);
+        this.material.setParameter('texSize', this.texture ? [this.texture.width ?? 1, this.texture.height ?? 1] : [1, 1]);
         this.material.update();
     }
 }

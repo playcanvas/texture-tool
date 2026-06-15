@@ -34,65 +34,89 @@ function PngExportWorker(href: string): void {
     };
 
     const main = async (): Promise<void> => {
-        const lodepng = await initLodepng();
+        let lodepng: any;
+        try {
+            lodepng = await initLodepng();
+        } catch (err) {
+            // report init failure on the first request so the caller's promise rejects
+            self.onmessage = () => {
+                (self as any).postMessage({ error: `failed to initialize lodepng: ${err}` });
+            };
+            return;
+        }
 
         self.onmessage = (message: MessageEvent) => {
             const data = message.data;
 
-            // compress
-            const result = compress(lodepng, data.words, data.width, data.height);
+            try {
+                // compress
+                const result = compress(lodepng, data.words, data.width, data.height);
 
-            // return
-            (self as any).postMessage({ result: result }, [result.buffer]);
+                // return
+                (self as any).postMessage({ result: result }, [result.buffer]);
+            } catch (err) {
+                (self as any).postMessage({ error: `${err}` });
+            }
         };
     };
 
     main();
 }
 
-interface PngExportMessage {
-    data: {
-        result: Uint8Array;
-    };
-}
+type PendingExport = {
+    resolve: (value: Uint8Array) => void;
+    reject: (reason?: any) => void;
+};
 
 class PngExporter {
     worker: Worker;
-    promiseFunc: (resolve: (value: Uint8Array) => void, reject: (reason?: any) => void) => void;
+    pending: PendingExport | null = null;
 
     constructor() {
-        let receiver: ((message: PngExportMessage) => void) | null;
-
         this.worker = PngExporter.createWorker();
+
         this.worker.addEventListener('message', (message: MessageEvent) => {
-            if (receiver) {
-                receiver(message as PngExportMessage);
+            const pending = this.pending;
+            if (!pending) {
+                return;
+            }
+            this.pending = null;
+
+            if (message.data.error) {
+                pending.reject(new Error(message.data.error));
+            } else {
+                pending.resolve(message.data.result);
             }
         });
 
-        this.promiseFunc = (resolve) => {
-            receiver = (message: PngExportMessage) => {
-                resolve(message.data.result);
-                receiver = null;
-            };
-        };
+        this.worker.addEventListener('error', (e: ErrorEvent) => {
+            const pending = this.pending;
+            if (pending) {
+                this.pending = null;
+                pending.reject(new Error(e.message || 'PNG export worker error'));
+            }
+        });
     }
 
     static createWorker(): Worker {
         const workerBlob = new Blob([`(${PngExportWorker.toString()})('${window.location.href.split('?')[0]}')\n\n`], {
             type: 'application/javascript'
         });
-        return new Worker(URL.createObjectURL(workerBlob));
+        const url = URL.createObjectURL(workerBlob);
+        const worker = new Worker(url);
+        URL.revokeObjectURL(url);
+        return worker;
     }
 
     run(words: Uint32Array, width: number, height: number): Promise<Uint8Array> {
-        this.worker.postMessage({
-            words: words,
-            width: width,
-            height: height
-        }, [words.buffer]);
-
-        return new Promise(this.promiseFunc);
+        return new Promise<Uint8Array>((resolve, reject) => {
+            this.pending = { resolve, reject };
+            this.worker.postMessage({
+                words: words,
+                width: width,
+                height: height
+            }, [words.buffer]);
+        });
     }
 
     get extension(): string {

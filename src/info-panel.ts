@@ -57,6 +57,16 @@ class InfoPanel extends Panel {
     }
 
     setTexture(texture: TextureDoc): void {
+        // no texture selected - clear the info bar back to its empty state
+        if (!texture.resource) {
+            this.headerText = '-';
+            this.textureStructure.text = '';
+            this.textureDims.text = '';
+            this.texturePixelFormat.text = '';
+            this.textureType.text = '';
+            return;
+        }
+
         // filename
         this.headerText = texture.url.startsWith('blob:') ? texture.filename : texture.url;
 

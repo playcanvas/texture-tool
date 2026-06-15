@@ -430,7 +430,7 @@ class FilesBrowserPanel extends Panel {
     }
 
     isImageFilename(filename: string): boolean {
-        const extensions = ['.dds', '.png', '.jpg', '.jpeg', '.basis', '.ktx', '.ktx2', '.hdr', '.pvr'];
+        const extensions = ['.dds', '.png', '.jpg', '.jpeg', '.webp', '.basis', '.ktx', '.ktx2', '.hdr', '.pvr'];
         for (let i = 0; i < extensions.length; ++i) {
             if (filename.endsWith(extensions[i])) {
                 return true;

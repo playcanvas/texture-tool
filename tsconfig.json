@@ -2,12 +2,11 @@
     "compilerOptions": {
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
-        "baseUrl": ".",
         "esModuleInterop": true,
         "inlineSources": true,
         "lib": ["es2022", "dom", "dom.iterable"],
         "types": ["@webgpu/types"],
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "noEmit": true,
         "noImplicitAny": false,
         "resolveJsonModule": true,
