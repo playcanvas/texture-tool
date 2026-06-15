@@ -54,7 +54,7 @@ Some URL query parameters are available to control the texture tool:
 
 ## How to build
 
-Ensure you have [Node.js](https://nodejs.org) installed (v18.0+). Then, from a command prompt, run:
+Ensure you have [Node.js](https://nodejs.org) installed (v22.0+). Then, from a command prompt, run:
 
 ```
 npm install
