@@ -181,6 +181,11 @@ class FilesBrowserPanel extends Panel {
 
         super(args);
 
+        const picker = window as typeof window & {
+            showOpenFilePicker?: (options?: { multiple?: boolean }) => Promise<FileSystemFileHandle[]>;
+            showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>;
+        };
+
         // add logo top left
         const logo = document.createElement('img');
         logo.src = 'playcanvas-logo.png';
@@ -220,8 +225,8 @@ class FilesBrowserPanel extends Panel {
 
         // open file picker
         filesButton.on('click', async () => {
-            if (window.showOpenFilePicker) {
-                const fileHandles = await window.showOpenFilePicker({
+            if (picker.showOpenFilePicker) {
+                const fileHandles = await picker.showOpenFilePicker({
                     multiple: true
                 });
 
@@ -280,8 +285,8 @@ class FilesBrowserPanel extends Panel {
         });
 
         directoryButton.on('click', async () => {
-            if (window.showDirectoryPicker) {
-                await this.root.mountHandle(await window.showDirectoryPicker());
+            if (picker.showDirectoryPicker) {
+                await this.root.mountHandle(await picker.showDirectoryPicker());
                 this.rebuildTreeUI();
             } else {
                 directoryInputElement.click();
@@ -351,7 +356,9 @@ class FilesBrowserPanel extends Panel {
         dropHandler.on('filesDropped', (fileItems: DataTransferItemList) => {
             const itemPromises: Promise<FileSystemHandle | FileSystemEntry | null>[] = [];
             for (let i = 0; i < fileItems.length; ++i) {
-                const item = fileItems[i];
+                const item = fileItems[i] as DataTransferItem & {
+                    getAsFileSystemHandle?: () => Promise<FileSystemHandle>;
+                };
                 if (item.getAsFileSystemHandle) {
                     itemPromises.push(item.getAsFileSystemHandle());
                 } else if (item.webkitGetAsEntry) {
