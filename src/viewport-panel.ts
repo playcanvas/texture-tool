@@ -1,12 +1,13 @@
-import { Container } from '@playcanvas/pcui';
 import type { EventHandle } from '@playcanvas/observer';
+import { Container } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
 
 import { InfoPanel } from './info-panel';
 import { RenderCanvas } from './render-canvas';
-import { TextureView } from './texture-view';
 import type { Renderer } from './renderer';
-import type { TextureManager } from './texture-manager';
 import type { TextureDoc } from './texture-doc';
+import type { TextureManager } from './texture-manager';
+import { TextureView } from './texture-view';
 
 class ViewportPanel extends Container {
     renderer: Renderer;
@@ -14,7 +15,7 @@ class ViewportPanel extends Container {
     view: TextureView;
     texture: TextureDoc | null;
 
-    constructor(renderer: Renderer, textureManager: TextureManager, args: Record<string, any> = {}) {
+    constructor(renderer: Renderer, textureManager: TextureManager, args: ContainerArgs = {}) {
         Object.assign(args, {
             class: 'texture-2d-panel',
             flex: true,
@@ -36,7 +37,11 @@ class ViewportPanel extends Container {
             const rect = (event.target as HTMLElement).getBoundingClientRect();
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
-            this.view.setScale(this.view.scale - event.deltaY * 0.01, x * window.devicePixelRatio, y * window.devicePixelRatio);
+            this.view.setScale(
+                this.view.scale - event.deltaY * 0.01,
+                x * window.devicePixelRatio,
+                y * window.devicePixelRatio
+            );
         });
 
         let mx = 0;
@@ -56,7 +61,8 @@ class ViewportPanel extends Container {
             if (dragging) {
                 this.view.setOffset(
                     this.view.offsetX + (event.offsetX - mx) * ratio,
-                    this.view.offsetY - (event.offsetY - my) * ratio);
+                    this.view.offsetY - (event.offsetY - my) * ratio
+                );
                 mx = event.offsetX;
                 my = event.offsetY;
             }
@@ -88,27 +94,39 @@ class ViewportPanel extends Container {
 
         const events: EventHandle[] = [];
         textureManager.on('textureDocSelected', (texture: TextureDoc) => {
-            events.forEach(ev => ev.unbind());
+            events.forEach((ev) => ev.unbind());
             events.length = 0;
 
-            events.push(texture.settings.on('view.filter:set', (value: boolean) => {
-                this.view.setFilter(value);
-            }));
-            events.push(texture.settings.on('view.face:set', (value: string) => {
-                this.view.setFace(parseInt(value, 10));
-            }));
-            events.push(texture.settings.on('view.mipmap:set', (value: string) => {
-                this.view.setMipmap(parseInt(value, 10));
-            }));
-            events.push(texture.settings.on('view.type:set', (value: string) => {
-                this.view.setTextureType(value);
-            }));
-            events.push(texture.settings.on('view.alpha:set', (value: boolean) => {
-                this.view.setAlpha(value);
-            }));
-            events.push(texture.settings.on('view.exposure:set', (value: string) => {
-                this.view.setExposure(Math.pow(2, parseInt(value, 10)));
-            }));
+            events.push(
+                texture.settings.on('view.filter:set', (value: boolean) => {
+                    this.view.setFilter(value);
+                })
+            );
+            events.push(
+                texture.settings.on('view.face:set', (value: string) => {
+                    this.view.setFace(parseInt(value, 10));
+                })
+            );
+            events.push(
+                texture.settings.on('view.mipmap:set', (value: string) => {
+                    this.view.setMipmap(parseInt(value, 10));
+                })
+            );
+            events.push(
+                texture.settings.on('view.type:set', (value: string) => {
+                    this.view.setTextureType(value);
+                })
+            );
+            events.push(
+                texture.settings.on('view.alpha:set', (value: boolean) => {
+                    this.view.setAlpha(value);
+                })
+            );
+            events.push(
+                texture.settings.on('view.exposure:set', (value: string) => {
+                    this.view.setExposure(Math.pow(2, parseInt(value, 10)));
+                })
+            );
 
             this.texture = texture;
             this.view.setTexture(this.texture);
@@ -116,6 +134,4 @@ class ViewportPanel extends Container {
     }
 }
 
-export {
-    ViewportPanel
-};
+export { ViewportPanel };

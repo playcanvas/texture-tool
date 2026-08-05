@@ -1,7 +1,8 @@
 import { Container, Button } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
 
 class FeedbackPanel extends Container {
-    constructor(args: Record<string, any> = {}) {
+    constructor(args: ContainerArgs = {}) {
         Object.assign(args, {
             id: 'feedback-pane'
         });
@@ -13,12 +14,11 @@ class FeedbackPanel extends Container {
             flexDirection: 'row'
         });
 
-        // flexGrow missing from ButtonArgs (PCUI bug)
         const githubButton = new Button({
             text: 'GITHUB',
-            icon: '\E259',
+            icon: 'E259',
             flexGrow: '1'
-        } as any);
+        });
 
         githubButton.on('click', () => {
             window.open('https://github.com/playcanvas/texture-tool');
@@ -29,6 +29,4 @@ class FeedbackPanel extends Container {
     }
 }
 
-export {
-    FeedbackPanel
-};
+export { FeedbackPanel };

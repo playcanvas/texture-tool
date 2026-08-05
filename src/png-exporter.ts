@@ -1,15 +1,44 @@
 // Worker function - kept as a string template for blob creation
+type LodePng = {
+    HEAPU8: Uint8Array;
+    HEAPU32: Uint32Array;
+    _free(ptr: number): void;
+    _lodepng_encode32(data: number, size: number, image: number, width: number, height: number): void;
+    _malloc(size: number): number;
+};
+
+type WorkerRequest = {
+    words: Uint32Array;
+    width: number;
+    height: number;
+};
+
+type WorkerResponse = {
+    error?: string;
+    result?: Uint8Array;
+};
+
+type WorkerScope = {
+    importScripts(url: string): void;
+    lodepng(args: { locateFile: () => string }): Promise<LodePng>;
+    onmessage: ((message: MessageEvent<WorkerRequest>) => void) | null;
+    postMessage(message: WorkerResponse, transfer?: Transferable[]): void;
+};
+
 function PngExportWorker(href: string): void {
-    const initLodepng = (): Promise<any> => {
+    const scope = self as unknown as WorkerScope;
+    const initLodepng = (): Promise<LodePng> => {
         return new Promise((resolve) => {
-            (self as any).importScripts(`${href}lib/lodepng/lodepng.js`);
-            resolve((self as any).lodepng({
-                locateFile: () => `${href}lib/lodepng/lodepng.wasm`
-            }));
+            scope.importScripts(`${href}lib/lodepng/lodepng.js`);
+            resolve(
+                scope.lodepng({
+                    locateFile: () => `${href}lib/lodepng/lodepng.wasm`
+                })
+            );
         });
     };
 
-    const compress = (lodepng: any, words: Uint32Array, width: number, height: number): Uint8Array => {
+    const compress = (lodepng: LodePng, words: Uint32Array, width: number, height: number): Uint8Array => {
         const resultDataPtrPtr = lodepng._malloc(4);
         const resultSizePtr = lodepng._malloc(4);
         const imageData = lodepng._malloc(width * height * 4);
@@ -24,7 +53,10 @@ function PngExportWorker(href: string): void {
 
         // read results
         const u32 = lodepng.HEAPU32;
-        const result = lodepng.HEAPU8.slice(u32[resultDataPtrPtr / 4], u32[resultDataPtrPtr / 4] + u32[resultSizePtr / 4]);
+        const result = lodepng.HEAPU8.slice(
+            u32[resultDataPtrPtr / 4],
+            u32[resultDataPtrPtr / 4] + u32[resultSizePtr / 4]
+        );
 
         lodepng._free(resultDataPtrPtr);
         lodepng._free(resultSizePtr);
@@ -34,18 +66,18 @@ function PngExportWorker(href: string): void {
     };
 
     const main = async (): Promise<void> => {
-        let lodepng: any;
+        let lodepng: LodePng;
         try {
             lodepng = await initLodepng();
         } catch (err) {
             // report init failure on the first request so the caller's promise rejects
-            self.onmessage = () => {
-                (self as any).postMessage({ error: `failed to initialize lodepng: ${err}` });
+            scope.onmessage = () => {
+                scope.postMessage({ error: `failed to initialize lodepng: ${err}` });
             };
             return;
         }
 
-        self.onmessage = (message: MessageEvent) => {
+        scope.onmessage = (message) => {
             const data = message.data;
 
             try {
@@ -53,9 +85,9 @@ function PngExportWorker(href: string): void {
                 const result = compress(lodepng, data.words, data.width, data.height);
 
                 // return
-                (self as any).postMessage({ result: result }, [result.buffer]);
+                scope.postMessage({ result: result }, [result.buffer]);
             } catch (err) {
-                (self as any).postMessage({ error: `${err}` });
+                scope.postMessage({ error: `${err}` });
             }
         };
     };
@@ -65,7 +97,7 @@ function PngExportWorker(href: string): void {
 
 type PendingExport = {
     resolve: (value: Uint8Array) => void;
-    reject: (reason?: any) => void;
+    reject: (reason?: unknown) => void;
 };
 
 class PngExporter {
@@ -75,7 +107,7 @@ class PngExporter {
     constructor() {
         this.worker = PngExporter.createWorker();
 
-        this.worker.addEventListener('message', (message: MessageEvent) => {
+        this.worker.addEventListener('message', (message: MessageEvent<WorkerResponse>) => {
             const pending = this.pending;
             if (!pending) {
                 return;
@@ -85,7 +117,7 @@ class PngExporter {
             if (message.data.error) {
                 pending.reject(new Error(message.data.error));
             } else {
-                pending.resolve(message.data.result);
+                pending.resolve(message.data.result!);
             }
         });
 
@@ -111,19 +143,18 @@ class PngExporter {
     run(words: Uint32Array, width: number, height: number): Promise<Uint8Array> {
         return new Promise<Uint8Array>((resolve, reject) => {
             this.pending = { resolve, reject };
-            this.worker.postMessage({
-                words: words,
-                width: width,
-                height: height
-            }, [words.buffer]);
+            this.worker.postMessage(
+                {
+                    words: words,
+                    width: width,
+                    height: height
+                },
+                [words.buffer]
+            );
         });
     }
 
-    get extension(): string {
-        return 'png';
-    }
+    readonly extension = 'png';
 }
 
-export {
-    PngExporter
-};
+export { PngExporter };

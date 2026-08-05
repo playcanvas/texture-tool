@@ -75,18 +75,18 @@ class TextureManager extends Events {
             this.emit('textureDocSelected', textureDoc);
 
             // fire changed values on everything
-            const recurse = (json: Record<string, any>, path: string) => {
+            const recurse = (json: Record<string, unknown>, path: string) => {
                 Object.keys(json).forEach((key) => {
                     const p = `${path}${path.length > 0 ? '.' : ''}${key}`;
                     if (typeof json[key] === 'object') {
-                        recurse(json[key], p);
+                        recurse(json[key] as Record<string, unknown>, p);
                     } else {
                         textureDoc.settings.set(p, textureDoc.settings.get(p), undefined, undefined, true);
                     }
                 });
             };
 
-            recurse(textureDoc.settings.json(), '');
+            recurse(textureDoc.settings.json() as Record<string, unknown>, '');
         }
     }
 
@@ -99,6 +99,4 @@ class TextureManager extends Events {
     }
 }
 
-export {
-    TextureManager
-};
+export { TextureManager };

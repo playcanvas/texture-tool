@@ -1,5 +1,7 @@
 import { Container } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
 import type { LayerComposition } from 'playcanvas';
+
 import type { Renderer } from './renderer';
 
 // implements a pcui canvas element with rendering
@@ -14,7 +16,7 @@ class RenderCanvas extends Container {
     observer: ResizeObserver;
     animationFrame: (timeStamp: number) => void;
 
-    constructor(renderer: Renderer, composition: LayerComposition | null = null, args: Record<string, any> = {}) {
+    constructor(renderer: Renderer, composition: LayerComposition | null = null, args: ContainerArgs = {}) {
         Object.assign(args, {
             class: 'render-canvas-container',
             flex: true,
@@ -79,6 +81,4 @@ class RenderCanvas extends Container {
     }
 }
 
-export {
-    RenderCanvas
-};
+export { RenderCanvas };

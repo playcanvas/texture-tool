@@ -6,28 +6,36 @@ import { FileTabs } from './file-tabs';
 import { FilesBrowserPanel } from './files-browser-panel';
 import { InspectorPanel } from './inspector-panel';
 import { Renderer } from './renderer';
+import type { TextureDoc } from './texture-doc';
 import { TextureManager } from './texture-manager';
 import { ViewportPanel } from './viewport-panel';
-import { TextureDoc } from './texture-doc';
 
 // globals
 const renderer = new Renderer();
 const textureManager = new TextureManager(renderer.app.assets);
 
 // disable global drag/drop
-window.addEventListener('dragover', (ev: DragEvent) => {
-    ev.preventDefault();
-    if (ev.dataTransfer) {
-        ev.dataTransfer.dropEffect = 'none';
-    }
-}, false);
+window.addEventListener(
+    'dragover',
+    (ev: DragEvent) => {
+        ev.preventDefault();
+        if (ev.dataTransfer) {
+            ev.dataTransfer.dropEffect = 'none';
+        }
+    },
+    false
+);
 
-window.addEventListener('drop', (ev: DragEvent) => {
-    ev.preventDefault();
-    if (ev.dataTransfer) {
-        ev.dataTransfer.dropEffect = 'none';
-    }
-}, false);
+window.addEventListener(
+    'drop',
+    (ev: DragEvent) => {
+        ev.preventDefault();
+        if (ev.dataTransfer) {
+            ev.dataTransfer.dropEffect = 'none';
+        }
+    },
+    false
+);
 
 // construct application containers
 const root = new Container({
@@ -82,13 +90,17 @@ setTimeout(() => {
         const param = keys[i];
         const value = values[i++];
         if (param === 'load') {
-            textureManager.addTextureDocByUrl(value, path.getBasename(value).split('?')[0], (err: Error | null, texture: TextureDoc | null) => {
-                if (!err && texture) {
-                    textureManager.selectTextureDoc(texture);
+            textureManager.addTextureDocByUrl(
+                value,
+                path.getBasename(value).split('?')[0],
+                (err: Error | null, texture: TextureDoc | null) => {
+                    if (!err && texture) {
+                        textureManager.selectTextureDoc(texture);
+                    }
+                    activeTexture = texture;
+                    handleNextParam();
                 }
-                activeTexture = texture;
-                handleNextParam();
-            });
+            );
         } else if (param === 'type') {
             if (activeTexture?.resource) {
                 if (['srgb', 'gamma', 'linear', 'rgbm', 'rgbe', 'rgbp', 'a'].includes(value)) {

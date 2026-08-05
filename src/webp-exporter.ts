@@ -2,15 +2,31 @@
 // webp.mjs / webp.wasm assets in static/lib/webp are shared with
 // @playcanvas/splat-transform (built from Google's libwebp).
 
-// lazily-instantiated libwebp module, shared across exports
-let modulePromise: Promise<any> | null = null;
+type WebpModule = {
+    HEAPU8: Uint8Array;
+    HEAPU32: Uint32Array;
+    _free(ptr: number): void;
+    _malloc(size: number): number;
+    _webp_encode_lossless_rgba(
+        data: number,
+        width: number,
+        height: number,
+        stride: number,
+        output: number,
+        size: number
+    ): number;
+    _webp_free(ptr: number): void;
+};
 
-const loadModule = (): Promise<any> => {
+// lazily-instantiated libwebp module, shared across exports
+let modulePromise: Promise<WebpModule> | null = null;
+
+const loadModule = (): Promise<WebpModule> => {
     if (!modulePromise) {
         const dir = `${window.location.href.split('?')[0]}lib/webp/`;
-        const promise = import(`${dir}webp.mjs`).then(mod => mod.default({
-            locateFile: (path: string) => `${dir}${path}`
-        }));
+        const promise = import(`${dir}webp.mjs`).then((mod) =>
+            mod.default({ locateFile: (path: string) => `${dir}${path}` })
+        ) as Promise<WebpModule>;
         // reset on failure so a later attempt can retry the load
         promise.catch(() => {
             if (modulePromise === promise) {
@@ -24,40 +40,36 @@ const loadModule = (): Promise<any> => {
 
 class WebpExporter {
     async run(words: Uint32Array, width: number, height: number): Promise<Uint8Array> {
-        const Module = await loadModule();
+        const module = await loadModule();
         const rgba = new Uint8Array(words.buffer);
 
-        const inPtr = Module._malloc(rgba.length);
-        const outPtrPtr = Module._malloc(4);
-        const outSizePtr = Module._malloc(4);
+        const inPtr = module._malloc(rgba.length);
+        const outPtrPtr = module._malloc(4);
+        const outSizePtr = module._malloc(4);
 
-        Module.HEAPU8.set(rgba, inPtr);
+        module.HEAPU8.set(rgba, inPtr);
 
-        const ok = Module._webp_encode_lossless_rgba(inPtr, width, height, width * 4, outPtrPtr, outSizePtr);
+        const ok = module._webp_encode_lossless_rgba(inPtr, width, height, width * 4, outPtrPtr, outSizePtr);
         if (!ok) {
-            Module._free(inPtr);
-            Module._free(outPtrPtr);
-            Module._free(outSizePtr);
+            module._free(inPtr);
+            module._free(outPtrPtr);
+            module._free(outSizePtr);
             throw new Error('WebP lossless encode failed');
         }
 
-        const outPtr = Module.HEAPU32[outPtrPtr >> 2];
-        const outSize = Module.HEAPU32[outSizePtr >> 2];
-        const bytes = Module.HEAPU8.slice(outPtr, outPtr + outSize);
+        const outPtr = module.HEAPU32[outPtrPtr >> 2];
+        const outSize = module.HEAPU32[outSizePtr >> 2];
+        const bytes = module.HEAPU8.slice(outPtr, outPtr + outSize);
 
-        Module._webp_free(outPtr);
-        Module._free(inPtr);
-        Module._free(outPtrPtr);
-        Module._free(outSizePtr);
+        module._webp_free(outPtr);
+        module._free(inPtr);
+        module._free(outPtrPtr);
+        module._free(outSizePtr);
 
         return bytes;
     }
 
-    get extension(): string {
-        return 'webp';
-    }
+    readonly extension = 'webp';
 }
 
-export {
-    WebpExporter
-};
+export { WebpExporter };

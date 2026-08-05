@@ -1,4 +1,5 @@
 import { Events } from '@playcanvas/observer';
+
 import type { TextureManager } from './texture-manager';
 
 // handle file drag/drop
@@ -22,16 +23,18 @@ class DropHandler extends Events {
             }
         });
 
-        dom.addEventListener('drop', (ev: DragEvent) => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            if (ev.dataTransfer) {
-                this.emit('filesDropped', ev.dataTransfer.items);
-            }
-        }, false);
+        dom.addEventListener(
+            'drop',
+            (ev: DragEvent) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (ev.dataTransfer) {
+                    this.emit('filesDropped', ev.dataTransfer.items);
+                }
+            },
+            false
+        );
     }
 }
 
-export {
-    DropHandler
-};
+export { DropHandler };

@@ -1,18 +1,20 @@
-import { Button, Panel, Container } from '@playcanvas/pcui';
-import { RenderTarget, Texture, WebglGraphicsDevice } from 'playcanvas';
 import type { EventHandle } from '@playcanvas/observer';
+import { Button, Panel, Container } from '@playcanvas/pcui';
+import type { PanelArgs } from '@playcanvas/pcui';
+import type { Texture, WebglGraphicsDevice } from 'playcanvas';
+import { RenderTarget } from 'playcanvas';
 
 import { HdrExporter } from './hdr-exporter';
-import { Helpers } from './helpers';
+import { removeExtension } from './helpers';
 import { PngExporter } from './png-exporter';
-import { WebpExporter } from './webp-exporter';
-import type { TextureManager } from './texture-manager';
 import type { TextureDoc } from './texture-doc';
+import type { TextureManager } from './texture-manager';
+import { WebpExporter } from './webp-exporter';
 
-interface Exporter {
+type Exporter = {
     run(words: Uint32Array, width: number, height: number): Promise<Uint8Array> | Uint8Array;
     extension: string;
-}
+};
 
 const readPixels = (texture: Texture, face: number | null): Uint32Array => {
     const rt = new RenderTarget({ colorBuffer: texture, depth: false, face: face ?? undefined });
@@ -38,22 +40,13 @@ const download = (filename: string, data: Uint8Array): void => {
     lnk.download = filename;
     lnk.href = url;
 
-    // create a "fake" click-event to trigger the download
-    if (document.createEvent) {
-        const e = document.createEvent('MouseEvents');
-        e.initMouseEvent('click', true, true, window,
-            0, 0, 0, 0, 0, false, false, false,
-            false, 0, null);
-        lnk.dispatchEvent(e);
-    } else if ((lnk as any).fireEvent) {
-        (lnk as any).fireEvent('onclick');
-    }
+    lnk.click();
 
     window.URL.revokeObjectURL(url);
 };
 
 class TextureExportPanel extends Panel {
-    constructor(textureManager: TextureManager, args: Record<string, any> = {}) {
+    constructor(textureManager: TextureManager, args: PanelArgs = {}) {
         Object.assign(args, {
             id: 'texture-export-pane',
             headerText: 'Export',
@@ -71,7 +64,7 @@ class TextureExportPanel extends Panel {
         const exportToPng = new Button({
             class: 'inspector-button',
             text: 'EXPORT TO PNG',
-            icon: '\E228',
+            icon: 'E228',
             enabled: false
         });
 
@@ -84,7 +77,7 @@ class TextureExportPanel extends Panel {
         const exportToWebp = new Button({
             class: 'inspector-button',
             text: 'EXPORT TO WEBP',
-            icon: '\E228',
+            icon: 'E228',
             enabled: false
         });
 
@@ -97,7 +90,7 @@ class TextureExportPanel extends Panel {
         const exportToHdr = new Button({
             class: 'inspector-button',
             text: 'EXPORT TO HDR',
-            icon: '\E228',
+            icon: 'E228',
             enabled: false
         });
 
@@ -119,11 +112,16 @@ class TextureExportPanel extends Panel {
                 if (t.cubemap) {
                     const faceNames = ['posx', 'negx', 'posy', 'negy', 'posz', 'negz'];
                     for (let face = 0; face < 6; ++face) {
-                        // eslint-disable-next-line no-await-in-loop
-                        download(`${Helpers.removeExtension(texture.filename)}_${faceNames[face]}.${exporter.extension}`, await exporter.run(readPixels(t, face), t.width, t.height));
+                        download(
+                            `${removeExtension(texture.filename)}_${faceNames[face]}.${exporter.extension}`,
+                            await exporter.run(readPixels(t, face), t.width, t.height)
+                        );
                     }
                 } else {
-                    download(`${Helpers.removeExtension(texture.filename)}.${exporter.extension}`, await exporter.run(readPixels(t, null), t.width, t.height));
+                    download(
+                        `${removeExtension(texture.filename)}.${exporter.extension}`,
+                        await exporter.run(readPixels(t, null), t.width, t.height)
+                    );
                 }
             } finally {
                 this.enabled = true;
@@ -133,52 +131,58 @@ class TextureExportPanel extends Panel {
         const events: EventHandle[] = [];
         textureManager.on('textureDocSelected', (texture: TextureDoc) => {
             // unregister preview events
-            events.forEach(ev => ev.unbind());
+            events.forEach((ev) => ev.unbind());
             events.length = 0;
 
             // register new events
-            events.push(exportToPng.on('click', async () => {
-                exportToPng.dom.classList.add('busy-anim');
-                exportToPng.text = 'BUSY...';
-                try {
-                    await doExport(pngExporter, texture);
-                } catch (err) {
-                    console.error(err);
-                } finally {
-                    exportToPng.dom.classList.remove('busy-anim');
-                    exportToPng.text = 'EXPORT TO PNG';
-                }
-            }));
+            events.push(
+                exportToPng.on('click', async () => {
+                    exportToPng.dom.classList.add('busy-anim');
+                    exportToPng.text = 'BUSY...';
+                    try {
+                        await doExport(pngExporter, texture);
+                    } catch (err) {
+                        console.error(err);
+                    } finally {
+                        exportToPng.dom.classList.remove('busy-anim');
+                        exportToPng.text = 'EXPORT TO PNG';
+                    }
+                })
+            );
 
-            events.push(exportToWebp.on('click', async () => {
-                exportToWebp.dom.classList.add('busy-anim');
-                exportToWebp.text = 'BUSY...';
-                try {
-                    await doExport(webpExporter, texture);
-                } catch (err) {
-                    console.error(err);
-                } finally {
-                    exportToWebp.dom.classList.remove('busy-anim');
-                    exportToWebp.text = 'EXPORT TO WEBP';
-                }
-            }));
+            events.push(
+                exportToWebp.on('click', async () => {
+                    exportToWebp.dom.classList.add('busy-anim');
+                    exportToWebp.text = 'BUSY...';
+                    try {
+                        await doExport(webpExporter, texture);
+                    } catch (err) {
+                        console.error(err);
+                    } finally {
+                        exportToWebp.dom.classList.remove('busy-anim');
+                        exportToWebp.text = 'EXPORT TO WEBP';
+                    }
+                })
+            );
 
-            events.push(exportToHdr.on('click', async () => {
-                exportToHdr.dom.classList.add('busy-anim');
-                exportToHdr.text = 'BUSY...';
-                try {
-                    await doExport(hdrExporter, texture);
-                } catch (err) {
-                    console.error(err);
-                } finally {
-                    exportToHdr.dom.classList.remove('busy-anim');
-                    exportToHdr.text = 'EXPORT TO HDR';
-                }
-            }));
+            events.push(
+                exportToHdr.on('click', async () => {
+                    exportToHdr.dom.classList.add('busy-anim');
+                    exportToHdr.text = 'BUSY...';
+                    try {
+                        await doExport(hdrExporter, texture);
+                    } catch (err) {
+                        console.error(err);
+                    } finally {
+                        exportToHdr.dom.classList.remove('busy-anim');
+                        exportToHdr.text = 'EXPORT TO HDR';
+                    }
+                })
+            );
 
             exportToPng.enabled = !!texture.resource;
             exportToWebp.enabled = !!texture.resource;
-            exportToHdr.enabled = !!(texture.resource && (texture.resource as any).encoding === 'rgbe');
+            exportToHdr.enabled = texture.resource?.encoding === 'rgbe';
 
             this.enabled = !!texture.resource;
         });
@@ -187,6 +191,4 @@ class TextureExportPanel extends Panel {
     }
 }
 
-export {
-    TextureExportPanel
-};
+export { TextureExportPanel };
