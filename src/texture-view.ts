@@ -17,18 +17,19 @@ import {
     ShaderChunks,
     SHADERLANGUAGE_GLSL
 } from 'playcanvas';
+
 import type { RenderCanvas } from './render-canvas';
 import type { TextureDoc } from './texture-doc';
 
-interface TexelCoord {
+type TexelCoord = {
     u: number;
     v: number;
-}
+};
 
-interface PixelCoord {
+type PixelCoord = {
     x: number;
     y: number;
-}
+};
 
 class TextureView {
     canvas: RenderCanvas;
@@ -70,23 +71,15 @@ class TextureView {
         });
         this.composition.push(this.layer);
 
-        (this.canvas as any).composition = this.composition;
+        this.canvas.composition = this.composition;
 
         // root entity
         this.root = new Entity();
 
         // mesh
         const mesh = new Mesh(device);
-        mesh.setPositions([
-            0, 0, 0,
-            1, 0, 0,
-            1, 1, 0,
-            0, 1, 0
-        ]);
-        mesh.setIndices([
-            0, 1, 2,
-            0, 2, 3
-        ]);
+        mesh.setPositions([0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0]);
+        mesh.setIndices([0, 1, 2, 0, 2, 3]);
         mesh.update();
 
         // construct the material
@@ -97,9 +90,7 @@ class TextureView {
         this.render = new Entity();
         this.render.addComponent('render', {
             material: this.material,
-            meshInstances: [
-                this.meshInstance
-            ]
+            meshInstances: [this.meshInstance]
         });
         this.root.addChild(this.render);
 
@@ -124,8 +115,10 @@ class TextureView {
 
         // handle canvas resize
         this.canvas.on('resize', () => {
-            this.setViewport(this.canvas.canvasWidth * window.devicePixelRatio,
-                this.canvas.canvasHeight * window.devicePixelRatio);
+            this.setViewport(
+                this.canvas.canvasWidth * window.devicePixelRatio,
+                this.canvas.canvasHeight * window.devicePixelRatio
+            );
         });
 
         // handle renders
@@ -133,7 +126,9 @@ class TextureView {
             // set filtering
             if (this.texture && this.texture.resource) {
                 this.texture.resource.magFilter = this.filter ? FILTER_LINEAR : FILTER_NEAREST;
-                this.texture.resource.minFilter = this.filter ? FILTER_LINEAR_MIPMAP_LINEAR : FILTER_NEAREST_MIPMAP_LINEAR;
+                this.texture.resource.minFilter = this.filter
+                    ? FILTER_LINEAR_MIPMAP_LINEAR
+                    : FILTER_NEAREST_MIPMAP_LINEAR;
             }
             this.prepare();
         });
@@ -287,12 +282,12 @@ class TextureView {
     // Original shader logic from src/chunks/texture.frag.js, adapted for ShaderMaterial API.
     buildFragmentShader(): string {
         const decodeFunc: Record<string, string> = {
-            'gamma': 'decodeGamma',
-            'linear': 'decodeLinear',
-            'rgbm': 'decodeRGBM',
-            'rgbe': 'decodeRGBE',
-            'rgbp': 'decodeRGBP',
-            'a': 'decodeAlpha'
+            gamma: 'decodeGamma',
+            linear: 'decodeLinear',
+            rgbm: 'decodeRGBM',
+            rgbe: 'decodeRGBE',
+            rgbp: 'decodeRGBP',
+            a: 'decodeAlpha'
         };
 
         const isCubemap = this.texture && this.texture.cubemap;
@@ -321,7 +316,9 @@ uniform vec2 texSize;
 ${isCubemap ? 'uniform samplerCube tex;' : 'uniform sampler2D tex;'}
 ${isCubemap ? 'uniform float face;' : ''}
 
-${isCubemap ? `
+${
+    isCubemap
+        ? `
 vec3 getCubemapUv(vec2 uv, float face) {
     vec2 st = uv * 2.0 - 1.0;
     if (face == 0.0) {
@@ -338,7 +335,9 @@ vec3 getCubemapUv(vec2 uv, float face) {
         return vec3(-st.x, -st.y, -1);
     }
 }
-` : ''}
+`
+        : ''
+}
 
 vec3 encodeGamma(vec3 source) {
     return pow(source, vec3(1.0 / 2.2));
@@ -351,19 +350,25 @@ float tile(vec2 coord, float tileSize) {
 void main() {
     vec2 uv = (gl_FragCoord.xy - offset) / scale / texSize;
 
-    ${isCubemap ?
-        'vec4 raw = textureCubeLod(tex, getCubemapUv(vec2(uv.x, 1.0 - uv.y), face), mipmap);' :
-        'vec4 raw = textureLod(tex, vec2(uv.x, 1.0 - uv.y), mipmap);'}
+    ${
+        isCubemap
+            ? 'vec4 raw = textureCubeLod(tex, getCubemapUv(vec2(uv.x, 1.0 - uv.y), face), mipmap);'
+            : 'vec4 raw = textureLod(tex, vec2(uv.x, 1.0 - uv.y), mipmap);'
+    }
 
     vec3 final = ${decodeFuncName}(raw);
     float alpha = raw.a;
 
     final *= exposure;
 
-    ${this.alpha ? `
+    ${
+        this.alpha
+            ? `
     vec3 tileClr = mix(vec3(0.3), vec3(0.5), tile(gl_FragCoord.xy, 50.0));
     final = mix(tileClr, final, alpha);
-    ` : ''}
+    `
+            : ''
+    }
 
     float oob = any(lessThan(uv, vec2(0.0))) || any(greaterThan(uv, vec2(1.0))) ? 0.0 : 1.0;
     final = mix(vec3(0.15), final, oob);
@@ -401,11 +406,12 @@ void main() {
         this.material.setParameter('offset', [this.offsetX, this.offsetY]);
         this.material.setParameter('scale', this.scale);
         this.material.setParameter('viewportSize', [this.viewportW, this.viewportH]);
-        this.material.setParameter('texSize', this.texture ? [this.texture.width ?? 1, this.texture.height ?? 1] : [1, 1]);
+        this.material.setParameter(
+            'texSize',
+            this.texture ? [this.texture.width ?? 1, this.texture.height ?? 1] : [1, 1]
+        );
         this.material.update();
     }
 }
 
-export {
-    TextureView
-};
+export { TextureView };

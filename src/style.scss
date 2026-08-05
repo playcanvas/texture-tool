@@ -6,11 +6,13 @@
     font-size: 14px;
 }
 
-html, body, #root {
+html,
+body,
+#root {
     height: 100%;
     margin: 0;
     padding: 0;
-    background-color:$bcg-dark;
+    background-color: $bcg-dark;
 }
 
 body {
@@ -218,17 +220,41 @@ body {
     position: absolute;
 }
 
-#cubemap-face-px { top: 32px; left: 64px; }
-#cubemap-face-py { top:  0px; left: 32px; }
-#cubemap-face-pz { top: 32px; left: 32px; }
-#cubemap-face-nx { top: 32px; left:  0px; }
-#cubemap-face-ny { top: 64px; left: 32px; }
-#cubemap-face-nz { top: 32px; left: 96px; }
+#cubemap-face-px {
+    top: 32px;
+    left: 64px;
+}
+#cubemap-face-py {
+    top: 0px;
+    left: 32px;
+}
+#cubemap-face-pz {
+    top: 32px;
+    left: 32px;
+}
+#cubemap-face-nx {
+    top: 32px;
+    left: 0px;
+}
+#cubemap-face-ny {
+    top: 64px;
+    left: 32px;
+}
+#cubemap-face-nz {
+    top: 32px;
+    left: 96px;
+}
 
 @keyframes busy-colors {
-    0% { color: white; }
-    50% { color: rgba(255, 255, 255, 0.2); }
-    100% { color: white; }
+    0% {
+        color: white;
+    }
+    50% {
+        color: rgba(255, 255, 255, 0.2);
+    }
+    100% {
+        color: white;
+    }
 }
 
 .busy-anim {

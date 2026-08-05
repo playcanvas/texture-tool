@@ -1,10 +1,12 @@
-import { Panel, Button, Container, LabelGroup, SelectInput, SliderInput, BooleanInput } from '@playcanvas/pcui';
 import type { EventHandle } from '@playcanvas/observer';
-import type { TextureManager } from './texture-manager';
+import { Panel, Button, Container, LabelGroup, SelectInput, SliderInput, BooleanInput } from '@playcanvas/pcui';
+import type { PanelArgs } from '@playcanvas/pcui';
+
 import type { TextureDoc } from './texture-doc';
+import type { TextureManager } from './texture-manager';
 
 class ShowPanel extends Panel {
-    constructor(textureManager: TextureManager, args: Record<string, any> = {}) {
+    constructor(textureManager: TextureManager, args: PanelArgs = {}) {
         Object.assign(args, {
             id: 'show-panel',
             headerText: 'Show',
@@ -38,14 +40,12 @@ class ShowPanel extends Panel {
         this.append(faceButtonsContainer);
 
         // mipmap select
-        // flexGrow missing from SelectInputArgs (PCUI bug)
         const mipmapSelect = new SelectInput({
             value: '0',
             options: [],
             flexGrow: '1'
-        } as any);
+        });
 
-        // flexGrow missing from SelectInputArgs (PCUI bug)
         const textureTypeSelect = new SelectInput({
             value: 'gamma',
             options: [
@@ -57,7 +57,7 @@ class ShowPanel extends Panel {
                 { v: 'a', t: 'a' }
             ],
             flexGrow: '1'
-        } as any);
+        });
 
         // alpha
         const alphaToggle = new BooleanInput();
@@ -82,7 +82,7 @@ class ShowPanel extends Panel {
         this.append(new LabelGroup({ text: 'exposure', field: exposureSlider }));
 
         const getTextureType = (texture: TextureDoc): string => {
-            const encoding = (texture?.asset?.resource as any)?.encoding || 'gamma';
+            const encoding = texture.resource?.encoding || 'gamma';
             return encoding === 'srgb' ? 'gamma' : encoding;
         };
 
@@ -105,56 +105,80 @@ class ShowPanel extends Panel {
         const events: EventHandle[] = [];
         textureManager.on('textureDocSelected', (texture: TextureDoc) => {
             // unregister preview events
-            events.forEach(ev => ev.unbind());
+            events.forEach((ev) => ev.unbind());
             events.length = 0;
 
             // register change events
-            events.push(texture.settings.on('view.face:set', (value: string) => {
-                Object.keys(faceButtons).forEach((face) => {
-                    if (face === value) {
-                        faceButtons[face].dom.classList.add('depressed');
-                    } else {
-                        faceButtons[face].dom.classList.remove('depressed');
-                    }
-                });
-            }));
-            events.push(texture.settings.on('view.mipmap:set', (value: string) => {
-                mipmapSelect.value = value;
-            }));
-            events.push(texture.settings.on('view.type:set', (value: string) => {
-                textureTypeSelect.value = value;
-            }));
-            events.push(texture.settings.on('view.alpha:set', (value: boolean) => {
-                alphaToggle.value = !!value;
-            }));
-            events.push(texture.settings.on('view.filter:set', (value: boolean) => {
-                filterToggle.value = !!value;
-            }));
-            events.push(texture.settings.on('view.exposure:set', (value: number) => {
-                exposureSlider.value = value;
-            }));
+            events.push(
+                texture.settings.on('view.face:set', (value: string) => {
+                    Object.keys(faceButtons).forEach((face) => {
+                        if (face === value) {
+                            faceButtons[face].dom.classList.add('depressed');
+                        } else {
+                            faceButtons[face].dom.classList.remove('depressed');
+                        }
+                    });
+                })
+            );
+            events.push(
+                texture.settings.on('view.mipmap:set', (value: string) => {
+                    mipmapSelect.value = value;
+                })
+            );
+            events.push(
+                texture.settings.on('view.type:set', (value: string) => {
+                    textureTypeSelect.value = value;
+                })
+            );
+            events.push(
+                texture.settings.on('view.alpha:set', (value: boolean) => {
+                    alphaToggle.value = !!value;
+                })
+            );
+            events.push(
+                texture.settings.on('view.filter:set', (value: boolean) => {
+                    filterToggle.value = !!value;
+                })
+            );
+            events.push(
+                texture.settings.on('view.exposure:set', (value: number) => {
+                    exposureSlider.value = value;
+                })
+            );
 
             // register ui events
             Object.keys(faceButtons).forEach((face) => {
-                events.push(faceButtons[face].on('click', () => {
-                    texture.settings.set('view.face', face);
-                }));
+                events.push(
+                    faceButtons[face].on('click', () => {
+                        texture.settings.set('view.face', face);
+                    })
+                );
             });
-            events.push(mipmapSelect.on('change', () => {
-                texture.settings.set('view.mipmap', mipmapSelect.value);
-            }));
-            events.push(textureTypeSelect.on('change', () => {
-                texture.settings.set('view.type', textureTypeSelect.value);
-            }));
-            events.push(alphaToggle.on('change', () => {
-                texture.settings.set('view.alpha', alphaToggle.value);
-            }));
-            events.push(filterToggle.on('change', () => {
-                texture.settings.set('view.filter', filterToggle.value);
-            }));
-            events.push(exposureSlider.on('change', () => {
-                texture.settings.set('view.exposure', `${exposureSlider.value}`);
-            }));
+            events.push(
+                mipmapSelect.on('change', () => {
+                    texture.settings.set('view.mipmap', mipmapSelect.value);
+                })
+            );
+            events.push(
+                textureTypeSelect.on('change', () => {
+                    texture.settings.set('view.type', textureTypeSelect.value);
+                })
+            );
+            events.push(
+                alphaToggle.on('change', () => {
+                    texture.settings.set('view.alpha', alphaToggle.value);
+                })
+            );
+            events.push(
+                filterToggle.on('change', () => {
+                    texture.settings.set('view.filter', filterToggle.value);
+                })
+            );
+            events.push(
+                exposureSlider.on('change', () => {
+                    texture.settings.set('view.exposure', `${exposureSlider.value}`);
+                })
+            );
 
             // mipmap select
             const numMipmaps = texture.numMipmaps;
@@ -174,6 +198,4 @@ class ShowPanel extends Panel {
     }
 }
 
-export {
-    ShowPanel
-};
+export { ShowPanel };

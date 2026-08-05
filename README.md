@@ -28,16 +28,16 @@ https://playcanvas.com/texture-tool
 
 The texture tool can load the following texture formats:
 
-| Format | Extension |
-|--------|-----------|
-| PNG | `.png` |
-| JPEG | `.jpg`, `.jpeg` |
-| WebP | `.webp` |
-| HDR | `.hdr` |
-| DDS | `.dds` |
-| KTX | `.ktx`, `.ktx2` |
-| Basis | `.basis` |
-| PVR | `.pvr` |
+| Format | Extension       |
+| ------ | --------------- |
+| PNG    | `.png`          |
+| JPEG   | `.jpg`, `.jpeg` |
+| WebP   | `.webp`         |
+| HDR    | `.hdr`          |
+| DDS    | `.dds`          |
+| KTX    | `.ktx`, `.ktx2` |
+| Basis  | `.basis`        |
+| PVR    | `.pvr`          |
 
 ## Viewing Textures
 
@@ -47,10 +47,10 @@ Drag and drop texture files directly into the tool to load them. Multiple textur
 
 Some URL query parameters are available to control the texture tool:
 
-| Parameter | Description | Example |
-|-----------|-------------|---------|
-| `load` | Specify URL to a texture to load | [?load=URL](https://playcanvas.com/texture-tool/?load=https://example.com/texture.png) |
-| `type` | Override the view type (gamma, linear, rgbm, rgbe, rgbp, a) | `?type=gamma` |
+| Parameter | Description                                                 | Example                                                                                |
+| --------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `load`    | Specify URL to a texture to load                            | [?load=URL](https://playcanvas.com/texture-tool/?load=https://example.com/texture.png) |
+| `type`    | Override the view type (gamma, linear, rgbm, rgbe, rgbp, a) | `?type=gamma`                                                                          |
 
 ## How to build
 
@@ -87,11 +87,11 @@ Open a browser and navigate to http://localhost:3000.
 
 The Texture Tool is built on the following open source libraries:
 
-| Library                                                       | Details                              |
-| ------------------------------------------------------------- | ------------------------------------ |
-| [PlayCanvas Engine](https://github.com/playcanvas/engine)     | Texture loading and GPU rendering    |
-| [Observer](https://github.com/playcanvas/playcanvas-observer) | Data binding                         |
-| [PCUI](https://github.com/playcanvas/pcui)                    | Front-end component library          |
+| Library                                                       | Details                           |
+| ------------------------------------------------------------- | --------------------------------- |
+| [PlayCanvas Engine](https://github.com/playcanvas/engine)     | Texture loading and GPU rendering |
+| [Observer](https://github.com/playcanvas/playcanvas-observer) | Data binding                      |
+| [PCUI](https://github.com/playcanvas/pcui)                    | Front-end component library       |
 
 To test the integration of these libraries use [npm link](https://docs.npmjs.com/cli/v9/commands/npm-link). Follow these steps:
 

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const isDir = src => fs.lstatSync(src).isDirectory();
+const isDir = (src) => fs.lstatSync(src).isDirectory();
 
 /**
  * Copy files and directories to the output directory and watch for changes.

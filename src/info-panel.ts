@@ -1,8 +1,9 @@
 import { Panel, Label } from '@playcanvas/pcui';
+import type { PanelArgs } from '@playcanvas/pcui';
 
 import { PixelFormatTable, TextureTypeTable } from './const';
-import type { TextureManager } from './texture-manager';
 import type { TextureDoc } from './texture-doc';
+import type { TextureManager } from './texture-manager';
 
 class InfoPanel extends Panel {
     textureStructure: Label;
@@ -11,7 +12,7 @@ class InfoPanel extends Panel {
     textureType: Label;
     cursorTexel: Label;
 
-    constructor(textureManager: TextureManager, args: Record<string, any> = {}) {
+    constructor(textureManager: TextureManager, args: PanelArgs = {}) {
         Object.assign(args, {
             headerText: '-',
             flexGrow: '0',
@@ -84,6 +85,4 @@ class InfoPanel extends Panel {
     }
 }
 
-export {
-    InfoPanel
-};
+export { InfoPanel };

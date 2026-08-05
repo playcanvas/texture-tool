@@ -1,5 +1,5 @@
-import { basisInitialize, Application, LayerComposition } from 'playcanvas';
-import type { CameraComponent, Layer } from 'playcanvas';
+import { basisInitialize, Application } from 'playcanvas';
+import type { CameraComponent, Layer, LayerComposition, TextureHandler } from 'playcanvas';
 
 // initialize basis
 const getAssetPath = (assetPath: string): string => {
@@ -30,7 +30,7 @@ class Renderer {
             }
         });
 
-        (this._app.loader.getHandler('texture') as any).imgParser.crossOrigin = 'anonymous';
+        (this._app.loader.getHandler('texture') as TextureHandler).crossOrigin = 'anonymous';
 
         // taken from Application.start()
         this._app.systems.fire('initialize', this._app.root);
@@ -45,8 +45,7 @@ class Renderer {
 
     render(canvas: HTMLCanvasElement, composition?: LayerComposition): void {
         // ensure back buffer is large enough
-        if (canvas.width > this._canvas.width ||
-            canvas.height > this._canvas.height) {
+        if (canvas.width > this._canvas.width || canvas.height > this._canvas.height) {
             this._canvas.width = Math.max(this._canvas.width, canvas.width);
             this._canvas.height = Math.max(this._canvas.height, canvas.height);
         }
@@ -87,10 +86,18 @@ class Renderer {
         // copy the result to the target canvas
         const context = canvas.getContext('2d')!;
         context.globalCompositeOperation = 'copy';
-        context.drawImage(this._canvas, 0, this._canvas.height - canvas.height, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+        context.drawImage(
+            this._canvas,
+            0,
+            this._canvas.height - canvas.height,
+            canvas.width,
+            canvas.height,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
     }
 }
 
-export {
-    Renderer
-};
+export { Renderer };

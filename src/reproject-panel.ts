@@ -1,19 +1,31 @@
-import { Button, Panel, Container, SelectInput, LabelGroup, NumericInput } from '@playcanvas/pcui';
-import {
-    Texture, Asset, reprojectTexture,
-    PIXELFORMAT_R8_G8_B8_A8, PIXELFORMAT_RGBA16F, PIXELFORMAT_RGBA32F,
-    TEXTURETYPE_DEFAULT, TEXTURETYPE_RGBM, TEXTURETYPE_RGBE, TEXTURETYPE_RGBP,
-    FILTER_NEAREST, FILTER_LINEAR, FILTER_LINEAR_MIPMAP_LINEAR,
-    ADDRESS_REPEAT, ADDRESS_CLAMP_TO_EDGE, EnvLighting
-} from 'playcanvas';
 import type { EventHandle } from '@playcanvas/observer';
+import { Button, Panel, Container, SelectInput, LabelGroup, NumericInput } from '@playcanvas/pcui';
+import type { PanelArgs } from '@playcanvas/pcui';
+import {
+    Texture,
+    Asset,
+    reprojectTexture,
+    PIXELFORMAT_R8_G8_B8_A8,
+    PIXELFORMAT_RGBA16F,
+    PIXELFORMAT_RGBA32F,
+    TEXTURETYPE_DEFAULT,
+    TEXTURETYPE_RGBM,
+    TEXTURETYPE_RGBE,
+    TEXTURETYPE_RGBP,
+    FILTER_NEAREST,
+    FILTER_LINEAR,
+    FILTER_LINEAR_MIPMAP_LINEAR,
+    ADDRESS_REPEAT,
+    ADDRESS_CLAMP_TO_EDGE,
+    EnvLighting
+} from 'playcanvas';
 
-import { Helpers } from './helpers';
+import { removeExtension } from './helpers';
 import { TextureDoc } from './texture-doc';
 import type { TextureManager } from './texture-manager';
 
 class ReprojectPanel extends Panel {
-    constructor(textureManager: TextureManager, args: Record<string, any> = {}) {
+    constructor(textureManager: TextureManager, args: PanelArgs = {}) {
         Object.assign(args, {
             id: 'texture-reproject-pane',
             headerText: 'Reproject',
@@ -52,9 +64,7 @@ class ReprojectPanel extends Panel {
             srgb: '4'
         };
 
-        const sourceCubemapProjections = [
-            { v: '0', t: 'cube' }
-        ];
+        const sourceCubemapProjections = [{ v: '0', t: 'cube' }];
 
         const sourceTextureProjections = [
             { v: '1', t: 'equirect' },
@@ -133,7 +143,7 @@ class ReprojectPanel extends Panel {
         const events: EventHandle[] = [];
         textureManager.on('textureDocSelected', (texture: TextureDoc) => {
             // unregister preview events
-            events.forEach(ev => ev.unbind());
+            events.forEach((ev) => ev.unbind());
             events.length = 0;
 
             const t = texture.resource;
@@ -166,13 +176,13 @@ class ReprojectPanel extends Panel {
             };
 
             source.options = t.cubemap ? sourceCubemapProjections : sourceTextureProjections;
-            source.value = t.cubemap ? pindices.cube : pindices[(t as any).projection] || pindices.equirect;
+            source.value = t.cubemap ? pindices.cube : pindices[t.projection] || pindices.equirect;
 
             target.options = targetProjections;
             target.value = t.cubemap ? pindices.equirect : pindices.cube;
             target.on('change', onTargetProjectionChanged);
 
-            encoding.value = eindices[(t as any).encoding] || '0';
+            encoding.value = eindices[t.encoding] || '0';
 
             width.value = t.width;
             width.on('change', () => {
@@ -183,104 +193,118 @@ class ReprojectPanel extends Panel {
             onTargetProjectionChanged();
 
             // register new events
-            events.push(reprojectButton.on('click', () => {
-                const sourceProjection = projections[source.value];
-                const targetProjection = projections[target.value];
-                const targetEncoding = encodings[encoding.value];
+            events.push(
+                reprojectButton.on('click', () => {
+                    const sourceProjection = projections[source.value];
+                    const targetProjection = projections[target.value];
+                    const targetEncoding = encodings[encoding.value];
 
-                const format: Record<string, number> = {
-                    'rgbm': PIXELFORMAT_R8_G8_B8_A8,
-                    'rgbe': PIXELFORMAT_R8_G8_B8_A8,
-                    'rgbp': PIXELFORMAT_R8_G8_B8_A8,
-                    'linear': PIXELFORMAT_RGBA16F,
-                    'srgb': PIXELFORMAT_R8_G8_B8_A8
-                };
+                    const format: Record<string, number> = {
+                        rgbm: PIXELFORMAT_R8_G8_B8_A8,
+                        rgbe: PIXELFORMAT_R8_G8_B8_A8,
+                        rgbp: PIXELFORMAT_R8_G8_B8_A8,
+                        linear: PIXELFORMAT_RGBA16F,
+                        srgb: PIXELFORMAT_R8_G8_B8_A8
+                    };
 
-                const typeMap: Record<string, string> = {
-                    'rgbm': 'rgbm',
-                    'rgbe': 'rgbe',
-                    'rgbp': 'rgbp',
-                    'linear': 'default',
-                    'srgb': 'default'
-                };
+                    const typeMap: Record<string, string> = {
+                        rgbm: 'rgbm',
+                        rgbe: 'rgbe',
+                        rgbp: 'rgbp',
+                        linear: 'default',
+                        srgb: 'default'
+                    };
 
-                // create target texture
-                const targetTexture = new Texture(t.device, {
-                    cubemap: targetProjection === 'cube',
-                    width: width.value as number,
-                    height: height.value as number,
-                    format: format[targetEncoding],
-                    type: typeMap[targetEncoding] as any,
-                    mipmaps: false,
-                    projection: targetProjection as any,
-                    anisotropy: t.device.maxAnisotropy
-                });
-
-                // reprojectTexture function uses the texture's own setup so apply view settings to the texture
-                (t as any).projection = sourceProjection;
-                t.magFilter = (t as any).encoding === 'rgbe' ? FILTER_NEAREST : FILTER_LINEAR;
-                t.minFilter = (t as any).encoding === 'rgbe' ? FILTER_NEAREST : FILTER_LINEAR_MIPMAP_LINEAR;
-                t.addressU = ADDRESS_REPEAT;
-                t.addressV = sourceProjection === 'equirect' ? ADDRESS_CLAMP_TO_EDGE : ADDRESS_REPEAT;
-                switch (texture.settings.get('view.type')) {
-                    case 'rgbm': t.type = TEXTURETYPE_RGBM; break;
-                    case 'rgbe': t.type = TEXTURETYPE_RGBE; break;
-                    case 'rgbp': t.type = TEXTURETYPE_RGBP; break;
-                    default: t.type = TEXTURETYPE_DEFAULT; break;
-                }
-                t.anisotropy = t.device.maxAnisotropy;
-
-                // check if dimensions and projection are the same
-                const sameProjection = sourceProjection === targetProjection;
-                const sameDims = width.value === t.width && height.value === t.height;
-
-                // check if source texture is capable of reprojection as-is
-                if (sameProjection && (sameDims || ((t as any).encoding !== 'rgbe' && t.mipmaps && (t as any)._levels.length > 1))) {
-                    reprojectTexture(t, targetTexture, { numSamples: 1 });
-                } else {
-                    const tmp = new Texture(t.device, {
-                        cubemap: sourceProjection === 'cube',
-                        width: t.width,
-                        height: t.height,
-                        format: PIXELFORMAT_RGBA32F,
-                        type: TEXTURETYPE_DEFAULT,
-                        projection: sourceProjection as any,
-                        addressU: ADDRESS_REPEAT,
-                        addressV: sourceProjection === 'equirect' ? ADDRESS_CLAMP_TO_EDGE : ADDRESS_REPEAT,
-                        mipmaps: true,
+                    // create target texture
+                    const targetTexture = new Texture(t.device, {
+                        cubemap: targetProjection === 'cube',
+                        width: width.value as number,
+                        height: height.value as number,
+                        format: format[targetEncoding],
+                        type: typeMap[targetEncoding],
+                        mipmaps: false,
+                        projection: targetProjection,
                         anisotropy: t.device.maxAnisotropy
                     });
 
-                    reprojectTexture(t, tmp, { numSamples: 1 });
-
-                    if (targetProjection === 'envAtlas') {
-                        const lighting = EnvLighting.generateLightingSource(tmp, {
-                            size: 256
-                        });
-                        lighting.anisotropy = t.device.maxAnisotropy;
-                        EnvLighting.generateAtlas(lighting, {
-                            target: targetTexture
-                        });
-                        lighting.destroy();
-                    } else {
-                        reprojectTexture(tmp, targetTexture, { numSamples: 1 });
+                    // reprojectTexture function uses the texture's own setup so apply view settings to the texture
+                    t.projection = sourceProjection;
+                    t.magFilter = t.encoding === 'rgbe' ? FILTER_NEAREST : FILTER_LINEAR;
+                    t.minFilter = t.encoding === 'rgbe' ? FILTER_NEAREST : FILTER_LINEAR_MIPMAP_LINEAR;
+                    t.addressU = ADDRESS_REPEAT;
+                    t.addressV = sourceProjection === 'equirect' ? ADDRESS_CLAMP_TO_EDGE : ADDRESS_REPEAT;
+                    switch (texture.settings.get('view.type')) {
+                        case 'rgbm':
+                            t.type = TEXTURETYPE_RGBM;
+                            break;
+                        case 'rgbe':
+                            t.type = TEXTURETYPE_RGBE;
+                            break;
+                        case 'rgbp':
+                            t.type = TEXTURETYPE_RGBP;
+                            break;
+                        default:
+                            t.type = TEXTURETYPE_DEFAULT;
+                            break;
                     }
-                    tmp.destroy();
-                }
+                    t.anisotropy = t.device.maxAnisotropy;
 
-                const asset = new Asset(`${Helpers.removeExtension(texture.asset!.name)}-${targetProjection}`, targetProjection === 'cube' ? 'cubemap' : 'texture', {
-                    filename: `${Helpers.removeExtension(texture.filename)}-${targetProjection}`,
-                    url: ''
-                });
-                asset.resource = targetTexture;
-                asset.loaded = true;
+                    // check if dimensions and projection are the same
+                    const sameProjection = sourceProjection === targetProjection;
+                    const sameDims = width.value === t.width && height.value === t.height;
 
-                // create the new texture document
-                const textureDoc = new TextureDoc(asset);
-                textureManager.assets.add(asset);
-                textureManager.addTextureDoc(textureDoc);
-                textureManager.selectTextureDoc(textureDoc);
-            }));
+                    // check if source texture is capable of reprojection as-is
+                    if (sameProjection && (sameDims || (t.encoding !== 'rgbe' && t.mipmaps && t._levels.length > 1))) {
+                        reprojectTexture(t, targetTexture, { numSamples: 1 });
+                    } else {
+                        const tmp = new Texture(t.device, {
+                            cubemap: sourceProjection === 'cube',
+                            width: t.width,
+                            height: t.height,
+                            format: PIXELFORMAT_RGBA32F,
+                            type: TEXTURETYPE_DEFAULT,
+                            projection: sourceProjection,
+                            addressU: ADDRESS_REPEAT,
+                            addressV: sourceProjection === 'equirect' ? ADDRESS_CLAMP_TO_EDGE : ADDRESS_REPEAT,
+                            mipmaps: true,
+                            anisotropy: t.device.maxAnisotropy
+                        });
+
+                        reprojectTexture(t, tmp, { numSamples: 1 });
+
+                        if (targetProjection === 'envAtlas') {
+                            const lighting = EnvLighting.generateLightingSource(tmp, {
+                                size: 256
+                            });
+                            lighting.anisotropy = t.device.maxAnisotropy;
+                            EnvLighting.generateAtlas(lighting, {
+                                target: targetTexture
+                            });
+                            lighting.destroy();
+                        } else {
+                            reprojectTexture(tmp, targetTexture, { numSamples: 1 });
+                        }
+                        tmp.destroy();
+                    }
+
+                    const asset = new Asset(
+                        `${removeExtension(texture.asset!.name)}-${targetProjection}`,
+                        targetProjection === 'cube' ? 'cubemap' : 'texture',
+                        {
+                            filename: `${removeExtension(texture.filename)}-${targetProjection}`,
+                            url: ''
+                        }
+                    );
+                    asset.resource = targetTexture;
+                    asset.loaded = true;
+
+                    // create the new texture document
+                    const textureDoc = new TextureDoc(asset);
+                    textureManager.assets.add(asset);
+                    textureManager.addTextureDoc(textureDoc);
+                    textureManager.selectTextureDoc(textureDoc);
+                })
+            );
 
             this.enabled = true;
         });
@@ -289,6 +313,4 @@ class ReprojectPanel extends Panel {
     }
 }
 
-export {
-    ReprojectPanel
-};
+export { ReprojectPanel };

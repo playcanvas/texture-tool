@@ -13,11 +13,7 @@ class HdrExporter {
         return result;
     }
 
-    get extension(): string {
-        return 'hdr';
-    }
+    readonly extension = 'hdr';
 }
 
-export {
-    HdrExporter
-};
+export { HdrExporter };

@@ -1,10 +1,10 @@
 import { Observer } from '@playcanvas/observer';
 import type { Asset, Texture } from 'playcanvas';
 
-interface AssetFile {
+type AssetFile = {
     filename: string;
     url: string;
-}
+};
 
 class TextureDoc {
     asset: Asset | null;
@@ -26,7 +26,7 @@ class TextureDoc {
     }
 
     get resource(): Texture | null {
-        return this.asset ? this.asset.resource as Texture : null;
+        return this.asset ? (this.asset.resource as Texture) : null;
     }
 
     get id(): number {
@@ -57,8 +57,8 @@ class TextureDoc {
         return this.resource ? this.resource.cubemap : null;
     }
 
-    get levels(): any[] | null {
-        return this.resource ? (this.resource as any)._levels : null;
+    get levels(): Texture['_levels'] | null {
+        return this.resource?._levels || null;
     }
 
     get numMipmaps(): number {
@@ -66,6 +66,4 @@ class TextureDoc {
     }
 }
 
-export {
-    TextureDoc
-};
+export { TextureDoc };

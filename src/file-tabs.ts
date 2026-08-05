@@ -1,12 +1,14 @@
 import { Container, Label } from '@playcanvas/pcui';
-import type { TextureManager } from './texture-manager';
+import type { ContainerArgs } from '@playcanvas/pcui';
+
 import type { TextureDoc } from './texture-doc';
+import type { TextureManager } from './texture-manager';
 
 class FileTabs extends Container {
     textureManager: TextureManager;
     buttons: Map<TextureDoc, Container>;
 
-    constructor(textureManager: TextureManager, args: Record<string, any> = {}) {
+    constructor(textureManager: TextureManager, args: ContainerArgs = {}) {
         Object.assign(args, {
             id: 'file-tabs-container',
             flex: true,
@@ -74,6 +76,4 @@ class FileTabs extends Container {
     }
 }
 
-export {
-    FileTabs
-};
+export { FileTabs };

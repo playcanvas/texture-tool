@@ -1,4 +1,5 @@
 import { Container } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
 
 import { TextureExportPanel } from './export-panel';
 import { FeedbackPanel } from './feedback-panel';
@@ -7,7 +8,7 @@ import { ShowPanel } from './show-panel';
 import type { TextureManager } from './texture-manager';
 
 class InspectorPanel extends Container {
-    constructor(textureManager: TextureManager, args: Record<string, any> = {}) {
+    constructor(textureManager: TextureManager, args: ContainerArgs = {}) {
         Object.assign(args, {
             class: 'inspector-panel-container',
             resizable: 'left',
@@ -26,6 +27,4 @@ class InspectorPanel extends Container {
     }
 }
 
-export {
-    InspectorPanel
-};
+export { InspectorPanel };
