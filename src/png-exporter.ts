@@ -131,7 +131,9 @@ class PngExporter {
     }
 
     static createWorker(): Worker {
-        const workerBlob = new Blob([`(${PngExportWorker.toString()})('${window.location.href.split('?')[0]}')\n\n`], {
+        // pass the page directory as a quoted string literal, without the query or hash
+        const href = JSON.stringify(`${window.location.origin}${window.location.pathname}`);
+        const workerBlob = new Blob([`(${PngExportWorker.toString()})(${href})\n\n`], {
             type: 'application/javascript'
         });
         const url = URL.createObjectURL(workerBlob);
